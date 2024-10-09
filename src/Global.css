@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind utilities;
+@tailwind components;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}	
+
+/* styles.css */
+.handle {
+  width: 0.60rem; /* w-3 */
+  height: 0.60rem; /* h-3 */
+  border-width: 2px; /* border-2 */
+  background-color: #081653; /* bg-blue-400/80 */
+}
+.handle:hover {
+  width: 0.80rem; /* w-3 */
+  height: 0.80rem; /* h-3 */
+  background-color: #081653; /* bg-blue-400 */
+}
+
+/* Estilos específicos para cada posição */
+.handle-right {
+  position: absolute; /* Ensure positioning is absolute */
+  right: -0.5rem; /* -right-2 */
+}
+
+.handle-left {
+  position: absolute; /* Ensure positioning is absolute */
+  left: -0.5rem; /* -left-2 */
+}
+
+.handle-top {
+  position: absolute; /* Ensure positioning is absolute */
+  top: -0.5rem; /* -top-2 */
+}
+
+.handle-bottom {
+  position: absolute; /* Ensure positioning is absolute */
+  bottom: -0.5rem; /* -bottom-2 */
+}
