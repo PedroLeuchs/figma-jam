@@ -1,4 +1,4 @@
-import { ReactFlowProvider } from 'reactflow';
+import { ReactFlowProvider } from '@xyflow/react';
 import { DnDFlow } from '../layoutFluxogram/LayoutFluxogram';
 import { DnDProvider } from '../sideBar/DndContext';
 // import FluxogramList from '../fluxogramList/FluxogramList';
