@@ -1,7 +1,21 @@
-import { useCallback, useRef, useState } from 'react';
-import { ReactFlow, Background, Controls, Node, ConnectionMode, useEdgesState, Connection, addEdge, useNodesState, Edge } from '@xyflow/react';
+/* eslint-disable react-refresh/only-export-components */
+import { useCallback, useRef } from 'react';
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  Node,
+  ConnectionMode,
+  useEdgesState,
+  Connection,
+  addEdge,
+  useNodesState,
+  Edge,
+  BackgroundVariant,
+  ReactFlowProvider,
+  useReactFlow,
+} from '@xyflow/react';
 import { DnDProvider, useDnD } from '../sideBar/DndContext';
-import { BackgroundVariant } from 'reactflow';
 import '@xyflow/react/dist/style.css';
 import { zinc } from 'tailwindcss/colors';
 import { Square } from '../nodes/Square';
@@ -151,52 +165,163 @@ const getId = () => `${nodeId++}`;
 
 // Criar 5 quadrados interligados
 const INITIAL_NODES: Node[] = [
-  { id: getId(), type: 'triangle', position: { x: 700, y: 50 }, data: { label: 'Start', color: 'bg-gray-500', direction: 'down' } },
-  { id: getId(), type: 'circle', position: { x: 699, y: 200 }, data: { label: MACHINES[0].label, machine: MACHINES } },
-  { id: getId(), type: 'square', position: { x: 650, y: 350 }, data: { label: EQUIPAMENT[0].label, ingredients: EQUIPAMENT } },
-  { id: getId(), type: 'square', position: { x: 525, y: 500 }, data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT } },
-  { id: getId(), type: 'square', position: { x: 775, y: 500 }, data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT } },
-  { id: getId(), type: 'square', position: { x: 650, y: 650 }, data: { label: EQUIPAMENT[10].label, machine: MACHINES } },
-  { id: getId(), type: 'circle', position: { x: 1200, y: 200 }, data: { label: MACHINES[1].label, machine: MACHINES } },
-  { id: getId(), type: 'triangle', position: { x: 1200, y: 350 }, data: { label: 'End', direction: 'up' } },
-  
+  {
+    id: getId(),
+    type: 'triangle',
+    position: { x: 700, y: 50 },
+    data: { label: 'Start', color: 'bg-gray-500', direction: 'down' },
+  },
+  {
+    id: getId(),
+    type: 'circle',
+    position: { x: 699, y: 200 },
+    data: { label: MACHINES[0].label, machine: MACHINES },
+  },
+  {
+    id: getId(),
+    type: 'square',
+    position: { x: 650, y: 350 },
+    data: { label: EQUIPAMENT[0].label, ingredients: EQUIPAMENT },
+  },
+  {
+    id: getId(),
+    type: 'square',
+    position: { x: 525, y: 500 },
+    data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
+  },
+  {
+    id: getId(),
+    type: 'square',
+    position: { x: 775, y: 500 },
+    data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
+  },
+  {
+    id: getId(),
+    type: 'square',
+    position: { x: 650, y: 650 },
+    data: { label: EQUIPAMENT[10].label, machine: MACHINES },
+  },
+  {
+    id: getId(),
+    type: 'circle',
+    position: { x: 1200, y: 200 },
+    data: { label: MACHINES[1].label, machine: MACHINES },
+  },
+  {
+    id: getId(),
+    type: 'triangle',
+    position: { x: 1200, y: 350 },
+    data: { label: 'End', direction: 'up' },
+  },
 ];
 
 const INITIAL_EDGES: Edge[] = [
-  
-  { id: 'e1-2', source: '1', target: '2', sourceHandle: 'bottom', targetHandle: 'top', type: 'default', selected: false },
-  { id: 'e2-3', source: '2', target: '3', sourceHandle: 'bottom', targetHandle: 'top', type: 'default', selected: false },
-  { id: 'e3-4', source: '3', animated: true, target: '4', sourceHandle: 'bottom', targetHandle: 'top', type: 'default', selected: false },
-  { id: 'e3-5', source: '3', animated: true, target: '5', sourceHandle: 'bottom', targetHandle: 'top', type: 'default', selected: false },
-  { id: 'e4-6', source: '4', target: '6', sourceHandle: 'bottom', targetHandle: 'top', type: 'default', selected: false },
-  { id: 'e5-6', source: '5', target: '6', sourceHandle: 'bottom', targetHandle: 'top', type: 'default', selected: false },
-  { id: 'e6-7', source: '6', target: '7', sourceHandle: 'bottom', targetHandle: 'top', type: 'default', selected: false },
-  { id: 'e7-8', source: '7', target: '8', sourceHandle: 'bottom', targetHandle: 'top', type: 'default', selected: false },
-  
+  {
+    id: 'e1-2',
+    source: '1',
+    target: '2',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
+  {
+    id: 'e2-3',
+    source: '2',
+    target: '3',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
+  {
+    id: 'e3-4',
+    source: '3',
+    animated: true,
+    target: '4',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
+  {
+    id: 'e3-5',
+    source: '3',
+    animated: true,
+    target: '5',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
+  {
+    id: 'e4-6',
+    source: '4',
+    target: '6',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
+  {
+    id: 'e5-6',
+    source: '5',
+    target: '6',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
+  {
+    id: 'e6-7',
+    source: '6',
+    target: '7',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
+  {
+    id: 'e7-8',
+    source: '7',
+    target: '8',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
 ];
 
-function LayoutFluxogram() {
+function DnDFlow() {
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
   const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES); // Arestas iniciais
   const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES); // Nós iniciais
   const [type, setType] = useDnD();
-  const [zoomScreen, setZoomScreen] = useState(1);
+  const { screenToFlowPosition } = useReactFlow();
 
-  const onConnect = useCallback((connection: Connection) => {
-    const sourceNode = nodes.find((node) => node.id === connection.source);
-    const targetNode = nodes.find((node) => node.id === connection.target);
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      const sourceNode = nodes.find((node) => node.id === connection.source);
+      const targetNode = nodes.find((node) => node.id === connection.target);
 
-    if (sourceNode?.type === 'square' && targetNode?.type === 'circle' || sourceNode?.type === 'circle' && targetNode?.type === 'square') {
-      setEdges((edges) => addEdge(connection, edges));
-    }
-    else{
-      setEdges((edges) => addEdge(connection, edges));
-    }
-  }, [nodes, setEdges]);
+      if (
+        (sourceNode?.type === 'square' && targetNode?.type === 'circle') ||
+        (sourceNode?.type === 'circle' && targetNode?.type === 'square')
+      ) {
+        setEdges((edges) => addEdge(connection, edges));
+      } else {
+        setEdges((edges) => addEdge(connection, edges));
+      }
+    },
+    [nodes, setEdges]
+  );
 
-  const onDragStart = (event: React.DragEvent<HTMLButtonElement>, nodeType: string) => {
+  const onDragStart = (
+    event: React.DragEvent<HTMLButtonElement>,
+    nodeType: string
+  ) => {
     setType(nodeType);
-    event.dataTransfer.setData('application/reactflow', nodeType); 
+    event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
   };
 
@@ -206,85 +331,97 @@ function LayoutFluxogram() {
   }, []);
 
   const removeMarcaDagua = () => {
-    const reactIconFlow = document.getElementsByClassName('react-flow__panel react-flow__attribution bottom right');
-    if(reactIconFlow.length > 0){
+    const reactIconFlow = document.getElementsByClassName(
+      'react-flow__panel react-flow__attribution bottom right'
+    );
+    if (reactIconFlow.length > 0) {
       reactIconFlow[0].classList.add('hidden');
     }
-  }
+  };
 
   removeMarcaDagua();
 
-  const onDrop = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-    const type = event.dataTransfer.getData('application/reactflow'); 
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
 
-    if (!type || !reactFlowBounds) return;
-    
-    const rightPosition = 50 * zoomScreen
-    const multipleCount = 1 / zoomScreen;
+      if (!type) {
+        return;
+      }
 
-    const position = {
-        x: (event.clientX - reactFlowBounds.x - rightPosition) * multipleCount  ,
-        y: (event.clientY -  reactFlowBounds.y -rightPosition) * multipleCount  ,
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
 
+        // zoom : 0.5 = (cx - rx - 25) * 2
+        // zoom : 1 = (cx - rx - 50) * 1
+        // zoom : 2 = (cx - rx - 100) * 0.5
+        //
+      });
 
-        // zoom : 0.5 = (cx - rx - 25) * 2 
-        // zoom : 1 = (cx - rx - 50) * 1 
-        // zoom : 2 = (cx - rx - 100) * 0.5 
-        // 
-
-
-    };
-    
-  
-    const newNode = {
+      const newNode = {
         id: getId(),
         type,
         position,
-        data: { label: type === 'circle' ? 'Novo Silo' : 'Novo Equipamento',  ingredients: type === 'circle' ? null : EQUIPAMENT, machine: type === 'circle' ? MACHINES : null  },
-    };
-    
-    setNodes((nds) => nds.concat(newNode));
-}, [setNodes, zoomScreen]);
+        data: {
+          label: type === 'circle' ? 'Novo Silo' : 'Novo Equipamento',
+          ingredients: type === 'circle' ? null : EQUIPAMENT,
+          machine: type === 'circle' ? MACHINES : null,
+        },
+      };
 
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [screenToFlowPosition, type]
+  );
 
   return (
-    // <div className="w-[80vw] h-[80vh]">
-    <div className="w-screen h-screen">
-      <DnDProvider>
-        <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodeTypes={NODE_TYPES}
-            edgeTypes={EDGE_TYPES}
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            connectionMode={ConnectionMode.Loose}
-            defaultEdgeOptions={{ type: 'default' }}
-            defaultViewport={{x: 0, y: 0, zoom: zoomScreen}}
-            onMove={(event, transform) => {
-                setZoomScreen(transform.zoom)
-              }}
-          >
-            <Background variant={BackgroundVariant.Lines} size={2} gap={30} color={zinc[100]} />
-            <Controls  />
-          </ReactFlow>
-        </div>
-      </DnDProvider>
+    <div className="w-[80vw] h-[80vh] dndflow">
+      {/* <div className="w-screen h-screen dndflow"> */}
+      {/* <DnDProvider> */}
+      <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
+        <ReactFlow
+          nodeTypes={NODE_TYPES}
+          edgeTypes={EDGE_TYPES}
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          connectionMode={ConnectionMode.Loose}
+          defaultEdgeOptions={{ type: 'default' }}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+        >
+          <Background
+            variant={BackgroundVariant.Lines}
+            size={2}
+            gap={30}
+            color={zinc[100]}
+          />
+          <Controls />
+        </ReactFlow>
+      </div>
+      {/* </DnDProvider> */}
 
-      <SideBar edges={edges} setEdges={setEdges} ingredients={VALUESSIDEBAR} onDragStart={onDragStart} />
+      <SideBar
+        edges={edges}
+        setEdges={setEdges}
+        ingredients={VALUESSIDEBAR}
+        onDragStart={onDragStart}
+      />
     </div>
   );
 }
 
-export default LayoutFluxogram;
-
-
+export default () => (
+  <ReactFlowProvider>
+    <DnDProvider>
+      <DnDFlow />
+    </DnDProvider>
+  </ReactFlowProvider>
+);
 
 /**
  * Instalações necessárias:
@@ -298,14 +435,13 @@ export default LayoutFluxogram;
  * npm i react-icons
  */
 
-
 /**
  *To-Do:
  * Adicionar funcionalidades do modal no circulo
  * Criar componente para inicio e fim de um fluxograma
- * ideia de um componente para ligações paralelas 
- * dia 09/10 começar a fazer a criação de uma receita 
+ * ideia de um componente para ligações paralelas
+ * dia 09/10 começar a fazer a criação de uma receita
  * exibir receita em uma faze de execução
- * 
- * 
+ *
+ *
  */
