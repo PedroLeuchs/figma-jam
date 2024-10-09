@@ -17,7 +17,7 @@ export const Circle: FC<CircleProps> = ({
   fontColor = 'text-black',
 }) => {
   const { machine = [] } = data as { machine: { id: string; label: string }[] };
-
+  
   const [currentColor, setCurrentColor] = useState(color);
   const [currentFontColor, setCurrentFontColor] = useState(fontColor);
   const [textareaValue, setTextareaValue] = useState(data?.label || 'Escreva aqui');

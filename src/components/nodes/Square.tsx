@@ -3,7 +3,7 @@ import { NodeProps, Handle, Position, NodeResizer } from '@xyflow/react';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
 import SelectComponent from '../select/Select';
-import {Modal} from '../modal/Modal';
+import { Modal } from '../modal/Modal';
 
 interface SquareProps extends NodeProps {
   color?: string;
@@ -16,12 +16,18 @@ export const Square: FC<SquareProps> = ({
   color = 'bg-white',
   fontColor = 'text-black',
 }) => {
-  const { ingredients = [] } = data as { ingredients: { id: string; label: string }[] };
-  
+  const { ingredients = [] } = data as {
+    ingredients: { id: string; label: string }[];
+  };
+
   const [currentColor, setCurrentColor] = useState(color);
   const [currentFontColor, setCurrentFontColor] = useState(fontColor);
-  const [textareaValue, setTextareaValue] = useState(data?.label || 'Escreva aqui');
-  const [tempTextareaValue, setTempTextareaValue] = useState(data?.label || 'Escreva aqui');
+  const [textareaValue, setTextareaValue] = useState(
+    data?.label || 'Escreva aqui'
+  );
+  const [tempTextareaValue, setTempTextareaValue] = useState(
+    data?.label || 'Escreva aqui'
+  );
   const [textValue, setTextValue] = useState('');
   const [tempTextValue, setTempTextValue] = useState('');
   const [tempColor, setTempColor] = useState(color);
@@ -31,16 +37,16 @@ export const Square: FC<SquareProps> = ({
   const handleColorChange = (color: string) => {
     setTempColor(color); // Atualiza a cor temporariamente
   };
-  
+
   const handleFontColorChange = (color: string) => {
     setTempFontColor(color); // Atualiza a cor da fonte temporariamente
   };
-  
+
   const handleIngredientSelect = (ingredient: string) => {
     setTempTextareaValue(ingredient);
   };
   const handleSave = () => {
-    setTextValue(tempTextValue); 
+    setTextValue(tempTextValue);
     setCurrentColor(tempColor);
     setCurrentFontColor(tempFontColor);
     setTextareaValue(tempTextareaValue);
@@ -52,14 +58,13 @@ export const Square: FC<SquareProps> = ({
     setTextareaValue(data?.label || 'Escreva aqui');
   };
 
-
-  
-
   return (
     <div
       onMouseEnter={() => setShowOnMouseEnter(true)}
       onMouseLeave={() => setShowOnMouseEnter(false)}
-      className={`${currentColor} rounded w-full h-full min-w-[200px] min-h-[50px] flex flex-col items-center ${textValue ? "justify-start" : "justify-center"}  shadow-lg shadow-black/30 border border-gray-500`}
+      className={`${currentColor} rounded w-full h-full min-w-[200px] min-h-[50px] flex flex-col items-center ${
+        textValue ? 'justify-start' : 'justify-center'
+      }  shadow-lg shadow-black/30 border border-gray-500`}
     >
       <NodeResizer
         minHeight={50}
@@ -69,12 +74,44 @@ export const Square: FC<SquareProps> = ({
         handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
       />
 
-        <Handle type="source" id="right" position={Position.Right} className={`handle handle-right ${showOnMouseEnter ? "opacity-1" : "opacity-0"}`} />
-        <Handle type="source" id="left" position={Position.Left} className={`handle handle-left ${showOnMouseEnter ? "opacity-1" : "opacity-0"}`} />
-        <Handle type="source" id="top" position={Position.Top} className={`handle handle-top ${showOnMouseEnter ? "opacity-1" : "opacity-0"}`} />
-        <Handle type="source" id="bottom" position={Position.Bottom} className={`handle handle-bottom ${showOnMouseEnter ? "opacity-1" : "opacity-0"}`} />
+      <Handle
+        type="source"
+        id="right"
+        position={Position.Right}
+        className={`handle handle-right ${
+          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
+        }`}
+      />
+      <Handle
+        type="source"
+        id="left"
+        position={Position.Left}
+        className={`handle handle-left ${
+          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
+        }`}
+      />
+      <Handle
+        type="source"
+        id="top"
+        position={Position.Top}
+        className={`handle handle-top ${
+          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
+        }`}
+      />
+      <Handle
+        type="source"
+        id="bottom"
+        position={Position.Bottom}
+        className={`handle handle-bottom ${
+          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
+        }`}
+      />
 
-      <div className={`text-start font-semibold w-full px-2 ${currentFontColor}`}>{textValue}</div>
+      <div
+        className={`text-start font-semibold w-full px-2 ${currentFontColor}`}
+      >
+        {textValue}
+      </div>
 
       <textarea
         className={`${currentFontColor} w-full h-full max-h-full py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent break-words placeholder-gray-300`}
@@ -88,10 +125,9 @@ export const Square: FC<SquareProps> = ({
         }}
       />
 
-        {selected && (
-          <div className='fixed -top-10 left-0 '>
-
-        <Modal
+      {selected && (
+        <>
+          <Modal
             components={[
               {
                 Component: SelectComponent,
@@ -100,7 +136,7 @@ export const Square: FC<SquareProps> = ({
                   type: 'square',
                   onIngredientSelect: handleIngredientSelect,
                 },
-                id: ''
+                id: '',
               },
               {
                 Component: FontePicker,
@@ -108,7 +144,7 @@ export const Square: FC<SquareProps> = ({
                   onColorChange: handleFontColorChange,
                   setShowColorPicker: () => {}, // Não precisa do setShowColorPicker aqui
                 },
-                id: ''
+                id: '',
               },
               {
                 Component: BackgroundPicker,
@@ -116,23 +152,22 @@ export const Square: FC<SquareProps> = ({
                   onColorChange: handleColorChange,
                   setShowColorPicker: () => {}, // Não precisa do setShowColorPicker aqui
                 },
-                id: ''
+                id: '',
               },
             ]}
-            textValue={tempTextValue} 
-            onTextChange={setTempTextValue} 
+            textValue={tempTextValue}
+            onTextChange={setTempTextValue}
             onSave={handleSave} // Passa a função de salvar para o Modal
             onCancel={handleCancel} // Passa a função de salvar para o Modal
           />
-          </div>
-        )}
+        </>
+      )}
 
       {/* {selected && (
         <div className="bg-white text-white absolute -bottom-14 rounded-lg border border-gray-200 hover:cursor-pointer">
           <SelectComponent values={ingredients} type='square' onIngredientSelect={handleIngredientSelect} />
         </div>
       )} */}
-
 
       {/* {selected && (
         <>

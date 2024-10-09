@@ -1,11 +1,11 @@
-import LayoutFluxogram from './components/layoutFluxogram/LayoutFluxogram'
+import HomeReactFlow from './components/mountedScreenReactFlow/HomeReactFlow';
 
 function App() {
   return (
-    <div className='fixed right-0 border border-black'>
-      <LayoutFluxogram/>
+    <div className="flex w-screen h-screen">
+      <HomeReactFlow />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
