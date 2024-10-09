@@ -4,19 +4,15 @@ import * as Toolbar from '@radix-ui/react-toolbar';
 interface ColorPickerProps {
   onColorChange: (color: string) => void;
   setShowColorPicker: React.Dispatch<React.SetStateAction<boolean>>;
-  lineEdit? : boolean;
+  lineEdit?: boolean;
 }
 
 type ColorShades = {
   [key: string]: string[];
 };
-const COLORS:ColorShades = {
-  White: [
-    'bg-white',
-  ],
-  Black: [
-    'bg-black',
-  ],
+const COLORS: ColorShades = {
+  White: ['bg-white'],
+  Black: ['bg-black'],
   Slate: [
     'bg-slate-50',
     'bg-slate-100',
@@ -551,16 +547,18 @@ const HEX_COLORS: { [key: string]: string } = {
   'bg-rose-950': '#540A2D',
 };
 
-
-const BackgroundPicker: React.FC<ColorPickerProps> = ({ onColorChange, setShowColorPicker, lineEdit = false }) => {
+const BackgroundPicker: React.FC<ColorPickerProps> = ({
+  onColorChange,
+  setShowColorPicker,
+  lineEdit = false,
+}) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  
+
   const handleColorPick = (color: string) => {
     if (lineEdit) {
-     
       if (HEX_COLORS[color]) {
         const hexColor = HEX_COLORS[color];
-        onColorChange(hexColor); 
+        onColorChange(hexColor);
       } else {
         console.warn(`A cor ${color} não está definida em HEX_COLORS.`);
       }
@@ -570,17 +568,28 @@ const BackgroundPicker: React.FC<ColorPickerProps> = ({ onColorChange, setShowCo
       setSelectedColor(null);
     }
   };
-  
 
   return (
-    <div className="relative">
+    <div className="relative p-2 top-2">
       {/* Menu inicial para escolher a cor básica */}
-      <Toolbar.Root className={`flex flex-wrap gap-1  ${lineEdit ? "" : "-top-[80%] -right-[90%]"} bg-white border border-zinc-300 rounded-lg p-2 w-40 transition-all duration-300`}>
+      <Toolbar.Root
+        className={`flex flex-wrap gap-1  ${
+          lineEdit ? '' : '-top-[80%] -right-[90%]'
+        } bg-white border border-zinc-300 rounded-lg p-2 ${
+          lineEdit ? 'w-full' : 'w-40'
+        }   transition-all duration-300`}
+      >
         {Object.entries(COLORS).map(([colorName, colorShades]) => (
           <Toolbar.Button
             key={colorName}
             onClick={() => setSelectedColor(colorName)}
-            className={`w-5 h-5 grow basis-5 border border-gray-300 hover:opacity-75 transition-opacity ${colorName == 'Black' ? colorShades[0] : colorName == 'White' ? colorShades[0] : colorShades[4]}`} // Cor intermediária como preview
+            className={`w-5 h-5 grow basis-5 border border-gray-300 hover:opacity-75 transition-opacity ${
+              colorName == 'Black'
+                ? colorShades[0]
+                : colorName == 'White'
+                ? colorShades[0]
+                : colorShades[4]
+            }`} // Cor intermediária como preview
           />
         ))}
       </Toolbar.Root>
@@ -588,9 +597,13 @@ const BackgroundPicker: React.FC<ColorPickerProps> = ({ onColorChange, setShowCo
       {/* Menu de tons da cor selecionada */}
       {selectedColor && (
         <Toolbar.Root
-          className={`w-40 fixed  ${lineEdit ? " -left-[105%] bottom-0" : "bottom-2 right-2"}  bg-gray-100 border border-zinc-300 rounded-lg p-2 shadow-md flex flex-col gap-1 transition-all duration-300`}
+          className={`w-40 fixed  ${
+            lineEdit ? ' -left-[105%] bottom-0' : 'bottom-2 right-2'
+          }  bg-gray-100 border border-zinc-300 rounded-lg p-2 shadow-md flex flex-col gap-1 transition-all duration-300`}
         >
-          <div className="font-bold mb-2 text-center w-full">{selectedColor}</div>
+          <div className="font-bold mb-2 text-center w-full">
+            {selectedColor}
+          </div>
           {COLORS[selectedColor].map((shade, index) => (
             <Toolbar.Button
               key={shade}
@@ -598,17 +611,20 @@ const BackgroundPicker: React.FC<ColorPickerProps> = ({ onColorChange, setShowCo
               className={`flex items-center justify-between rounded w-full border border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-100 px-2`}
             >
               {selectedColor === 'Black' || selectedColor === 'White' ? null : (
-                <> 
+                <>
                   <div className="text-xs">
-                    {index === 9 ? 900 : index === 10 ? 950 : index * 100 + (index === 0 ? 50 : 0)}
+                    {index === 9
+                      ? 900
+                      : index === 10
+                      ? 950
+                      : index * 100 + (index === 0 ? 50 : 0)}
                   </div>
-                  <span> - </span> 
+                  <span> - </span>
                 </>
               )}
-              <div className={`w-full h-5 ${shade}`} ></div>
+              <div className={`w-full h-5 ${shade}`}></div>
             </Toolbar.Button>
           ))}
-
         </Toolbar.Root>
       )}
     </div>
