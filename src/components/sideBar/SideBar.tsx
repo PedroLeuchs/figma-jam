@@ -1,6 +1,6 @@
 import * as Toolbar from '@radix-ui/react-toolbar';
 import EditEdge from '../edges/EditEdge';
-import { Edge, NodeProps } from '@xyflow/react';
+import { Edge, Node } from '@xyflow/react';
 import { useEffect, useState } from 'react';
 
 interface Ingredient {
@@ -8,21 +8,10 @@ interface Ingredient {
   label: string;
   type: string;
 }
-interface NodeData {
-  id: string;
-  type: string;
-  label: string;
-  unitphases?: UnitPhase[];
-  [key: string]: unknown; // Assinatura de índice
-}
 
 interface UnitPhase {
   Unidade: string;
   Fases: string[];
-}
-
-interface Node extends NodeProps {
-  data: NodeData;
 }
 
 interface SideBarProps {
