@@ -1,5 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
@@ -21,197 +20,116 @@ import { zinc } from 'tailwindcss/colors';
 import { Square } from '../nodes/Square';
 import { Triangle } from '../nodes/Triangle';
 import { Circle } from '../nodes/Circle';
+import { Group } from '../nodes/Group';
+import LogicControl from '../nodes/LogicControl';
+import Phase from '../nodes/Phase';
+
+// components
 import DefaultEdge from '../edges/DefaultEdge';
 import SideBar from '../sideBar/SideBar';
+
+// arrays
+import { EQUIPAMENT } from '../../services/Equipament';
+import { MACHINES } from '../../services/Machines';
+import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
+import { UNITYPHASES } from '../../services/Unitys';
 
 const NODE_TYPES = {
   square: Square,
   circle: Circle,
   triangle: Triangle,
+  logicControl: LogicControl,
+  unity: Group,
+  phase: Phase,
 };
 
 const EDGE_TYPES = {
   default: DefaultEdge,
 };
 
-const EQUIPAMENT = [
-  { id: '1', label: 'BALANÇA' },
-  { id: '2', label: 'FORNO' },
-  { id: '3', label: 'MISTURADOR' },
-  { id: '4', label: 'ESTEIRA TRANSPORTADORA' },
-  { id: '5', label: 'MOINHO' },
-  { id: '6', label: 'DOSADOR' },
-  { id: '7', label: 'TANQUE DE MISTURA' },
-  { id: '8', label: 'BOMBA DE CALOR' },
-  { id: '9', label: 'CENTRIFUGA' },
-  { id: '10', label: 'FILTRO PRENSA' },
-  { id: '11', label: 'SECADOR' },
-  { id: '12', label: 'GRANULADOR' },
-  { id: '13', label: 'EMBALADEIRA' },
-  { id: '14', label: 'PALETIZADORA' },
-  { id: '15', label: 'SISTEMA DE REFRIGERAÇÃO' },
-  { id: '16', label: 'CALDEIRA' },
-  { id: '17', label: 'COMPRESSOR DE AR' },
-  { id: '18', label: 'VENTILADOR' },
-  { id: '19', label: 'EXAUSTOR' },
-  { id: '20', label: 'SISTEMA DE CONTROLE' },
-  { id: '21', label: 'SENSOR DE TEMPERATURA' },
-  { id: '22', label: 'SENSOR DE PRESSÃO' },
-  { id: '23', label: 'SENSOR DE NÍVEL' },
-  { id: '24', label: 'VÁLVULA DE CONTROLE' },
-  { id: '25', label: 'ATUADOR PNEUMÁTICO' },
-  { id: '26', label: 'MOTOR ELÉTRICO' },
-  { id: '27', label: 'REDUTOR DE VELOCIDADE' },
-  { id: '28', label: 'ACOPLAMENTO' },
-  { id: '29', label: 'CORREIA DE TRANSMISSÃO' },
-  { id: '30', label: 'CORRENTE DE TRANSMISSÃO' },
-  { id: '31', label: 'ROLAMENTO' },
-  { id: '32', label: 'MANCAL' },
-  { id: '33', label: 'VEDAÇÃO' },
-  { id: '34', label: 'LUBRIFICADOR' },
-  { id: '35', label: 'INSTRUMENTO DE MEDIÇÃO' },
-  { id: '36', label: 'FERRAMENTA DE MANUTENÇÃO' },
-  { id: '37', label: 'EPI - Equipamento de Proteção Individual' },
-  { id: '38', label: 'EPC - Equipamento de Proteção Coletiva' },
-  { id: '39', label: 'SOFTWARE DE GESTÃO' },
-  { id: '40', label: 'SISTEMA DE SEGURANÇA' },
-  { id: '41', label: 'ALARME' },
-  { id: '42', label: 'DETECTOR DE FUMAÇA' },
-  { id: '43', label: 'EXTINTOR DE INCÊNDIO' },
-  { id: '44', label: 'PLACA DE SINALIZAÇÃO' },
-  { id: '45', label: 'FITA DE DEMARCAÇÃO' },
-  { id: '46', label: 'CADEADO DE SEGURANÇA' },
-  { id: '47', label: 'GUARDA-CORPO' },
-  { id: '48', label: 'PLATAFORMA DE ACESSO' },
-  { id: '49', label: 'ESCADARIA' },
-  { id: '50', label: 'CORRIMÃO' },
-  { id: '51', label: 'ELEVADOR DE CARGA' },
-  { id: '52', label: 'GUINDASTE' },
-  { id: '53', label: 'TALHA' },
+const LOGIC_CONTROLS = [
+  { id: '1', label: 'AND' },
+  { id: '2', label: 'OR' },
 ];
 
-const MACHINES = [
-  { id: '1', label: 'SILO - 1' },
-  { id: '2', label: 'SILO - 2' },
-  { id: '3', label: 'SILO - 3' },
-  { id: '4', label: 'SILO - 4' },
-  { id: '5', label: 'SILO - 5' },
-  { id: '6', label: 'SILO - 6' },
-  { id: '7', label: 'SILO - 7' },
-  { id: '8', label: 'SILO - 8' },
-  { id: '9', label: 'SILO - 9' },
-  { id: '10', label: 'SILO - 10' },
-  { id: '11', label: 'SILO - 11' },
-  { id: '12', label: 'SILO - 12' },
-  { id: '13', label: 'SILO - 13' },
-  { id: '14', label: 'SILO - 14' },
-  { id: '15', label: 'SILO - 15' },
-  { id: '16', label: 'SILO - 16' },
-  { id: '17', label: 'SILO - 17' },
-  { id: '18', label: 'SILO - 18' },
-  { id: '19', label: 'SILO - 19' },
-  { id: '20', label: 'SILO - 20' },
-  { id: '21', label: 'SILO - 21' },
-  { id: '22', label: 'SILO - 22' },
-  { id: '23', label: 'SILO - 23' },
-  { id: '24', label: 'SILO - 24' },
-  { id: '25', label: 'SILO - 25' },
-  { id: '26', label: 'SILO - 26' },
-  { id: '27', label: 'SILO - 27' },
-  { id: '28', label: 'SILO - 28' },
-  { id: '29', label: 'SILO - 29' },
-  { id: '30', label: 'SILO - 30' },
-  { id: '31', label: 'SILO - 31' },
-  { id: '32', label: 'SILO - 32' },
-  { id: '33', label: 'SILO - 33' },
-  { id: '34', label: 'SILO - 34' },
-  { id: '35', label: 'SILO - 35' },
-  { id: '36', label: 'SILO - 36' },
-  { id: '37', label: 'SILO - 37' },
-  { id: '38', label: 'SILO - 38' },
-  { id: '39', label: 'SILO - 39' },
-  { id: '40', label: 'SILO - 40' },
-  { id: '41', label: 'SILO - 41' },
-  { id: '42', label: 'SILO - 42' },
-  { id: '43', label: 'SILO - 43' },
-  { id: '44', label: 'SILO - 44' },
-  { id: '45', label: 'SILO - 45' },
-  { id: '46', label: 'SILO - 46' },
-  { id: '47', label: 'SILO - 47' },
-  { id: '48', label: 'SILO - 48' },
-  { id: '49', label: 'SILO - 49' },
-  { id: '50', label: 'SILO - 50' },
-  { id: '51', label: 'SILO - 51' },
-  { id: '52', label: 'SILO - 52' },
-  { id: '53', label: 'SILO - 53' },
-  { id: '54', label: 'SILO - 54' },
-  { id: '55', label: 'SILO - 55' },
-  { id: '56', label: 'SILO - 56' },
-  { id: '57', label: 'SILO - 57' },
-  { id: '58', label: 'SILO - 58' },
-  { id: '59', label: 'SILO - 59' },
-  { id: '60', label: 'SILO - 60' },
-];
-
-const VALUESSIDEBAR = [
-  { id: '1', label: 'Equipamento', type: 'square' },
-  { id: '2', label: 'Silos', type: 'circle' },
-  { id: '3', label: 'Start/End', type: 'triangle' },
-];
+const GROUPIDS: string[] = [];
 
 // Função para gerar IDs incrementais
 let nodeId = 1;
-const getId = () => `${nodeId++}`;
+const getId = (type?: string) => {
+  const id = nodeId++;
 
+  if (type === 'unity') {
+    GROUPIDS.push(id.toString()); // Adiciona o ID ao array GROUPIDS se for do tipo 'unity'
+  }
+  return id;
+};
 // Criar 5 quadrados interligados
 const INITIAL_NODES: Node[] = [
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'triangle',
     position: { x: 700, y: 50 },
     data: { label: 'Start', color: 'bg-gray-500', direction: 'down' },
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'circle',
     position: { x: 699, y: 200 },
     data: { label: MACHINES[0].label, machine: MACHINES },
   },
   {
-    id: getId(),
+    id: getId('unity').toString(),
+    type: 'unity',
+    position: { x: 500, y: 300 },
+    data: { label: UNITYPHASES[1].Unidade, unitphases: UNITYPHASES },
+    style: { width: 500, height: 450 },
+  },
+  {
+    id: getId().toString(),
     type: 'square',
-    position: { x: 650, y: 350 },
+    position: { x: 525, y: 600 },
     data: { label: EQUIPAMENT[0].label, ingredients: EQUIPAMENT },
+    //aqui
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'square',
-    position: { x: 525, y: 500 },
+    position: { x: 775, y: 600 },
     data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
+    //aqui
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'square',
-    position: { x: 775, y: 500 },
+    position: { x: 650, y: 750 },
     data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
+    parentId: UNITYPHASES[1].Unidade,
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'square',
     position: { x: 650, y: 650 },
     data: { label: EQUIPAMENT[10].label, machine: MACHINES },
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'circle',
     position: { x: 1200, y: 200 },
     data: { label: MACHINES[1].label, machine: MACHINES },
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'triangle',
-    position: { x: 1200, y: 350 },
-    data: { label: 'End', direction: 'up' },
+    position: { x: 1300, y: 350 },
+    data: { label: 'End', direction: true },
+  },
+  {
+    id: getId().toString(),
+    type: 'logicControl',
+    position: { x: 700, y: 525 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
   },
 ];
 
@@ -234,26 +152,7 @@ const INITIAL_EDGES: Edge[] = [
     type: 'default',
     selected: false,
   },
-  {
-    id: 'e3-4',
-    source: '3',
-    animated: true,
-    target: '4',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-  {
-    id: 'e3-5',
-    source: '3',
-    animated: true,
-    target: '5',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
+
   {
     id: 'e4-6',
     source: '4',
@@ -290,6 +189,15 @@ const INITIAL_EDGES: Edge[] = [
     type: 'default',
     selected: false,
   },
+  {
+    id: 'e8-9',
+    source: '8',
+    target: '9',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
 ];
 
 function DnDFlow() {
@@ -298,6 +206,63 @@ function DnDFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES); // Nós iniciais
   const [type, setType] = useDnD();
   const { screenToFlowPosition } = useReactFlow();
+  const [selectedUnityId, setSelectedUnityId] = useState<string>('');
+  const [newLabel, setNewLabel] = useState<string>(''); // Estado para a nova label
+
+  const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
+    if (node === undefined) {
+      setSelectedUnityId('');
+      return;
+    }
+    if (node.type === 'unity') {
+      setSelectedUnityId(node.id);
+    } else {
+      setSelectedUnityId('');
+    }
+  }, []);
+
+  const verifyHasNodeOnUnity = (nodes: Node[]) => {
+    nodes.forEach((node) => {
+      // Verifica se o nó é do tipo "unity"
+      const isUnity = GROUPIDS.includes(node.id); // Verifique se o nó é uma unity
+
+      if (isUnity) {
+        const { position, style } = node; // Acesse as propriedades do nó
+        const { x, y } = position; // Coordenadas do nó
+        const { width, height } = style as { width: number; height: number }; // Estilos de largura e altura
+
+        // Verifique se existem nós dentro das coordenadas da unity
+        const nodesInUnity = nodes.filter((otherNode) => {
+          const otherX = otherNode.position.x;
+          const otherY = otherNode.position.y;
+
+          // Ignore se o id do nó for igual ao id da unity
+          if (otherNode.id === node.id) return false;
+
+          return (
+            otherX >= x &&
+            otherX <= x + width &&
+            otherY >= y &&
+            otherY <= y + height
+          );
+        });
+
+        if (nodesInUnity.length > 0) {
+          // Aplique o parentId da unity aos nós encontrados
+          nodesInUnity.forEach((foundNode) => {
+            foundNode.parentId = node.id || ''; // Atribui o parentId da unity ao nó
+            foundNode.position.x = foundNode.position.x - width;
+            foundNode.position.y = foundNode.position.y - height;
+          });
+        }
+      }
+    });
+  };
+
+  useEffect(() => {
+    // Chama a função apenas uma vez quando o componente é montado
+    verifyHasNodeOnUnity(nodes);
+  }, [setNodes]); // Dependência vazia para garantir execução apenas uma vez
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -318,8 +283,10 @@ function DnDFlow() {
 
   const onDragStart = (
     event: React.DragEvent<HTMLButtonElement>,
-    nodeType: string
+    nodeType: string,
+    label?: string
   ) => {
+    setNewLabel(label || '');
     setType(nodeType);
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
@@ -352,27 +319,95 @@ function DnDFlow() {
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
-
-        // zoom : 0.5 = (cx - rx - 25) * 2
-        // zoom : 1 = (cx - rx - 50) * 1
-        // zoom : 2 = (cx - rx - 100) * 0.5
-        //
       });
 
-      const newNode = {
-        id: getId(),
+      let newNode = {
+        id: type === 'unity' ? getId('unity').toString() : getId().toString(),
         type,
         position,
         data: {
-          label: type === 'circle' ? 'Novo Silo' : 'Novo Equipamento',
-          ingredients: type === 'circle' ? null : EQUIPAMENT,
+          label:
+            type === 'circle'
+              ? 'Novo Silo'
+              : type === 'square'
+              ? 'Novo Equipamento'
+              : type === 'unity'
+              ? UNITYPHASES[0].Unidade
+              : type === 'phase'
+              ? newLabel
+              : 'Nova Fase',
+          ingredients: type === 'square' ? EQUIPAMENT : null,
           machine: type === 'circle' ? MACHINES : null,
+          unitphases: type === 'unity' ? UNITYPHASES : null,
         },
+        parentId: '',
+        style: {},
       };
+
+      // Garantir que "ingredients", "machine" e "unitphases" estejam sempre presentes
+      if (type !== 'square') {
+        newNode.data.ingredients = null; // Definir como null se não for do tipo "square"
+      }
+
+      if (type !== 'circle') {
+        newNode.data.machine = null; // Definir como null se não for do tipo "circle"
+      }
+
+      if (type !== 'unity') {
+        newNode.data.unitphases = null; // Definir como null se não for do tipo "unity"
+      }
+
+      // Adicionar estilos personalizados se o tipo for 'unity'
+      if (type === 'unity') {
+        newNode = {
+          ...newNode,
+          style: { width: Number(500), height: Number(300) },
+        };
+      }
+
+      // Verificar se o novo nó está dentro de um grupo
+      if (type !== 'unity') {
+        const parentGroup = nodes.find(
+          (node) =>
+            node.type === 'unity' &&
+            position.x > node.position.x &&
+            position.x <
+              node.position.x +
+                (typeof node.style?.width === 'number'
+                  ? node.style.width
+                  : 0) &&
+            position.y > node.position.y &&
+            position.y <
+              node.position.y +
+                (typeof node.style?.height === 'number' ? node.style.height : 0)
+        );
+
+        if (type === 'phase') {
+          if (!parentGroup) {
+            return;
+          }
+          newNode = {
+            ...newNode,
+            parentId: parentGroup.id,
+            data: {
+              label: newLabel,
+              unitphases: UNITYPHASES,
+              ingredients: null,
+              machine: null,
+            },
+          };
+        } else if (parentGroup) {
+          newNode = {
+            ...newNode,
+            id: getId().toString(),
+            parentId: parentGroup.id,
+          };
+        }
+      }
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, type]
+    [screenToFlowPosition, type, setNodes, nodes, newLabel]
   );
 
   return (
@@ -381,6 +416,9 @@ function DnDFlow() {
       {/* <DnDProvider> */}
       <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
         <ReactFlow
+          // editNodeId={editNodeId}
+          onNodeClick={onNodeClick}
+          onPaneClick={onNodeClick}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           nodes={nodes}
@@ -406,10 +444,13 @@ function DnDFlow() {
       {/* </DnDProvider> */}
 
       <SideBar
+        nodes={nodes}
         edges={edges}
         setEdges={setEdges}
         ingredients={VALUESSIDEBAR}
         onDragStart={onDragStart}
+        selectedUnityId={selectedUnityId}
+        unitphases={UNITYPHASES}
       />
     </div>
   );

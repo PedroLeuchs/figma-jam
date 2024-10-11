@@ -2,26 +2,24 @@ import { EdgeProps } from '@xyflow/react';
 import {getSmoothStepPath} from 'reactflow';
 
 const DefaultEdge = ({
-    id,
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  style = { strokeWidth: 2, stroke: '#cecece', position: 'fixed' },
+  markerEnd,
+}: EdgeProps) => {
+  const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,
+    sourcePosition,
     targetX,
     targetY,
-    sourcePosition,
     targetPosition,
-    style = {strokeWidth: 2, stroke: '#cecece'},
-    markerEnd,
-}: EdgeProps) => {
-
-    const [edgePath] = getSmoothStepPath({
-        sourceX,
-        sourceY,
-        sourcePosition,
-        targetX,
-        targetY,
-        targetPosition,
-    });
-
+  });
 
     return (
         <>

@@ -9,7 +9,7 @@ interface ModalProps {
     props: any;
     id: string; // Adicionando um id único para cada componente
   }[];
-  textValue: string; // Para o valor do texto
+  textValue?: string; // Para o valor do texto
   onTextChange: (value: string) => void; // Para atualizar o texto
   onSave: () => void; // Função para salvar alterações
   onCancel: () => void; // Função para salvar alterações
@@ -27,8 +27,12 @@ export const Modal = ({ components, textValue, onTextChange, onSave, onCancel }:
         <Dialog.Overlay className="fixed inset-0 bg-black/30 data-[state=open]:animate-overlayShow" />
         <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow flex flex-col gap-12">
           <div className="w-full h-1/2 flex flex-col gap-5">
-            <Dialog.Title className="text-lg font-semibold">Configurações</Dialog.Title>
-            <TextInput value={textValue} onChange={onTextChange} />
+            <Dialog.Title className="text-lg font-semibold">
+              Configurações
+            </Dialog.Title>
+            {textValue && (
+              <TextInput value={textValue} onChange={onTextChange} />
+            )}
             <div className="flex flex-col">
               {components.map(({ Component, props }, index) => (
                 index === 0 ? <Component key={`config-${index}`} {...props} /> : null
