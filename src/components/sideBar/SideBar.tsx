@@ -51,7 +51,7 @@ const SideBar: React.FC<SideBarProps> = ({
   );
 
   return (
-    <Toolbar.Root className="h-5/6 w-[10%] absolute top-1/2 -translate-y-1/2 right-5 bg-white rounded-2xl shadow-lg border border-zinc-300 flex flex-col items-center justify-start gap-2 py-5">
+    <Toolbar.Root className="h-[80%] w-[8%] absolute top-5 right-5 bg-white rounded-2xl shadow-lg border border-zinc-300 flex flex-col items-center justify-start gap-2 py-5">
       <h2 className="text-center text-xl">
         {selectedUnityNode
           ? `Componente ${selectedUnityNode.data.label}` // Mostra o label da unidade selecionada
