@@ -21,15 +21,9 @@ export const Triangle: FC<TriangleProps> = ({
       onMouseLeave={() => setShowOnMouseEnter(false)}
       className={`w-full h-full min-w-[100px] min-h-[100px] drop-shadow-lg shadow-black ${
         directionSet === true
-          ? 'border-l-[50px] border-r-[50px] border-b-[100px] border-b-gray-500'
-          : 'border-l-[50px] border-r-[50px] border-t-[100px] border-t-gray-500'
+          ? 'border-l-[50px] border-r-[50px] border-b-[100px] border-b-gray-800 border-l-transparent border-r-transparent'
+          : 'border-l-[50px] border-r-[50px] border-t-[100px] border-t-gray-800 border-l-transparent border-r-transparent'
       }`}
-      style={{
-        borderColor:
-          directionSet === true
-            ? 'transparent transparent gray transparent'
-            : 'gray transparent transparent transparent',
-      }}
     >
       {selected && (
         <Toolbar.Root asChild>

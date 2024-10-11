@@ -9,7 +9,7 @@ const DefaultEdge = ({
   targetY,
   sourcePosition,
   targetPosition,
-  style = { strokeWidth: 2, stroke: '#cecece', position: 'fixed', zIndex: 50 },
+  style = { strokeWidth: 2, stroke: '#cecece', position: 'fixed' },
   markerEnd,
 }: EdgeProps) => {
   const [edgePath] = getSmoothStepPath({

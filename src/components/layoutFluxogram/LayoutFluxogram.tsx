@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
@@ -23,6 +23,7 @@ import { Triangle } from '../nodes/Triangle';
 import { Circle } from '../nodes/Circle';
 import { Group } from '../nodes/Group';
 import LogicControl from '../nodes/LogicControl';
+import Phase from '../nodes/Phase';
 
 // components
 import DefaultEdge from '../edges/DefaultEdge';
@@ -32,13 +33,15 @@ import SideBar from '../sideBar/SideBar';
 import { EQUIPAMENT } from '../../services/Equipament';
 import { MACHINES } from '../../services/Machines';
 import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
+import { UNITYPHASES } from '../../services/Unitys';
 
 const NODE_TYPES = {
   square: Square,
   circle: Circle,
   triangle: Triangle,
   logicControl: LogicControl,
-  group1: Group,
+  unity: Group,
+  phase: Phase,
 };
 
 const EDGE_TYPES = {
@@ -50,76 +53,91 @@ const LOGIC_CONTROLS = [
   { id: '2', label: 'OR' },
 ];
 
+const GROUPIDS: string[] = [];
+
 // Função para gerar IDs incrementais
 let nodeId = 1;
-const getId = () => `${nodeId++}`;
+const getId = (type?: string) => {
+  const id = nodeId++;
+
+  if (type === 'unity') {
+    GROUPIDS.push(id.toString()); // Adiciona o ID ao array GROUPIDS se for do tipo 'unity'
+  }
+  return id;
+};
+
+// type CustomNode = Node & {
+//   isConnectable?: boolean;
+//   positionAbsoluteX?: number;
+//   positionAbsoluteY?: number;
+//   type: string;
+// };
 
 // Criar 5 quadrados interligados
 const INITIAL_NODES: Node[] = [
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'triangle',
     position: { x: 700, y: 10 },
     data: { label: 'Start', color: 'bg-gray-500', direction: false },
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'circle',
     position: { x: 699, y: 150 },
     data: { label: MACHINES[0].label, machine: MACHINES },
   },
   {
-    id: 'groupA',
-    type: 'group1',
+    id: getId('unity').toString(),
+    type: 'unity',
     position: { x: 500, y: 300 },
-    data: { label: 'Group 1' },
+    data: { label: UNITYPHASES[1].Unidade, unitphases: UNITYPHASES },
     style: { width: 500, height: 450 },
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'square',
-    position: { x: 150, y: 50 },
+    position: { x: 525, y: 600 },
     data: { label: EQUIPAMENT[0].label, ingredients: EQUIPAMENT },
-    parentId: 'groupA',
+    //aqui
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'square',
-    position: { x: 40, y: 300 },
+    position: { x: 775, y: 600 },
     data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
-    parentId: 'groupA',
+    //aqui
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'square',
-    position: { x: 260, y: 300 },
+    position: { x: 650, y: 750 },
     data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
-    parentId: 'groupA',
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'square',
     position: { x: 650, y: 800 },
     data: { label: EQUIPAMENT[10].label, machine: MACHINES },
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'circle',
     position: { x: 1300, y: 200 },
     data: { label: MACHINES[1].label, machine: MACHINES },
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'triangle',
     position: { x: 1300, y: 350 },
     data: { label: 'End', direction: true },
   },
   {
-    id: getId(),
+    id: getId().toString(),
     type: 'logicControl',
-    position: { x: 200, y: 200 },
+    position: { x: 700, y: 525 },
     data: { typeControls: LOGIC_CONTROLS },
-    parentId: 'groupA',
+    //aqui
   },
 ];
 
@@ -142,36 +160,7 @@ const INITIAL_EDGES: Edge[] = [
     type: 'default',
     selected: false,
   },
-  {
-    id: 'e3-9',
-    source: '3',
-    animated: true,
-    target: '9',
-    sourceHandle: 'bottom',
-    targetHandle: 'bTop',
-    type: 'default',
-    selected: false,
-  },
-  {
-    id: 'e9-4',
-    source: '9',
-    animated: true,
-    target: '4',
-    sourceHandle: 'aBottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-  {
-    id: 'e9-5',
-    source: '9',
-    animated: true,
-    target: '5',
-    sourceHandle: 'cBottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
+
   {
     id: 'e4-6',
     source: '4',
@@ -208,14 +197,15 @@ const INITIAL_EDGES: Edge[] = [
     type: 'default',
     selected: false,
   },
-  ///////////////////////////////////
-  // { id: 'e1-2', source: '1', target: '2', animated: true },
-  // { id: 'e1-3', source: '1', target: '3' },
-  // { id: 'e2a-4a', source: '2a', target: '4a' },
-  // { id: 'e3-4b', source: '3', target: '4b' },
-  // { id: 'e4a-4b1', source: '4a', target: '4b1' },
-  // { id: 'e4a-4b2', source: '4a', target: '4b2' },
-  // { id: 'e4b1-4b2', source: '4b1', target: '4b2' },
+  {
+    id: 'e8-9',
+    source: '8',
+    target: '9',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    type: 'default',
+    selected: false,
+  },
 ];
 
 export function DnDFlow() {
@@ -224,6 +214,63 @@ export function DnDFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES); // Nós iniciais
   const [type, setType] = useDnD();
   const { screenToFlowPosition } = useReactFlow();
+  const [selectedUnityId, setSelectedUnityId] = useState<string>('');
+  const [newLabel, setNewLabel] = useState<string>(''); // Estado para a nova label
+
+  const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
+    if (node === undefined) {
+      setSelectedUnityId('');
+      return;
+    }
+    if (node.type === 'unity') {
+      setSelectedUnityId(node.id);
+    } else {
+      setSelectedUnityId('');
+    }
+  }, []);
+
+  const verifyHasNodeOnUnity = (nodes: Node[]) => {
+    nodes.forEach((node) => {
+      // Verifica se o nó é do tipo "unity"
+      const isUnity = GROUPIDS.includes(node.id); // Verifique se o nó é uma unity
+
+      if (isUnity) {
+        const { position, style } = node; // Acesse as propriedades do nó
+        const { x, y } = position; // Coordenadas do nó
+        const { width, height } = style as { width: number; height: number }; // Estilos de largura e altura
+
+        // Verifique se existem nós dentro das coordenadas da unity
+        const nodesInUnity = nodes.filter((otherNode) => {
+          const otherX = otherNode.position.x;
+          const otherY = otherNode.position.y;
+
+          // Ignore se o id do nó for igual ao id da unity
+          if (otherNode.id === node.id) return false;
+
+          return (
+            otherX >= x &&
+            otherX <= x + width &&
+            otherY >= y &&
+            otherY <= y + height
+          );
+        });
+
+        if (nodesInUnity.length > 0) {
+          // Aplique o parentId da unity aos nós encontrados
+          nodesInUnity.forEach((foundNode) => {
+            foundNode.parentId = node.id || ''; // Atribui o parentId da unity ao nó
+            foundNode.position.x = foundNode.position.x - width;
+            foundNode.position.y = foundNode.position.y - height;
+          });
+        }
+      }
+    });
+  };
+
+  useEffect(() => {
+    // Chama a função apenas uma vez quando o componente é montado
+    verifyHasNodeOnUnity(nodes);
+  }, [nodes]);
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -244,8 +291,10 @@ export function DnDFlow() {
 
   const onDragStart = (
     event: React.DragEvent<HTMLButtonElement>,
-    nodeType: string
+    nodeType: string,
+    label?: string
   ) => {
+    setNewLabel(label || '');
     setType(nodeType);
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
@@ -278,35 +327,95 @@ export function DnDFlow() {
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
-
-        // zoom : 0.5 = (cx - rx - 25) * 2
-        // zoom : 1 = (cx - rx - 50) * 1
-        // zoom : 2 = (cx - rx - 100) * 0.5
-        //
       });
 
-      let newNode = {
-        id: getId(),
+      let newNode: Node = {
+        id: type === 'unity' ? getId('unity').toString() : getId().toString(),
         type,
         position,
         data: {
-          label: type === 'circle' ? 'Novo Silo' : 'Novo Equipamento',
-          ingredients: type === 'circle' ? null : EQUIPAMENT,
+          label:
+            type === 'circle'
+              ? 'Novo Silo'
+              : type === 'square'
+              ? 'Novo Equipamento'
+              : type === 'unity'
+              ? UNITYPHASES[0].Unidade
+              : type === 'phase'
+              ? newLabel
+              : 'Nova Fase',
+          ingredients: type === 'square' ? EQUIPAMENT : null,
           machine: type === 'circle' ? MACHINES : null,
+          unitphases: type === 'unity' ? UNITYPHASES : null,
         },
+        parentId: '',
         style: {},
       };
-      if (type === 'group1') {
+
+      // Garantir que "ingredients", "machine" e "unitphases" estejam sempre presentes
+      if (type !== 'square') {
+        newNode.data.ingredients = null; // Definir como null se não for do tipo "square"
+      }
+
+      if (type !== 'circle') {
+        newNode.data.machine = null; // Definir como null se não for do tipo "circle"
+      }
+
+      if (type !== 'unity') {
+        newNode.data.unitphases = null; // Definir como null se não for do tipo "unity"
+      }
+
+      // Adicionar estilos personalizados se o tipo for 'unity'
+      if (type === 'unity') {
         newNode = {
           ...newNode,
-          style: { width: 500, height: 300 },
+          style: { width: Number(500), height: Number(300) },
         };
       }
-      console.log(newNode);
+
+      // Verificar se o novo nó está dentro de um grupo
+      if (type !== 'unity') {
+        const parentGroup = nodes.find(
+          (node) =>
+            node.type === 'unity' &&
+            position.x > node.position.x &&
+            position.x <
+              node.position.x +
+                (typeof node.style?.width === 'number'
+                  ? node.style.width
+                  : 0) &&
+            position.y > node.position.y &&
+            position.y <
+              node.position.y +
+                (typeof node.style?.height === 'number' ? node.style.height : 0)
+        );
+
+        if (type === 'phase') {
+          if (!parentGroup) {
+            return;
+          }
+          newNode = {
+            ...newNode,
+            parentId: parentGroup.id,
+            data: {
+              label: newLabel,
+              unitphases: UNITYPHASES,
+              ingredients: null,
+              machine: null,
+            },
+          };
+        } else if (parentGroup) {
+          newNode = {
+            ...newNode,
+            id: getId().toString(),
+            parentId: parentGroup.id,
+          };
+        }
+      }
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, type, setNodes]
+    [screenToFlowPosition, type, setNodes, nodes, newLabel]
   );
 
   return (
@@ -316,6 +425,9 @@ export function DnDFlow() {
       {/* <DnDProvider> */}
       <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
         <ReactFlow
+          // editNodeId={editNodeId}
+          onNodeClick={onNodeClick}
+          onPaneClick={onNodeClick}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           nodes={nodes}
@@ -341,10 +453,13 @@ export function DnDFlow() {
       {/* </DnDProvider> */}
 
       <SideBar
+        nodes={nodes}
         edges={edges}
         setEdges={setEdges}
         ingredients={VALUESSIDEBAR}
         onDragStart={onDragStart}
+        selectedUnityId={selectedUnityId}
+        unitphases={UNITYPHASES}
       />
     </div>
   );

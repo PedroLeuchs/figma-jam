@@ -9,7 +9,7 @@ interface ModalProps {
     props?: any;
     id: string; // Adicionando um id único para cada componente
   }[];
-  textValue: string; // Para o valor do texto
+  textValue?: string; // Para o valor do texto
   onTextChange: (value: string) => void; // Para atualizar o texto
   onSave: () => void; // Função para salvar alterações
   onCancel: () => void; // Função para salvar alterações
@@ -36,7 +36,9 @@ export const Modal = ({
             <Dialog.Title className="text-lg font-semibold">
               Configurações
             </Dialog.Title>
-            <TextInput value={textValue} onChange={onTextChange} />
+            {textValue && (
+              <TextInput value={textValue} onChange={onTextChange} />
+            )}
             <div className="flex flex-col">
               {components.map(({ Component, props }, index) =>
                 index === 0 ? (
