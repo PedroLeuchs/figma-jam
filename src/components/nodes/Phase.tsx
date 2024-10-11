@@ -2,46 +2,39 @@ import { FC, useState } from 'react';
 import { NodeProps, Handle, Position, NodeResizer } from '@xyflow/react';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
-import SelectComponent from '../select/Select';
 import { Modal } from '../modal/Modal';
 
-interface CircleProps extends NodeProps {
+interface PhaseProps extends NodeProps {
   color?: string;
   fontColor?: string;
 }
 
-export const Circle: FC<CircleProps> = ({
+const Phase: FC<PhaseProps> = ({
   data,
   selected = false,
-  color = 'bg-zinc-300',
+  color = 'bg-red-400',
   fontColor = 'text-black',
 }) => {
-  const { machine = [] } = data as { machine: { id: string; label: string }[] };
-
   const [currentColor, setCurrentColor] = useState(color);
   const [currentFontColor, setCurrentFontColor] = useState(fontColor);
   const [textareaValue, setTextareaValue] = useState(
-    data?.label || 'Escreva aqui'
+    data?.label || 'Phase nova'
   );
   const [tempTextareaValue, setTempTextareaValue] = useState(
-    data?.label || 'Escreva aqui'
+    data?.label || 'Phase nova'
   );
-  const [tempColor, setTempColor] = useState(color);
-  const [tempFontColor, setTempFontColor] = useState(fontColor);
   const [textValue, setTextValue] = useState('');
   const [tempTextValue, setTempTextValue] = useState('');
+  const [tempColor, setTempColor] = useState(color);
+  const [tempFontColor, setTempFontColor] = useState(fontColor);
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
 
   const handleColorChange = (color: string) => {
-    setTempColor(color);
+    setTempColor(color); // Atualiza a cor temporariamente
   };
 
   const handleFontColorChange = (color: string) => {
-    setTempFontColor(color);
-  };
-
-  const handleMachineSelect = (machine: string) => {
-    setTempTextareaValue(machine);
+    setTempFontColor(color); // Atualiza a cor da fonte temporariamente
   };
 
   const handleSave = () => {
@@ -50,28 +43,30 @@ export const Circle: FC<CircleProps> = ({
     setCurrentFontColor(tempFontColor);
     setTextareaValue(tempTextareaValue);
   };
+
   const handleCancel = () => {
-    setTempTextareaValue(data?.label || 'Escreva aqui');
+    setTempTextareaValue(data?.label || 'Phase nova');
     setTempFontColor(''); // Atualiza a cor da fonte temporariamente
     setTempColor(''); // Atualiza a cor temporariamente
-    setTextareaValue(data?.label || 'Escreva aqui');
+    setTextareaValue(data?.label || 'Phase nova');
   };
 
   return (
     <div
       onMouseEnter={() => setShowOnMouseEnter(true)}
       onMouseLeave={() => setShowOnMouseEnter(false)}
-      className={`${currentColor} drop-shadow-lg shadow-black !min-w-[100px] min-h-[100px] w-auto h-full flex items-center  ${
+      className={`${currentColor}  rounded w-full h-full min-w-[200px] min-h-[50px] flex flex-col items-center ${
         textValue ? 'justify-start' : 'justify-center'
-      }  rounded-full border border-gray-600 flex-col`}
+      } shadow-lg shadow-black/30 border border-gray-500`}
     >
       <NodeResizer
-        minHeight={100}
-        minWidth={100}
+        minHeight={50}
+        minWidth={200}
         isVisible={selected}
         lineClassName="!border-blue-400"
         handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
       />
+
       <Handle
         type="source"
         id="right"
@@ -106,15 +101,13 @@ export const Circle: FC<CircleProps> = ({
       />
 
       <div
-        className={`text-start font-semibold w-full ${
-          textValue ? 'px-4 pt-2' : ''
-        }  ${currentFontColor}`}
+        className={`text-start font-semibold w-full px-2 ${currentFontColor}`}
       >
         {textValue}
       </div>
 
       <textarea
-        className={`${currentFontColor} w-[100px] max-w-full min-h-[40px] max-h-[200px] py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent placeholder-gray-300`}
+        className={`${currentFontColor} w-full h-full max-h-full py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent break-words placeholder-gray-300`}
         rows={1}
         value={`${textareaValue}`}
         onChange={(e) => setTextareaValue(e.target.value)}
@@ -126,42 +119,33 @@ export const Circle: FC<CircleProps> = ({
       />
 
       {selected && (
-        <div className="fixed -top-10 left-0 ">
-          <Modal
-            components={[
-              {
-                Component: SelectComponent,
-                props: {
-                  values: machine,
-                  type: 'circle',
-                  onMachineSelect: handleMachineSelect,
-                },
-                id: '',
+        <Modal
+          components={[
+            {
+              Component: FontePicker,
+              props: {
+                onColorChange: handleFontColorChange,
+                setShowColorPicker: () => {}, // Não precisa do setShowColorPicker aqui
               },
-              {
-                Component: FontePicker,
-                props: {
-                  onColorChange: handleFontColorChange,
-                  setShowColorPicker: () => {},
-                },
-                id: '',
+              id: '',
+            },
+            {
+              Component: BackgroundPicker,
+              props: {
+                onColorChange: handleColorChange,
+                setShowColorPicker: () => {}, // Não precisa do setShowColorPicker aqui
               },
-              {
-                Component: BackgroundPicker,
-                props: {
-                  onColorChange: handleColorChange,
-                  setShowColorPicker: () => {},
-                },
-                id: '',
-              },
-            ]}
-            textValue={tempTextValue}
-            onTextChange={setTempTextValue}
-            onSave={handleSave}
-            onCancel={handleCancel}
-          />
-        </div>
+              id: '',
+            },
+          ]}
+          textValue={tempTextValue}
+          onTextChange={setTempTextValue}
+          onSave={handleSave} // Passa a função de salvar para o Modal
+          onCancel={handleCancel} // Passa a função de cancelar para o Modal
+        />
       )}
     </div>
   );
 };
+
+export default Phase;
