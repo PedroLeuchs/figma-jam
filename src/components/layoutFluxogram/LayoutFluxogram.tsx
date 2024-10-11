@@ -65,6 +65,14 @@ const getId = (type?: string) => {
   }
   return id;
 };
+
+// type CustomNode = Node & {
+//   isConnectable?: boolean;
+//   positionAbsoluteX?: number;
+//   positionAbsoluteY?: number;
+//   type: string;
+// };
+
 // Criar 5 quadrados interligados
 const INITIAL_NODES: Node[] = [
   {
@@ -105,7 +113,6 @@ const INITIAL_NODES: Node[] = [
     type: 'square',
     position: { x: 650, y: 750 },
     data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
-    parentId: UNITYPHASES[1].Unidade,
   },
   {
     id: getId().toString(),
@@ -263,7 +270,7 @@ export function DnDFlow() {
   useEffect(() => {
     // Chama a função apenas uma vez quando o componente é montado
     verifyHasNodeOnUnity(nodes);
-  }, [setNodes]); // Dependência vazia para garantir execução apenas uma vez
+  }, [nodes]);
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -322,7 +329,7 @@ export function DnDFlow() {
         y: event.clientY,
       });
 
-      let newNode = {
+      let newNode: Node = {
         id: type === 'unity' ? getId('unity').toString() : getId().toString(),
         type,
         position,
