@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
-  Controls,
   Node,
   ConnectionMode,
   useEdgesState,
@@ -12,6 +11,7 @@ import {
   Edge,
   BackgroundVariant,
   useReactFlow,
+  Panel,
 } from '@xyflow/react';
 import { useDnD } from '../sideBar/DndContext';
 import '@xyflow/react/dist/style.css';
@@ -34,6 +34,11 @@ import { EQUIPAMENT } from '../../services/Equipament';
 import { MACHINES } from '../../services/Machines';
 import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
 import { UNITYPHASES } from '../../services/Unitys';
+
+//icons
+import { MdOutlineZoomInMap } from 'react-icons/md';
+import { MdOutlineZoomIn } from 'react-icons/md';
+import { MdOutlineZoomOut } from 'react-icons/md';
 
 const NODE_TYPES = {
   square: Square,
@@ -216,6 +221,7 @@ export function DnDFlow() {
   const { screenToFlowPosition } = useReactFlow();
   const [selectedUnityId, setSelectedUnityId] = useState<string>('');
   const [newLabel, setNewLabel] = useState<string>(''); // Estado para a nova label
+  const { setViewport, zoomIn, zoomOut } = useReactFlow();
 
   const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
     if (node === undefined) {
@@ -418,6 +424,10 @@ export function DnDFlow() {
     [screenToFlowPosition, type, setNodes, nodes, newLabel]
   );
 
+  const handleTransform = useCallback(() => {
+    setViewport({ x: 0, y: 0, zoom: 1 }, { duration: 800 });
+  }, [setViewport]);
+
   return (
     // <div className="w-[85vw] h-[80vh] relative right-0 dndflow">
     <div className="w-screen h-screen relative right-0 dndflow">
@@ -447,7 +457,34 @@ export function DnDFlow() {
             gap={30}
             color={zinc[100]}
           />
-          <Controls />
+          <Panel
+            position="bottom-left"
+            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200 rounded border border-black"
+          >
+            <button
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              onClick={() => zoomIn({ duration: 800 })}
+            >
+              <MdOutlineZoomIn className="text-xl w-full h-full scale-125" />
+            </button>
+            <button
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              onClick={() => zoomOut({ duration: 800 })}
+            >
+              <MdOutlineZoomOut className="text-xl" />
+            </button>
+            <button
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              onClick={handleTransform}
+            >
+              <MdOutlineZoomInMap className="text-xl" />
+            </button>
+          </Panel>
+          {/* <Controls
+            onZoomIn={() => zoomIn({ duration: 800 })}
+            onZoomOut={() => zoomOut({ duration: 800 })}
+            onFitView={handleTransform}
+          /> */}
         </ReactFlow>
       </div>
       {/* </DnDProvider> */}
