@@ -12,6 +12,7 @@ import {
   BackgroundVariant,
   useReactFlow,
   Panel,
+  MiniMap,
 } from '@xyflow/react';
 import { useDnD } from '../sideBar/DndContext';
 import '@xyflow/react/dist/style.css';
@@ -485,6 +486,7 @@ export function DnDFlow() {
             onZoomOut={() => zoomOut({ duration: 800 })}
             onFitView={handleTransform}
           /> */}
+          <MiniMap zoomable pannable />
         </ReactFlow>
       </div>
       {/* </DnDProvider> */}
