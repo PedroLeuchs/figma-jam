@@ -1,8 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from 'react';
 import {
   ReactFlow,
   Background,
-  Controls,
   Node,
   ConnectionMode,
   useEdgesState,
@@ -12,6 +17,8 @@ import {
   Edge,
   BackgroundVariant,
   useReactFlow,
+  Panel,
+  MiniMap,
 } from '@xyflow/react';
 import { useDnD } from '../sideBar/DndContext';
 import '@xyflow/react/dist/style.css';
@@ -34,6 +41,14 @@ import { EQUIPAMENT } from '../../services/Equipament';
 import { MACHINES } from '../../services/Machines';
 import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
 import { UNITYPHASES } from '../../services/Unitys';
+
+//icons
+import { MdOutlineZoomInMap } from 'react-icons/md';
+import { MdOutlineZoomIn } from 'react-icons/md';
+import { MdOutlineZoomOut } from 'react-icons/md';
+import BackAndNext from '../sideBar/BackAndNext';
+
+import { useHistoryState } from '@uidotdev/usehooks';
 
 const NODE_TYPES = {
   square: Square,
@@ -66,14 +81,6 @@ const getId = (type?: string) => {
   return id;
 };
 
-// type CustomNode = Node & {
-//   isConnectable?: boolean;
-//   positionAbsoluteX?: number;
-//   positionAbsoluteY?: number;
-//   type: string;
-// };
-
-// Criar 5 quadrados interligados
 const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
@@ -136,6 +143,55 @@ const INITIAL_NODES: Node[] = [
     id: getId().toString(),
     type: 'logicControl',
     position: { x: 700, y: 525 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  // {
+  //   id: getId().toString(),
+  //   type: 'square',
+  //   position: { x: -2000, y: -2000 },
+  //   data: { typeControls: LOGIC_CONTROLS },
+  //   //aqui
+  // },
+  // {
+  //   id: getId().toString(),
+  //   type: 'square',
+  //   position: { x: 1500, y: 1500 },
+  //   data: { typeControls: LOGIC_CONTROLS },
+  //   //aqui
+  // },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: -2000, y: 0 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: 2000, y: 0 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: 0, y: -2000 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: 3000, y: 2000 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: 3000, y: -2000 },
     data: { typeControls: LOGIC_CONTROLS },
     //aqui
   },
@@ -209,13 +265,24 @@ const INITIAL_EDGES: Edge[] = [
 ];
 
 export function DnDFlow() {
+  const { state, set, undo, redo, canUndo, canRedo } = useHistoryState({
+    nodesHistoryState: INITIAL_NODES,
+    edgesHistoryState: INITIAL_EDGES,
+  });
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES); // Arestas iniciais
-  const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES); // Nós iniciais
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    state.edgesHistoryState
+  ); // Arestas iniciais
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    state.nodesHistoryState
+  ); // Nós iniciais
   const [type, setType] = useDnD();
   const { screenToFlowPosition } = useReactFlow();
   const [selectedUnityId, setSelectedUnityId] = useState<string>('');
   const [newLabel, setNewLabel] = useState<string>(''); // Estado para a nova label
+  const { setViewport, zoomIn, zoomOut } = useReactFlow();
+  const { getIntersectingNodes } = useReactFlow();
+  const [hasNodeOnUnityVerify, setHasNodeOnUnityVerify] = useState(false);
 
   const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
     if (node === undefined) {
@@ -229,48 +296,113 @@ export function DnDFlow() {
     }
   }, []);
 
-  const verifyHasNodeOnUnity = (nodes: Node[]) => {
-    nodes.forEach((node) => {
-      // Verifica se o nó é do tipo "unity"
-      const isUnity = GROUPIDS.includes(node.id); // Verifique se o nó é uma unity
-
-      if (isUnity) {
-        const { position, style } = node; // Acesse as propriedades do nó
-        const { x, y } = position; // Coordenadas do nó
-        const { width, height } = style as { width: number; height: number }; // Estilos de largura e altura
-
-        // Verifique se existem nós dentro das coordenadas da unity
-        const nodesInUnity = nodes.filter((otherNode) => {
-          const otherX = otherNode.position.x;
-          const otherY = otherNode.position.y;
-
-          // Ignore se o id do nó for igual ao id da unity
-          if (otherNode.id === node.id) return false;
-
-          return (
-            otherX >= x &&
-            otherX <= x + width &&
-            otherY >= y &&
-            otherY <= y + height
-          );
-        });
-
-        if (nodesInUnity.length > 0) {
-          // Aplique o parentId da unity aos nós encontrados
-          nodesInUnity.forEach((foundNode) => {
-            foundNode.parentId = node.id || ''; // Atribui o parentId da unity ao nó
-            foundNode.position.x = foundNode.position.x - width;
-            foundNode.position.y = foundNode.position.y - height;
-          });
-        }
+  const verifyHasNodeOnUnity = useCallback(
+    (nodes: Node[]) => {
+      if (hasNodeOnUnityVerify) {
+        return;
       }
-    });
-  };
 
-  useEffect(() => {
-    // Chama a função apenas uma vez quando o componente é montado
-    verifyHasNodeOnUnity(nodes);
-  }, [nodes]);
+      nodes.forEach((node) => {
+        // Verifica se o nó é do tipo "unity"
+        const isUnity = GROUPIDS.includes(node.id); // Verifique se o nó é uma unity
+
+        if (isUnity) {
+          const { position, style } = node; // Acesse as propriedades do nó
+          const { x, y } = position; // Coordenadas do nó
+          const { width, height } = style as { width: number; height: number }; // Estilos de largura e altura
+
+          // Verifique se existem nós dentro das coordenadas da unity
+          const nodesInUnity = nodes.filter((otherNode) => {
+            const otherX = otherNode.position.x;
+            const otherY = otherNode.position.y;
+
+            // Ignore se o id do nó for igual ao id da unity
+            if (otherNode.id === node.id) return false;
+
+            return (
+              otherX >= x &&
+              otherX <= x + width &&
+              otherY >= y &&
+              otherY <= y + height
+            );
+          });
+
+          if (nodesInUnity.length > 0) {
+            // Aplique o parentId da unity aos nós encontrados
+            nodesInUnity.forEach((foundNode) => {
+              // Verifique se o nó atual NÃO é do tipo 'unity'
+              if (foundNode.type !== 'unity') {
+                foundNode.parentId = node.id || ''; // Atribui o parentId da unity ao nó, desde que não seja unity
+                foundNode.position.x = foundNode.position.x - width;
+                foundNode.position.y = foundNode.position.y - height;
+              }
+            });
+          }
+        }
+      });
+    },
+    [hasNodeOnUnityVerify]
+  );
+
+  const onNodeDragOver = useCallback(
+    (_: MouseEvent, node: Node) => {
+      if (node.type === 'unity') {
+        return;
+      }
+
+      const intersectingUnities = getIntersectingNodes(node).filter(
+        (n) => n.type === 'unity'
+      );
+
+      if (intersectingUnities.length > 0) {
+        const unityNode = intersectingUnities[0];
+
+        // Calcula a posição relativa corretamente subtraindo apenas as coordenadas X e Y da unity
+
+        const relativePosition = {
+          x:
+            node.position.x -
+            (node.parentId
+              ? node.parentId == ''
+                ? unityNode.position.x
+                : 0
+              : unityNode.position.x),
+          y:
+            node.position.y -
+            (node.parentId
+              ? node.parentId == ''
+                ? unityNode.position.y
+                : 0
+              : unityNode.position.y),
+        };
+
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === node.id
+              ? {
+                  ...n,
+                  parentId: unityNode.id,
+                  position: relativePosition, // Usa a posição relativa calculada corretamente
+                }
+              : n
+          )
+        );
+        set({
+          ...state,
+          nodesHistoryState: nodes.map((n) =>
+            n.id === node.id
+              ? {
+                  ...n,
+                  parentId: unityNode.id,
+                  position: relativePosition,
+                }
+              : n
+          ),
+        });
+      }
+    },
+    [getIntersectingNodes, setNodes, set, state, nodes]
+  );
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -282,11 +414,26 @@ export function DnDFlow() {
         (sourceNode?.type === 'circle' && targetNode?.type === 'square')
       ) {
         setEdges((edges) => addEdge(connection, edges));
+        set({
+          ...state,
+          edgesHistoryState: [
+            ...state.edgesHistoryState,
+            { ...connection, id: `${connection.source}-${connection.target}` },
+          ],
+        });
       } else {
         setEdges((edges) => addEdge(connection, edges));
+        set({
+          ...state,
+          edgesHistoryState: [
+            ...state.edgesHistoryState,
+            { ...connection, id: `${connection.source}-${connection.target}` },
+          ],
+        });
       }
     },
-    [nodes, setEdges]
+
+    [nodes, setEdges, set, state]
   );
 
   const onDragStart = (
@@ -302,6 +449,7 @@ export function DnDFlow() {
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
+
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
@@ -319,6 +467,7 @@ export function DnDFlow() {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
+      // verifyHasNodeOnUnity(nodes);
 
       if (!type) {
         return;
@@ -348,9 +497,13 @@ export function DnDFlow() {
           machine: type === 'circle' ? MACHINES : null,
           unitphases: type === 'unity' ? UNITYPHASES : null,
         },
-        parentId: '',
         style: {},
       };
+
+      if (type !== 'unity') {
+        newNode.parentId = ''; // Defina como necessário
+        newNode.extent = 'parent'; // Defina como necessário
+      }
 
       // Garantir que "ingredients", "machine" e "unitphases" estejam sempre presentes
       if (type !== 'square') {
@@ -413,10 +566,97 @@ export function DnDFlow() {
         }
       }
 
-      setNodes((nds) => nds.concat(newNode));
+      setNodes((prevNodes) => [...prevNodes, newNode]);
+      set({
+        ...state,
+        nodesHistoryState: [...state.nodesHistoryState, newNode],
+      });
     },
-    [screenToFlowPosition, type, setNodes, nodes, newLabel]
+    [screenToFlowPosition, type, setNodes, nodes, newLabel, state, set]
   );
+
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  const lookAllElements = (
+    nodes: Node[],
+    viewportWidth: number,
+    viewportHeight: number
+  ) => {
+    if (nodes.length === 0) {
+      return { x: 0, y: 0, zoom: 1 };
+    }
+
+    let minX = nodes[0].position.x;
+    let minY = nodes[0].position.y;
+    let maxX = nodes[0].position.x;
+    let maxY = nodes[0].position.y;
+
+    nodes.forEach((node) => {
+      if (!node.parentId) {
+        if (node.position.x < minX) {
+          minX = node.position.x;
+        }
+        if (node.position.y < minY) {
+          minY = node.position.y;
+        }
+        if (node.position.x > maxX) {
+          maxX = node.position.x;
+        }
+        if (node.position.y > maxY) {
+          maxY = node.position.y;
+        }
+      }
+    });
+
+    const centerX = (maxX + minX) / 2;
+    const centerY = (maxY + minY) / 2;
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    const zoomX = viewportWidth / width;
+    const zoomY = viewportHeight / height;
+
+    // Calculando o zoom com base no menor valor entre zoomX e zoomY
+    let zoom = Math.min(zoomX, zoomY) * 0.9;
+
+    // Limitando o zoom para evitar valores menores que 0.08
+    if (zoom < 0.08) {
+      zoom = 0.08;
+    } else {
+      zoom *= 0.98;
+    }
+
+    // Calculando o fator de ajuste para x e y dinamicamente
+    // const factorX = viewportWidth / (maxX - minX);
+    const factorX = (viewportHeight + viewportWidth) / (maxX - minX) / 3.5;
+    const factorY = (viewportHeight + viewportWidth) / (maxY - minY) / 3.5;
+    // * 0.08
+    // Ajuste dinâmico para x e y com base nos fatores calculados
+    const xAdjusted = (centerX - viewportWidth / 2 / zoom) * -1 * factorX;
+    const yAdjusted = (centerY - viewportHeight / 2 / zoom) * -1 * factorY;
+
+    return {
+      x: xAdjusted,
+      y: yAdjusted,
+      zoom,
+    };
+  };
+
+  useEffect(() => {
+    nodes.forEach((node) => {
+      if (!node.parentId) {
+        verifyHasNodeOnUnity(nodes);
+        setHasNodeOnUnityVerify(true);
+      }
+    });
+  }, [nodes, verifyHasNodeOnUnity]);
+
+  useEffect(() => {
+    setEdges(state.edgesHistoryState);
+    setNodes(state.nodesHistoryState);
+  }, [state, setEdges, setNodes]);
 
   return (
     // <div className="w-[85vw] h-[80vh] relative right-0 dndflow">
@@ -425,13 +665,13 @@ export function DnDFlow() {
       {/* <DnDProvider> */}
       <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
         <ReactFlow
-          // editNodeId={editNodeId}
           onNodeClick={onNodeClick}
           onPaneClick={onNodeClick}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           nodes={nodes}
           edges={edges}
+          onNodeDragStop={onNodeDragOver}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
@@ -439,15 +679,63 @@ export function DnDFlow() {
           onDragOver={onDragOver}
           connectionMode={ConnectionMode.Loose}
           defaultEdgeOptions={{ type: 'default' }}
+          minZoom={0.01}
+          maxZoom={2.5}
           defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         >
-          <Background
-            variant={BackgroundVariant.Lines}
-            size={2}
-            gap={30}
-            color={zinc[100]}
+          <BackAndNext
+            canUndo={canUndo}
+            canRedo={canRedo}
+            undo={undo}
+            redo={redo}
           />
-          <Controls />
+          <Background
+            variant={BackgroundVariant.Cross}
+            size={10}
+            gap={40}
+            color={zinc[200]}
+          />
+          <Panel
+            position="bottom-left"
+            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200 rounded border border-black"
+          >
+            <button
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              onClick={() => zoomIn({ duration: 500 })}
+            >
+              <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
+            </button>
+            <button
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              onClick={() => zoomOut({ duration: 500 })}
+            >
+              <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
+            </button>
+            <button
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              onClick={() =>
+                setViewport(
+                  lookAllElements(nodes, viewportWidth, viewportHeight),
+                  { duration: 500 }
+                )
+              }
+            >
+              <MdOutlineZoomInMap className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
+            </button>
+          </Panel>
+          {/* <Controls
+            onZoomIn={() => zoomIn({ duration: 800 })}
+            onZoomOut={() => zoomOut({ duration: 800 })}
+            onFitView={handleTransform}
+          /> */}
+          <MiniMap
+            zoomable
+            pannable
+            style={{
+              backgroundColor: zinc[400],
+              borderRadius: 10,
+            }}
+          />
         </ReactFlow>
       </div>
       {/* </DnDProvider> */}
@@ -475,12 +763,16 @@ export function DnDFlow() {
  * npm install @radix-ui/react-select
  * npm install @radix-ui/react-dialog
  * npm i react-icons
+ * npm i @uidotdev/usehooks
  */
 
 /**
  *To-Do:
- * criar grupos
- * arrumar componente de logica
- * exibir receita em uma faze de execução
+ * arruma o zomm principal
+ * adicionar cadeado para não editar
+ * arrumar a posição
+ * não arrastar fase para fora da outra
+ * bug da unity
+ * passar pela logica de controle quando tiver duas ligações (apenas phases)
  *
  */
