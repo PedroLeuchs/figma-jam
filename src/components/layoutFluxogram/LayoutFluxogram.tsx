@@ -145,6 +145,55 @@ const INITIAL_NODES: Node[] = [
     data: { typeControls: LOGIC_CONTROLS },
     //aqui
   },
+  // {
+  //   id: getId().toString(),
+  //   type: 'square',
+  //   position: { x: -2000, y: -2000 },
+  //   data: { typeControls: LOGIC_CONTROLS },
+  //   //aqui
+  // },
+  // {
+  //   id: getId().toString(),
+  //   type: 'square',
+  //   position: { x: 1500, y: 1500 },
+  //   data: { typeControls: LOGIC_CONTROLS },
+  //   //aqui
+  // },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: -2000, y: 0 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: 2000, y: 0 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: 0, y: -2000 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: 3000, y: 2000 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
+  {
+    id: getId().toString(),
+    type: 'square',
+    position: { x: 3000, y: -2000 },
+    data: { typeControls: LOGIC_CONTROLS },
+    //aqui
+  },
 ];
 
 const INITIAL_EDGES: Edge[] = [
@@ -309,6 +358,7 @@ export function DnDFlow() {
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
+
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
@@ -419,16 +469,133 @@ export function DnDFlow() {
           };
         }
       }
+      console.log(newNode);
 
-      setNodes((nds) => nds.concat(newNode));
+      setNodes((prevNodes) => [...prevNodes, newNode]);
     },
     [screenToFlowPosition, type, setNodes, nodes, newLabel]
   );
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
 
-  const handleTransform = useCallback(() => {
-    setViewport({ x: 0, y: 0, zoom: 1 }, { duration: 800 });
-  }, [setViewport]);
+  const lookAllElements = (
+    nodes: Node[],
+    viewportWidth: number,
+    viewportHeight: number
+  ) => {
+    if (nodes.length === 0) {
+      return { x: 0, y: 0, zoom: 1 };
+    }
 
+    let minX = nodes[0].position.x;
+    let minY = nodes[0].position.y;
+    let maxX = nodes[0].position.x;
+    let maxY = nodes[0].position.y;
+
+    nodes.forEach((node) => {
+      if (!node.parentId) {
+        if (node.position.x < minX) {
+          minX = node.position.x;
+        }
+        if (node.position.y < minY) {
+          minY = node.position.y;
+        }
+        if (node.position.x > maxX) {
+          maxX = node.position.x;
+        }
+        if (node.position.y > maxY) {
+          maxY = node.position.y;
+        }
+      }
+    });
+
+    const centerX = (maxX + minX) / 2;
+    const centerY = (maxY + minY) / 2;
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    const zoomX = viewportWidth / width;
+    const zoomY = viewportHeight / height;
+
+    // Calculando o zoom com base no menor valor entre zoomX e zoomY
+    let zoom = Math.min(zoomX, zoomY) * 0.9;
+
+    // Limitando o zoom para evitar valores menores que 0.08
+    if (zoom < 0.08) {
+      zoom = 0.08;
+    } else {
+      zoom *= 0.98;
+    }
+
+    // Calculando o fator de ajuste para x e y dinamicamente
+    // const factorX = viewportWidth / (maxX - minX);
+    const factorX = (viewportHeight + viewportWidth) / (maxX - minX) / 3.5;
+    const factorY = (viewportHeight + viewportWidth) / (maxY - minY) / 3.5;
+    // * 0.08
+    // Ajuste dinâmico para x e y com base nos fatores calculados
+    const xAdjusted = (centerX - viewportWidth / 2 / zoom) * -1 * factorX;
+    const yAdjusted = (centerY - viewportHeight / 2 / zoom) * -1 * factorY;
+
+    console.log('factorX: ', factorX);
+    console.log('factorY: ', factorY);
+    console.log('View width: ', viewportWidth);
+    console.log('View height: ', viewportHeight);
+    console.log('minX: ', minX);
+    console.log('minY: ', minY);
+    console.log('maxX: ', maxX);
+    console.log('maxY: ', maxY);
+    console.log('centerX: ', centerX);
+    console.log('centerY: ', centerY);
+    console.log('x: ', xAdjusted);
+    console.log('y: ', yAdjusted);
+    console.log('zoom: ', zoom);
+
+    return {
+      x: xAdjusted,
+      y: yAdjusted,
+      zoom,
+    };
+  };
+
+  /*
+  teste 1: 
+
+    fator: * 0.23
+    View width:  1513
+    View height:  911
+    minX:  -2000
+    minY:  -2000
+    maxX:  1500
+    maxY:  1500
+    centerX:  -250
+    centerY:  -250
+    x:  1532.566327152888
+    y:  581.5113378684807
+    zoom:  0.229572
+
+    tenho que chegar: x: 750, y: 500, zoom: 0.23 
+    
+    
+    teste 2:
+    
+    fator: * 0.08
+    View width:  1513
+    View height:  911
+    minX:  -5000
+    minY:  -5000
+    maxX:  5000
+    maxY:  5000
+    centerX:  0
+    centerY:  0
+    x:  1424.4948985814594
+    y:  516.439909297052
+    zoom:  0.08035020000000001
+
+    tenho que chegar: x: 750, y: 450, zoom: 0.08 
+*/
+
+  // setViewport({ x: 750, y: 450, zoom: 0.08 });
   return (
     // <div className="w-[85vw] h-[80vh] relative right-0 dndflow">
     <div className="w-screen h-screen relative right-0 dndflow">
@@ -476,7 +643,12 @@ export function DnDFlow() {
             </button>
             <button
               className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
-              onClick={handleTransform}
+              onClick={() =>
+                setViewport(
+                  lookAllElements(nodes, viewportWidth, viewportHeight),
+                  { duration: 800 }
+                )
+              }
             >
               <MdOutlineZoomInMap className="text-xl" />
             </button>
@@ -486,7 +658,11 @@ export function DnDFlow() {
             onZoomOut={() => zoomOut({ duration: 800 })}
             onFitView={handleTransform}
           /> */}
-          <MiniMap zoomable pannable />
+          <MiniMap
+            zoomable
+            pannable
+            style={{ backgroundColor: zinc[600], borderRadius: 10 }}
+          />
         </ReactFlow>
       </div>
       {/* </DnDProvider> */}
@@ -518,8 +694,11 @@ export function DnDFlow() {
 
 /**
  *To-Do:
- * criar grupos
- * arrumar componente de logica
- * exibir receita em uma faze de execução
+ * arruma o zomm principal
+ * adicionar cadeado para não editar
+ * arrumar a posição
+ * não arrastar fase para fora da outra
+ * bug da unity
+ * passar pela logica de controle quando tiver duas ligações (apenas phases)
  *
  */
