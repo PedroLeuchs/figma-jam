@@ -81,14 +81,6 @@ const getId = (type?: string) => {
   return id;
 };
 
-// type CustomNode = Node & {
-//   isConnectable?: boolean;
-//   positionAbsoluteX?: number;
-//   positionAbsoluteY?: number;
-//   type: string;
-// };
-
-// Criar 5 quadrados interligados
 const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
@@ -292,8 +284,6 @@ export function DnDFlow() {
   const { getIntersectingNodes } = useReactFlow();
   const [hasNodeOnUnityVerify, setHasNodeOnUnityVerify] = useState(false);
 
-  console.log(state);
-
   const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
     if (node === undefined) {
       setSelectedUnityId('');
@@ -306,50 +296,53 @@ export function DnDFlow() {
     }
   }, []);
 
-  const verifyHasNodeOnUnity = (nodes: Node[]) => {
-    if (hasNodeOnUnityVerify) {
-      return;
-    }
-
-    nodes.forEach((node) => {
-      // Verifica se o nó é do tipo "unity"
-      const isUnity = GROUPIDS.includes(node.id); // Verifique se o nó é uma unity
-
-      if (isUnity) {
-        const { position, style } = node; // Acesse as propriedades do nó
-        const { x, y } = position; // Coordenadas do nó
-        const { width, height } = style as { width: number; height: number }; // Estilos de largura e altura
-
-        // Verifique se existem nós dentro das coordenadas da unity
-        const nodesInUnity = nodes.filter((otherNode) => {
-          const otherX = otherNode.position.x;
-          const otherY = otherNode.position.y;
-
-          // Ignore se o id do nó for igual ao id da unity
-          if (otherNode.id === node.id) return false;
-
-          return (
-            otherX >= x &&
-            otherX <= x + width &&
-            otherY >= y &&
-            otherY <= y + height
-          );
-        });
-
-        if (nodesInUnity.length > 0) {
-          // Aplique o parentId da unity aos nós encontrados
-          nodesInUnity.forEach((foundNode) => {
-            // Verifique se o nó atual NÃO é do tipo 'unity'
-            if (foundNode.type !== 'unity') {
-              foundNode.parentId = node.id || ''; // Atribui o parentId da unity ao nó, desde que não seja unity
-              foundNode.position.x = foundNode.position.x - width;
-              foundNode.position.y = foundNode.position.y - height;
-            }
-          });
-        }
+  const verifyHasNodeOnUnity = useCallback(
+    (nodes: Node[]) => {
+      if (hasNodeOnUnityVerify) {
+        return;
       }
-    });
-  };
+
+      nodes.forEach((node) => {
+        // Verifica se o nó é do tipo "unity"
+        const isUnity = GROUPIDS.includes(node.id); // Verifique se o nó é uma unity
+
+        if (isUnity) {
+          const { position, style } = node; // Acesse as propriedades do nó
+          const { x, y } = position; // Coordenadas do nó
+          const { width, height } = style as { width: number; height: number }; // Estilos de largura e altura
+
+          // Verifique se existem nós dentro das coordenadas da unity
+          const nodesInUnity = nodes.filter((otherNode) => {
+            const otherX = otherNode.position.x;
+            const otherY = otherNode.position.y;
+
+            // Ignore se o id do nó for igual ao id da unity
+            if (otherNode.id === node.id) return false;
+
+            return (
+              otherX >= x &&
+              otherX <= x + width &&
+              otherY >= y &&
+              otherY <= y + height
+            );
+          });
+
+          if (nodesInUnity.length > 0) {
+            // Aplique o parentId da unity aos nós encontrados
+            nodesInUnity.forEach((foundNode) => {
+              // Verifique se o nó atual NÃO é do tipo 'unity'
+              if (foundNode.type !== 'unity') {
+                foundNode.parentId = node.id || ''; // Atribui o parentId da unity ao nó, desde que não seja unity
+                foundNode.position.x = foundNode.position.x - width;
+                foundNode.position.y = foundNode.position.y - height;
+              }
+            });
+          }
+        }
+      });
+    },
+    [hasNodeOnUnityVerify]
+  );
 
   const onNodeDragOver = useCallback(
     (_: MouseEvent, node: Node) => {
@@ -365,7 +358,6 @@ export function DnDFlow() {
         const unityNode = intersectingUnities[0];
 
         // Calcula a posição relativa corretamente subtraindo apenas as coordenadas X e Y da unity
-        console.log('node', node);
 
         const relativePosition = {
           x:
@@ -673,7 +665,6 @@ export function DnDFlow() {
       {/* <DnDProvider> */}
       <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
         <ReactFlow
-          // editNodeId={editNodeId}
           onNodeClick={onNodeClick}
           onPaneClick={onNodeClick}
           nodeTypes={NODE_TYPES}
@@ -698,11 +689,10 @@ export function DnDFlow() {
             undo={undo}
             redo={redo}
           />
-
           <Background
             variant={BackgroundVariant.Cross}
             size={10}
-            gap={30}
+            gap={40}
             color={zinc[200]}
           />
           <Panel
@@ -711,13 +701,13 @@ export function DnDFlow() {
           >
             <button
               className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
-              onClick={() => zoomIn({ duration: 800 })}
+              onClick={() => zoomIn({ duration: 500 })}
             >
               <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
             </button>
             <button
               className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
-              onClick={() => zoomOut({ duration: 800 })}
+              onClick={() => zoomOut({ duration: 500 })}
             >
               <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
             </button>
@@ -726,7 +716,7 @@ export function DnDFlow() {
               onClick={() =>
                 setViewport(
                   lookAllElements(nodes, viewportWidth, viewportHeight),
-                  { duration: 800 }
+                  { duration: 500 }
                 )
               }
             >
@@ -741,7 +731,10 @@ export function DnDFlow() {
           <MiniMap
             zoomable
             pannable
-            style={{ backgroundColor: zinc[600], borderRadius: 10 }}
+            style={{
+              backgroundColor: zinc[400],
+              borderRadius: 10,
+            }}
           />
         </ReactFlow>
       </div>
