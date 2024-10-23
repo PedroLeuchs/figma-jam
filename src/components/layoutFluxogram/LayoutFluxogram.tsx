@@ -20,6 +20,7 @@ import {
   MiniMap,
   ColorMode,
   MarkerType,
+  NodeChange,
 } from '@xyflow/react';
 import { useDnD } from '../sideBar/DndContext';
 import '@xyflow/react/dist/style.css';
@@ -50,7 +51,6 @@ import BackAndNext from '../sideBar/BackAndNext';
 import { CiDark, CiLight } from 'react-icons/ci';
 
 import { useHistoryState } from '@uidotdev/usehooks';
-import { OnNodesChange } from 'reactflow';
 import { debounce } from '@mui/material';
 
 export function DnDFlow() {
@@ -667,17 +667,38 @@ export function DnDFlow() {
     [isResizing, debouncedHandleResizeEnd]
   );
 
-  const handleNodeChanges = (changes: OnNodesChange<Node>[]) => {
-    onNodesChange(changes); // Primeira função
+  const handleNodeChanges = (changes: NodeChange<Node>[]) => {
+    onNodesChange(changes);
 
-    const nodeId = changes[0].id;
-    const newDimensions = changes[0].dimensions;
-    const position = changes[0].position;
-    const nodelabel = nodes.find((node) => node.id === nodeId)?.data.label;
+    changes.forEach((change) => {
+      // Verifica se é um tipo de mudança que tem id
+      let nodeId: string | undefined;
+      let newDimensions: { width: number; height: number } | undefined;
+      let position: { x: number; y: number } | undefined;
 
-    if (nodeId && (newDimensions || position) && nodelabel) {
-      handleResize(nodeId, newDimensions, position, nodelabel); // Passa o id e as dimensões
-    }
+      // Verifica o tipo de mudança
+      if ('id' in change) {
+        nodeId = change.id;
+      }
+
+      if ('position' in change) {
+        const positionChange = change;
+        position = positionChange.position;
+      }
+
+      if ('dimensions' in change) {
+        const resizeChange = change;
+        newDimensions = resizeChange.dimensions;
+      }
+
+      // Obtém o rótulo do nó
+      const nodelabel = nodes.find((node) => node.id === nodeId)?.data.label;
+
+      // Chama handleResize se houver um id, dimensões ou posição e um rótulo do nó
+      if (nodeId && (newDimensions || position) && nodelabel) {
+        handleResize(nodeId, newDimensions, position, nodelabel); // Passa o id e as dimensões
+      }
+    });
   };
 
   return (

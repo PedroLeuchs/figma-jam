@@ -39,7 +39,7 @@ const LogicControl: FC<LogicControlProps> = ({ selected = false }) => {
   };
 
   // Função chamada ao redimensionar
-  const handleResize = (event: unknown, params: { width: number }) => {
+  const handleResize = (_event: unknown, params: { width: number }) => {
     const newWidth = params.width;
     const newHandleCount = Math.floor(newWidth / 50);
 
@@ -76,6 +76,7 @@ const LogicControl: FC<LogicControlProps> = ({ selected = false }) => {
     >
       <NodeResizer
         minHeight={operator ? 20 : 6}
+        maxHeight={operator ? 20 : 6}
         minWidth={100}
         isVisible={selected}
         lineClassName="!border-blue-400"
@@ -84,7 +85,7 @@ const LogicControl: FC<LogicControlProps> = ({ selected = false }) => {
       />
 
       {/* Renderização dinâmica dos handles com base no tamanho */}
-      {handles.map((handle, index) => {
+      {handles.map((index) => {
         const leftPosition = `${(index / (handles.length - 1)) * 100}%`; // Distribui uniformemente
 
         return (
@@ -100,7 +101,7 @@ const LogicControl: FC<LogicControlProps> = ({ selected = false }) => {
           />
         );
       })}
-      {handles.map((handle, index) => {
+      {handles.map((index) => {
         const leftPosition = `${(index / (handles.length - 1)) * 100}%`;
 
         return (
