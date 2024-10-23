@@ -100,7 +100,7 @@ const EditEdge = (props: EditEdgeProps) => {
   };
 
   return (
-    <Toolbar.Root className="w-full h-52 rounded-b-lg flex flex-col items-center justify-start">
+    <Toolbar.Root className="w-full h-44 rounded-b-lg flex flex-col items-center justify-start">
       <div className="flex items-center justify-center w-full h-1/5">
         <Toolbar.Button
           onClick={() => showOptions(1)}

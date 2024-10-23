@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { NodeProps, Handle, Position, NodeResizer } from '@xyflow/react';
+import { NodeProps, NodeResizer } from '@xyflow/react';
 import { Modal } from '../modal/Modal';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
@@ -27,7 +27,6 @@ export const Group: FC<GroupProps> = ({
   fontColor = 'text-black',
   updateNodeLabel = () => {},
 }) => {
-  const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
   const [tempFontColor, setTempFontColor] = useState(fontColor);
   const [tempColor, setTempColor] = useState(color);
   const [currentColor, setCurrentColor] = useState(color);
@@ -52,6 +51,7 @@ export const Group: FC<GroupProps> = ({
     setCurrentFontColor(tempFontColor);
     updateNodeLabel(id, tempTextValue);
     data.label = tempTextValue;
+    color = tempColor;
   };
   const handleCancel = () => {
     setTempTextValue(data?.label || 'Escreva aqui');
@@ -61,8 +61,6 @@ export const Group: FC<GroupProps> = ({
 
   return (
     <div
-      onMouseEnter={() => setShowOnMouseEnter(true)}
-      onMouseLeave={() => setShowOnMouseEnter(false)}
       className={`${currentColor} bg-opacity-50 fixed -z-50 w-full h-full min-w-[200px] min-h-[200px]  rounded-lg shadow-md`}
     >
       <NodeResizer
@@ -77,40 +75,6 @@ export const Group: FC<GroupProps> = ({
       >
         {textValue}
       </div>
-
-      {/* Handles on all 4 sides */}
-      <Handle
-        type="source"
-        id="right"
-        position={Position.Right}
-        className={`handle handle-right ${
-          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
-        }`}
-      />
-      <Handle
-        type="source"
-        id="left"
-        position={Position.Left}
-        className={`handle handle-left ${
-          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
-        }`}
-      />
-      <Handle
-        type="source"
-        id="top"
-        position={Position.Top}
-        className={`handle handle-top ${
-          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
-        }`}
-      />
-      <Handle
-        type="source"
-        id="bottom"
-        position={Position.Bottom}
-        className={`handle handle-bottom ${
-          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
-        }`}
-      />
       {selected && (
         <Modal
           components={[

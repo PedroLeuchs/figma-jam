@@ -51,7 +51,7 @@ const SideBar: React.FC<SideBarProps> = ({
   );
 
   return (
-    <Toolbar.Root className="h-[78%] w-[8%] absolute top-5 right-5 bg-white rounded-2xl shadow-lg border border-zinc-300 flex flex-col items-center justify-start gap-2 py-5">
+    <Toolbar.Root className="h-[78%] w-[8%] absolute top-5 right-5 bg-white rounded-2xl shadow-lg border border-zinc-300 flex flex-col items-center justify-start gap-2 py-5 dark:bg-zinc-900  dark:border-zinc-700 dark:text-white">
       <h2 className="text-center text-xl">
         {selectedUnityNode
           ? `Componente ${selectedUnityNode.data.label}` // Mostra o label da unidade selecionada
@@ -60,55 +60,57 @@ const SideBar: React.FC<SideBarProps> = ({
       <hr className="bg-black w-11/12" />
 
       {/* Verifica se um node do tipo 'unity' está selecionado */}
-      {selectedUnityNode
-        ? unitphases
-            .filter(
-              (unitphase) => unitphase.Unidade == selectedUnityNode.data.label
-            ) // Filtra pela unidade selecionada
-            .map((unitphase) =>
-              unitphase.Fases.map((fase, index) => (
-                <Toolbar.Button
-                  key={index}
-                  onDragStart={(event) => onDragStart(event, 'phase', fase)}
-                  draggable
-                  className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 transition-all duration-300 bg-red-400 text-black hover:-translate-x-4 hover:scale-105"
-                >
-                  {fase}
-                </Toolbar.Button>
-              ))
-            )
-        : ingredients.map((ingredient) => (
-            <Toolbar.Button
-              key={ingredient.id}
-              onDragStart={(event) => onDragStart(event, ingredient.type)}
-              draggable
-              className={`w-10/12 h-auto p-2 top-10 right-0 border text-black border-gray-300 transition-all duration-300 
-                  ${
-                    ingredient.type === 'circle'
-                      ? 'rounded-full bg-gray-200'
-                      : ingredient.type === 'square'
-                      ? 'bg-white rounded-tl-lg '
-                      : ingredient.type === 'unity'
-                      ? 'bg-violet-700/50 h-20'
-                      : ingredient.type === 'logicControl'
-                      ? 'bg-gray-800 text-white'
-                      : ingredient.type === 'phase'
-                      ? 'bg-red-400 text-black'
-                      : ''
-                  } hover:-translate-x-4 hover:scale-105`}
-            >
-              {ingredient.label}
-              {ingredient.type === 'triangle' && (
-                <div className="relative left-1/2 -translate-x-1/2 w-0 h-0 border-l-[25px] border-r-[25px] border-b-[50px] border-l-transparent border-r-transparent border-b-gray-800"></div>
-              )}
-            </Toolbar.Button>
-          ))}
-
-      <div className="absolute bottom-0 w-full border-t border-zinc-300">
-        {canEdit && (
-          <EditEdge setEdges={setEdges} edges={edges} setCanEdit={setCanEdit} />
-        )}
+      <div className="w-full flex flex-col gap-2 items-center justify-start overflow-y-auto h-[60%]">
+        {selectedUnityNode
+          ? unitphases
+              .filter(
+                (unitphase) => unitphase.Unidade == selectedUnityNode.data.label
+              ) // Filtra pela unidade selecionada
+              .map((unitphase) =>
+                unitphase.Fases.map((fase, index) => (
+                  <Toolbar.Button
+                    key={index}
+                    onDragStart={(event) => onDragStart(event, 'phase', fase)}
+                    draggable
+                    className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-gray-600 transition-all duration-300 bg-red-400 dark:bg-red-700 text-black hover:-translate-x-4 hover:scale-105"
+                  >
+                    {fase}
+                  </Toolbar.Button>
+                ))
+              )
+          : ingredients.map((ingredient) => (
+              <Toolbar.Button
+                key={ingredient.id}
+                onDragStart={(event) => onDragStart(event, ingredient.type)}
+                draggable
+                className={`w-10/12 h-auto p-2 top-10 right-0 border text-black dark:text-white border-gray-300 transition-all duration-300 
+                ${
+                  ingredient.type === 'circle'
+                    ? 'rounded-full bg-gray-200 dark:bg-gray-700'
+                    : ingredient.type === 'square'
+                    ? 'bg-white dark:bg-slate-700 rounded-tl-lg '
+                    : ingredient.type === 'unity'
+                    ? 'bg-violet-700/50  h-20'
+                    : ingredient.type === 'logicControl'
+                    ? 'bg-gray-400 dark:bg-gray-800'
+                    : ingredient.type === 'phase'
+                    ? 'bg-red-400 dark:bg-red-700'
+                    : ''
+                } hover:-translate-x-4 hover:scale-105`}
+              >
+                {ingredient.label}
+                {ingredient.type === 'triangle' && (
+                  <div className="relative left-1/2 -translate-x-1/2 w-0 h-0 border-l-[25px] border-r-[25px] border-b-[50px] border-l-transparent border-r-transparent border-b-gray-800"></div>
+                )}
+              </Toolbar.Button>
+            ))}
       </div>
+      <hr className="bg-black w-11/12" />
+      {canEdit && (
+        <div className="absolute bottom-0 w-full border-t border-zinc-300">
+          <EditEdge setEdges={setEdges} edges={edges} setCanEdit={setCanEdit} />
+        </div>
+      )}
     </Toolbar.Root>
   );
 };

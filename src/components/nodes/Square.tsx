@@ -19,7 +19,6 @@ export const Square: FC<SquareProps> = ({
   const { ingredients = [] } = data as {
     ingredients: { id: string; label: string }[];
   };
-
   const [currentColor, setCurrentColor] = useState(color);
   const [currentFontColor, setCurrentFontColor] = useState(fontColor);
   const [textareaValue, setTextareaValue] = useState(
@@ -39,7 +38,7 @@ export const Square: FC<SquareProps> = ({
   };
 
   const handleFontColorChange = (color: string) => {
-    setTempFontColor(color); // Atualiza a cor da fonte temporariamente
+    setTempFontColor(color);
   };
 
   const handleIngredientSelect = (ingredient: string) => {
@@ -50,11 +49,13 @@ export const Square: FC<SquareProps> = ({
     setCurrentColor(tempColor);
     setCurrentFontColor(tempFontColor);
     setTextareaValue(tempTextareaValue);
+    data.label = tempTextareaValue;
+    data.color = tempColor;
   };
   const handleCancel = () => {
     setTempTextareaValue(data?.label || 'Escreva aqui');
-    setTempFontColor(''); // Atualiza a cor da fonte temporariamente
-    setTempColor(''); // Atualiza a cor temporariamente
+    setTempFontColor('');
+    setTempColor('');
     setTextareaValue(data?.label || 'Escreva aqui');
   };
 
@@ -67,6 +68,9 @@ export const Square: FC<SquareProps> = ({
       }  shadow-lg shadow-black/30 border border-gray-500`}
     >
       <NodeResizer
+        onResizeEnd={() => {
+          console.log('resize');
+        }}
         minHeight={50}
         minWidth={200}
         isVisible={selected}
@@ -75,23 +79,7 @@ export const Square: FC<SquareProps> = ({
       />
 
       <Handle
-        type="source"
-        id="right"
-        position={Position.Right}
-        className={`handle handle-right ${
-          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
-        }`}
-      />
-      <Handle
-        type="source"
-        id="left"
-        position={Position.Left}
-        className={`handle handle-left ${
-          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
-        }`}
-      />
-      <Handle
-        type="source"
+        type="target"
         id="top"
         position={Position.Top}
         className={`handle handle-top ${
