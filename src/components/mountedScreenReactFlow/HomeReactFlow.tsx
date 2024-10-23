@@ -12,6 +12,7 @@ const HomeReactFlow = () => {
       <div className="flex flex-col">
         <div className="flex"> */}
       {/* <FluxogramList2 /> */}
+
       <ReactFlowProvider>
         <DnDProvider>
           <DnDFlow />

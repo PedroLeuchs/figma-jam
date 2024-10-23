@@ -14,255 +14,44 @@ import {
   Connection,
   addEdge,
   useNodesState,
-  Edge,
   BackgroundVariant,
   useReactFlow,
   Panel,
   MiniMap,
+  ColorMode,
+  MarkerType,
+  NodeChange,
 } from '@xyflow/react';
 import { useDnD } from '../sideBar/DndContext';
 import '@xyflow/react/dist/style.css';
 
-// nodes
 import { zinc } from 'tailwindcss/colors';
-import { Square } from '../nodes/Square';
-import { Triangle } from '../nodes/Triangle';
-import { Circle } from '../nodes/Circle';
-import { Group } from '../nodes/Group';
-import LogicControl from '../nodes/LogicControl';
-import Phase from '../nodes/Phase';
 
-// components
-import DefaultEdge from '../edges/DefaultEdge';
+//components
 import SideBar from '../sideBar/SideBar';
+import AlertComponent from '../alert/AlertComponent';
 
-// arrays
+//services
 import { EQUIPAMENT } from '../../services/Equipament';
 import { MACHINES } from '../../services/Machines';
 import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
 import { UNITYPHASES } from '../../services/Unitys';
+import {
+  INITIAL_NODES,
+  getId,
+  GROUPIDS,
+  NODE_TYPES,
+} from '../../services/InicialNodes';
+import { EDGE_TYPES, INITIAL_EDGES } from '../../services/inicialEdges';
 
-//icons
 import { MdOutlineZoomInMap } from 'react-icons/md';
 import { MdOutlineZoomIn } from 'react-icons/md';
 import { MdOutlineZoomOut } from 'react-icons/md';
 import BackAndNext from '../sideBar/BackAndNext';
+import { CiDark, CiLight } from 'react-icons/ci';
 
 import { useHistoryState } from '@uidotdev/usehooks';
-
-const NODE_TYPES = {
-  square: Square,
-  circle: Circle,
-  triangle: Triangle,
-  logicControl: LogicControl,
-  unity: Group,
-  phase: Phase,
-};
-
-const EDGE_TYPES = {
-  default: DefaultEdge,
-};
-
-const LOGIC_CONTROLS = [
-  { id: '1', label: 'AND' },
-  { id: '2', label: 'OR' },
-];
-
-const GROUPIDS: string[] = [];
-
-// Função para gerar IDs incrementais
-let nodeId = 1;
-const getId = (type?: string) => {
-  const id = nodeId++;
-
-  if (type === 'unity') {
-    GROUPIDS.push(id.toString()); // Adiciona o ID ao array GROUPIDS se for do tipo 'unity'
-  }
-  return id;
-};
-
-const INITIAL_NODES: Node[] = [
-  {
-    id: getId().toString(),
-    type: 'triangle',
-    position: { x: 700, y: 10 },
-    data: { label: 'Start', color: 'bg-gray-500', direction: false },
-  },
-  {
-    id: getId().toString(),
-    type: 'circle',
-    position: { x: 699, y: 150 },
-    data: { label: MACHINES[0].label, machine: MACHINES },
-  },
-  {
-    id: getId('unity').toString(),
-    type: 'unity',
-    position: { x: 500, y: 300 },
-    data: { label: UNITYPHASES[1].Unidade, unitphases: UNITYPHASES },
-    style: { width: 500, height: 450 },
-  },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: 525, y: 600 },
-    data: { label: EQUIPAMENT[0].label, ingredients: EQUIPAMENT },
-    //aqui
-  },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: 775, y: 600 },
-    data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
-    //aqui
-  },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: 650, y: 750 },
-    data: { label: EQUIPAMENT[5].label, ingredients: EQUIPAMENT },
-  },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: 650, y: 800 },
-    data: { label: EQUIPAMENT[10].label, machine: MACHINES },
-  },
-  {
-    id: getId().toString(),
-    type: 'circle',
-    position: { x: 1300, y: 200 },
-    data: { label: MACHINES[1].label, machine: MACHINES },
-  },
-  {
-    id: getId().toString(),
-    type: 'triangle',
-    position: { x: 1300, y: 350 },
-    data: { label: 'End', direction: true },
-  },
-  {
-    id: getId().toString(),
-    type: 'logicControl',
-    position: { x: 700, y: 525 },
-    data: { typeControls: LOGIC_CONTROLS },
-    //aqui
-  },
-  // {
-  //   id: getId().toString(),
-  //   type: 'square',
-  //   position: { x: -2000, y: -2000 },
-  //   data: { typeControls: LOGIC_CONTROLS },
-  //   //aqui
-  // },
-  // {
-  //   id: getId().toString(),
-  //   type: 'square',
-  //   position: { x: 1500, y: 1500 },
-  //   data: { typeControls: LOGIC_CONTROLS },
-  //   //aqui
-  // },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: -2000, y: 0 },
-    data: { typeControls: LOGIC_CONTROLS },
-    //aqui
-  },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: 2000, y: 0 },
-    data: { typeControls: LOGIC_CONTROLS },
-    //aqui
-  },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: 0, y: -2000 },
-    data: { typeControls: LOGIC_CONTROLS },
-    //aqui
-  },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: 3000, y: 2000 },
-    data: { typeControls: LOGIC_CONTROLS },
-    //aqui
-  },
-  {
-    id: getId().toString(),
-    type: 'square',
-    position: { x: 3000, y: -2000 },
-    data: { typeControls: LOGIC_CONTROLS },
-    //aqui
-  },
-];
-
-const INITIAL_EDGES: Edge[] = [
-  {
-    id: 'e1-2',
-    source: '1',
-    target: '2',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-  {
-    id: 'e2-3',
-    source: '2',
-    target: '3',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-
-  {
-    id: 'e4-6',
-    source: '4',
-    target: '6',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-  {
-    id: 'e5-6',
-    source: '5',
-    target: '6',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-  {
-    id: 'e6-7',
-    source: '6',
-    target: '7',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-  {
-    id: 'e7-8',
-    source: '7',
-    target: '8',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-  {
-    id: 'e8-9',
-    source: '8',
-    target: '9',
-    sourceHandle: 'bottom',
-    targetHandle: 'top',
-    type: 'default',
-    selected: false,
-  },
-];
+import { debounce } from '@mui/material';
 
 export function DnDFlow() {
   const { state, set, undo, redo, canUndo, canRedo } = useHistoryState({
@@ -272,17 +61,24 @@ export function DnDFlow() {
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     state.edgesHistoryState
-  ); // Arestas iniciais
+  );
   const [nodes, setNodes, onNodesChange] = useNodesState(
     state.nodesHistoryState
-  ); // Nós iniciais
+  );
   const [type, setType] = useDnD();
   const { screenToFlowPosition } = useReactFlow();
   const [selectedUnityId, setSelectedUnityId] = useState<string>('');
-  const [newLabel, setNewLabel] = useState<string>(''); // Estado para a nova label
+  const [newLabel, setNewLabel] = useState<string>('');
   const { setViewport, zoomIn, zoomOut } = useReactFlow();
   const { getIntersectingNodes } = useReactFlow();
   const [hasNodeOnUnityVerify, setHasNodeOnUnityVerify] = useState(false);
+  const [colorMode, setColorMode] = useState<ColorMode>('light');
+  const [showAlert, setShowAlert] = useState(false);
+  const [showAlertMessage, setShowAlertMessage] = useState('');
+  const [showAlertSeverity, setShowAlertSeverity] = useState<
+    'error' | 'warning' | 'info' | 'success'
+  >('error');
+  const [isResizing, setIsResizing] = useState(false);
 
   const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
     if (node === undefined) {
@@ -303,20 +99,17 @@ export function DnDFlow() {
       }
 
       nodes.forEach((node) => {
-        // Verifica se o nó é do tipo "unity"
-        const isUnity = GROUPIDS.includes(node.id); // Verifique se o nó é uma unity
+        const isUnity = GROUPIDS.includes(node.id);
 
         if (isUnity) {
-          const { position, style } = node; // Acesse as propriedades do nó
-          const { x, y } = position; // Coordenadas do nó
-          const { width, height } = style as { width: number; height: number }; // Estilos de largura e altura
+          const { position, style } = node;
+          const { x, y } = position;
+          const { width, height } = style as { width: number; height: number };
 
-          // Verifique se existem nós dentro das coordenadas da unity
           const nodesInUnity = nodes.filter((otherNode) => {
             const otherX = otherNode.position.x;
             const otherY = otherNode.position.y;
 
-            // Ignore se o id do nó for igual ao id da unity
             if (otherNode.id === node.id) return false;
 
             return (
@@ -328,11 +121,9 @@ export function DnDFlow() {
           });
 
           if (nodesInUnity.length > 0) {
-            // Aplique o parentId da unity aos nós encontrados
             nodesInUnity.forEach((foundNode) => {
-              // Verifique se o nó atual NÃO é do tipo 'unity'
               if (foundNode.type !== 'unity') {
-                foundNode.parentId = node.id || ''; // Atribui o parentId da unity ao nó, desde que não seja unity
+                foundNode.parentId = node.id || '';
                 foundNode.position.x = foundNode.position.x - width;
                 foundNode.position.y = foundNode.position.y - height;
               }
@@ -349,6 +140,9 @@ export function DnDFlow() {
       if (node.type === 'unity') {
         return;
       }
+      if (node.type === 'separator') {
+        return;
+      }
 
       const intersectingUnities = getIntersectingNodes(node).filter(
         (n) => n.type === 'unity'
@@ -356,8 +150,6 @@ export function DnDFlow() {
 
       if (intersectingUnities.length > 0) {
         const unityNode = intersectingUnities[0];
-
-        // Calcula a posição relativa corretamente subtraindo apenas as coordenadas X e Y da unity
 
         const relativePosition = {
           x:
@@ -382,7 +174,7 @@ export function DnDFlow() {
               ? {
                   ...n,
                   parentId: unityNode.id,
-                  position: relativePosition, // Usa a posição relativa calculada corretamente
+                  position: relativePosition,
                 }
               : n
           )
@@ -399,41 +191,90 @@ export function DnDFlow() {
               : n
           ),
         });
+      } else {
+        set({
+          ...state,
+          nodesHistoryState: nodes.map((n) =>
+            n.id === node.id
+              ? {
+                  ...n,
+                  position: { x: node.position.x, y: node.position.y },
+                }
+              : n
+          ),
+        });
       }
     },
     [getIntersectingNodes, setNodes, set, state, nodes]
   );
 
   const onConnect = useCallback(
-    (connection: Connection) => {
+    (connection: Connection & { markerEnd?: { type: MarkerType } }) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
       const targetNode = nodes.find((node) => node.id === connection.target);
 
-      if (
-        (sourceNode?.type === 'square' && targetNode?.type === 'circle') ||
-        (sourceNode?.type === 'circle' && targetNode?.type === 'square')
-      ) {
-        setEdges((edges) => addEdge(connection, edges));
-        set({
-          ...state,
-          edgesHistoryState: [
-            ...state.edgesHistoryState,
-            { ...connection, id: `${connection.source}-${connection.target}` },
-          ],
-        });
-      } else {
-        setEdges((edges) => addEdge(connection, edges));
-        set({
-          ...state,
-          edgesHistoryState: [
-            ...state.edgesHistoryState,
-            { ...connection, id: `${connection.source}-${connection.target}` },
-          ],
-        });
-      }
-    },
+      // Verificar se o targetNode já possui uma conexão de entrada
+      const targetHasIncomingEdge = edges.some(
+        (edge) =>
+          edge.target === connection.target &&
+          edge.targetHandle === connection.targetHandle // Verifica a handle do target
+      );
 
-    [nodes, setEdges, set, state]
+      if (targetHasIncomingEdge && targetNode?.type !== 'logicControl') {
+        onShowAlert(
+          'O nó de destino já possui uma conexão de entrada na mesma handle. Use o controle de lógica para fazer mais conexões.',
+          'error'
+        );
+        return; // Impede a conexão se o nó já estiver recebendo uma edge na mesma handle
+      }
+
+      // Verificar se já existe uma conexão na mesma sourceHandle ou targetHandle
+      const handleAlreadyConnected = edges.some(
+        (edge) =>
+          (edge.source === connection.source &&
+            edge.sourceHandle === connection.sourceHandle) ||
+          (edge.target === connection.target &&
+            edge.targetHandle === connection.targetHandle)
+      );
+
+      if (handleAlreadyConnected) {
+        onShowAlert(
+          'Já existe uma conexão na mesma handle. Não é permitido mais de uma conexão no mesmo ponto.',
+          'error'
+        );
+        return; // Impede a conexão se já existir uma ligação na mesma handle
+      }
+
+      // Adiciona nova edge
+
+      const newEdge = {
+        ...connection,
+        id: `${connection.source}-${connection.target}`,
+        sourceHandle: connection.sourceHandle ?? null,
+        targetHandle: connection.targetHandle ?? null,
+      };
+
+      if (sourceNode?.type === 'phase' && targetNode?.type === 'phase') {
+        newEdge.markerEnd = { type: MarkerType.ArrowClosed };
+      }
+
+      setEdges((edges) =>
+        addEdge(
+          {
+            ...newEdge,
+            sourceHandle: newEdge.sourceHandle ?? null,
+            targetHandle: newEdge.targetHandle ?? null,
+          },
+          edges
+        )
+      );
+
+      set({
+        ...state,
+        edgesHistoryState: [...state.edgesHistoryState, newEdge],
+      });
+    },
+    [nodes, edges, setEdges, set, state]
   );
 
   const onDragStart = (
@@ -467,7 +308,6 @@ export function DnDFlow() {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-      // verifyHasNodeOnUnity(nodes);
 
       if (!type) {
         return;
@@ -481,6 +321,24 @@ export function DnDFlow() {
       let newNode: Node = {
         id: type === 'unity' ? getId('unity').toString() : getId().toString(),
         type,
+        measured: {
+          width:
+            type === 'square' || type === 'phase'
+              ? 200
+              : type === 'circle' || type === 'triangle'
+              ? 100
+              : type === 'unity'
+              ? 500
+              : 50,
+          height:
+            type === 'square' || type === 'phase'
+              ? 50
+              : type === 'circle' || type === 'triangle'
+              ? 100
+              : type === 'unity'
+              ? 500
+              : 50,
+        },
         position,
         data: {
           label:
@@ -492,7 +350,9 @@ export function DnDFlow() {
               ? UNITYPHASES[0].Unidade
               : type === 'phase'
               ? newLabel
-              : 'Nova Fase',
+              : type === 'label'
+              ? 'Escreva aqui'
+              : 'Novo Nó',
           ingredients: type === 'square' ? EQUIPAMENT : null,
           machine: type === 'circle' ? MACHINES : null,
           unitphases: type === 'unity' ? UNITYPHASES : null,
@@ -501,24 +361,22 @@ export function DnDFlow() {
       };
 
       if (type !== 'unity') {
-        newNode.parentId = ''; // Defina como necessário
-        newNode.extent = 'parent'; // Defina como necessário
+        newNode.parentId = '';
+        newNode.extent = 'parent';
       }
 
-      // Garantir que "ingredients", "machine" e "unitphases" estejam sempre presentes
       if (type !== 'square') {
-        newNode.data.ingredients = null; // Definir como null se não for do tipo "square"
+        newNode.data.ingredients = null;
       }
 
       if (type !== 'circle') {
-        newNode.data.machine = null; // Definir como null se não for do tipo "circle"
+        newNode.data.machine = null;
       }
 
       if (type !== 'unity') {
-        newNode.data.unitphases = null; // Definir como null se não for do tipo "unity"
+        newNode.data.unitphases = null;
       }
 
-      // Adicionar estilos personalizados se o tipo for 'unity'
       if (type === 'unity') {
         newNode = {
           ...newNode,
@@ -526,7 +384,6 @@ export function DnDFlow() {
         };
       }
 
-      // Verificar se o novo nó está dentro de um grupo
       if (type !== 'unity') {
         const parentGroup = nodes.find(
           (node) =>
@@ -534,17 +391,23 @@ export function DnDFlow() {
             position.x > node.position.x &&
             position.x <
               node.position.x +
-                (typeof node.style?.width === 'number'
-                  ? node.style.width
+                (typeof node.measured?.width === 'number'
+                  ? node.measured.width
                   : 0) &&
             position.y > node.position.y &&
             position.y <
               node.position.y +
-                (typeof node.style?.height === 'number' ? node.style.height : 0)
+                (typeof node.measured?.height === 'number'
+                  ? node.measured.height
+                  : 0)
         );
 
         if (type === 'phase') {
           if (!parentGroup) {
+            onShowAlert(
+              'Você só pode adicionar uma Phase dentro de uma Unity.',
+              'error'
+            );
             return;
           }
           newNode = {
@@ -618,22 +481,17 @@ export function DnDFlow() {
     const zoomX = viewportWidth / width;
     const zoomY = viewportHeight / height;
 
-    // Calculando o zoom com base no menor valor entre zoomX e zoomY
     let zoom = Math.min(zoomX, zoomY) * 0.9;
 
-    // Limitando o zoom para evitar valores menores que 0.08
     if (zoom < 0.08) {
       zoom = 0.08;
     } else {
       zoom *= 0.98;
     }
 
-    // Calculando o fator de ajuste para x e y dinamicamente
-    // const factorX = viewportWidth / (maxX - minX);
     const factorX = (viewportHeight + viewportWidth) / (maxX - minX) / 3.5;
     const factorY = (viewportHeight + viewportWidth) / (maxY - minY) / 3.5;
-    // * 0.08
-    // Ajuste dinâmico para x e y com base nos fatores calculados
+
     const xAdjusted = (centerX - viewportWidth / 2 / zoom) * -1 * factorX;
     const yAdjusted = (centerY - viewportHeight / 2 / zoom) * -1 * factorY;
 
@@ -643,6 +501,59 @@ export function DnDFlow() {
       zoom,
     };
   };
+
+  const onToggleColorMode = () => {
+    setColorMode(colorMode === 'light' ? 'dark' : 'light');
+  };
+
+  // const handleSizeChange = useCallback(
+  //   (nodes: Node[], historyNodes: Node[]) => {
+  //     nodes.forEach((node) => {
+  //       const historyNode = historyNodes.find((hn) => hn.id === node.id);
+
+  //       if (historyNode && node.measured !== historyNode.measured) {
+  //         set({
+  //           ...state,
+  //           nodesHistoryState: nodes,
+  //         });
+  //       }
+  //       if (historyNode && node.position !== historyNode.position)
+  //         set({
+  //           ...state,
+  //           nodesHistoryState: nodes,
+  //         });
+  //     });
+  //   },
+  //   [set, state]
+  // );
+
+  // const handleNodeAndStateMeasuredEqualStyle = useCallback(
+  //   (nodes: Node[], historyNodes: Node[]) => {
+  //     console.log('loop here');
+  //     nodes.forEach((node) => {
+  //       if (node.measured !== node.style) {
+  //         node.style = node.measured;
+  //       }
+  //     });
+
+  //     historyNodes.forEach((node) => {
+  //       if (node.measured !== node.style) {
+  //         node.style = node.measured;
+  //       }
+  //     });
+  //   },
+  //   []
+  // );
+
+  // useEffect(() => {
+  //   handleNodeAndStateMeasuredEqualStyle(nodes, state.nodesHistoryState);
+  //   handleSizeChange(nodes, state.nodesHistoryState);
+  // }, [
+  //   nodes,
+  //   state.nodesHistoryState,
+  //   handleNodeAndStateMeasuredEqualStyle,
+  //   handleSizeChange,
+  // ]);
 
   useEffect(() => {
     nodes.forEach((node) => {
@@ -656,10 +567,141 @@ export function DnDFlow() {
   useEffect(() => {
     setEdges(state.edgesHistoryState);
     setNodes(state.nodesHistoryState);
+    console.log(state);
   }, [state, setEdges, setNodes]);
 
+  useEffect(() => {
+    if (colorMode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [colorMode]);
+
+  const onShowAlert = (
+    message: string,
+    severity: 'error' | 'warning' | 'info' | 'success'
+  ) => {
+    setShowAlertMessage(message);
+    setShowAlertSeverity(severity);
+    setShowAlert(true);
+
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 5000);
+  };
+  const handleResizeEnd = useCallback(
+    (
+      nodeId: string,
+      newDimensions?: { width: number; height: number },
+      position?: { x: number; y: number },
+      nodelabel?: string | unknown
+    ) => {
+      set({
+        ...state,
+        nodesHistoryState: state.nodesHistoryState.map((n) =>
+          n.id === nodeId
+            ? {
+                ...n,
+                measured:
+                  newDimensions &&
+                  newDimensions.width !== n.measured?.width &&
+                  newDimensions.height !== n.measured?.height
+                    ? {
+                        width: newDimensions.width,
+                        height: newDimensions.height,
+                      }
+                    : n.measured,
+                style:
+                  newDimensions &&
+                  newDimensions.width !== n.style?.width &&
+                  newDimensions.height !== n.style?.height
+                    ? {
+                        width: newDimensions.width,
+                        height: newDimensions.height,
+                      }
+                    : n.style,
+                position:
+                  position && position !== n.position
+                    ? { x: position.x, y: position.y }
+                    : n.position,
+                data:
+                  nodelabel && nodelabel !== n.data.label
+                    ? { ...n.data, label: nodelabel }
+                    : n.data,
+              }
+            : n
+        ),
+      });
+      console.log('state 2', state);
+    },
+    [set, state]
+  );
+  const debouncedHandleResizeEnd = useCallback(
+    debounce(
+      (
+        nodeId: string,
+        dimensions?: { width: number; height: number },
+        position?: { x: number; y: number },
+        nodelabel?: string | unknown
+      ) => {
+        handleResizeEnd(nodeId, dimensions, position, nodelabel);
+      },
+      100
+    ),
+    [handleResizeEnd]
+  );
+
+  const handleResize = useCallback(
+    (
+      id: string,
+      dimensions?: { width: number; height: number },
+      position?: { x: number; y: number },
+      nodelabel?: string | unknown
+    ) => {
+      if (!isResizing) {
+        setIsResizing(true);
+      }
+      debouncedHandleResizeEnd(id, dimensions, position, nodelabel); // Chama o debounce ao final do resize
+    },
+    [isResizing, debouncedHandleResizeEnd]
+  );
+
+  const handleNodeChanges = (changes: NodeChange<Node>[]) => {
+    onNodesChange(changes);
+
+    changes.forEach((change) => {
+      // Verifica se é um tipo de mudança que tem id
+      let nodeId: string | undefined;
+      let newDimensions: { width: number; height: number } | undefined;
+      let position: { x: number; y: number } | undefined;
+
+      // Verifica o tipo de mudança
+      if ('id' in change) {
+        nodeId = change.id;
+      }
+
+      if ('position' in change) {
+        const positionChange = change;
+        position = positionChange.position;
+      }
+
+      if ('dimensions' in change) {
+        const resizeChange = change;
+        newDimensions = resizeChange.dimensions;
+      }
+
+      // Obtém o rótulo do nó
+      const nodelabel = nodes.find((node) => node.id === nodeId)?.data.label;
+
+      // Chama handleResize se houver um id, dimensões ou posição e um rótulo do nó
+      if (nodeId && (newDimensions || position) && nodelabel) {
+        handleResize(nodeId, newDimensions, position, nodelabel); // Passa o id e as dimensões
+      }
+    });
+  };
+
   return (
-    // <div className="w-[85vw] h-[80vh] relative right-0 dndflow">
     <div className="w-screen h-screen relative right-0 dndflow">
       {/* <div className="w-screen h-screen dndflow"> */}
       {/* <DnDProvider> */}
@@ -672,7 +714,7 @@ export function DnDFlow() {
           nodes={nodes}
           edges={edges}
           onNodeDragStop={onNodeDragOver}
-          onNodesChange={onNodesChange}
+          onNodesChange={handleNodeChanges}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onDrop={onDrop}
@@ -682,6 +724,7 @@ export function DnDFlow() {
           minZoom={0.01}
           maxZoom={2.5}
           defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+          colorMode={colorMode}
         >
           <BackAndNext
             canUndo={canUndo}
@@ -691,28 +734,28 @@ export function DnDFlow() {
           />
           <Background
             variant={BackgroundVariant.Cross}
-            size={10}
+            size={7}
             gap={40}
-            color={zinc[200]}
+            color={colorMode == 'light' ? zinc[200] : zinc[800]}
           />
           <Panel
             position="bottom-left"
-            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200 rounded border border-black"
+            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200  rounded border border-black dark:bg-slate-700 dark:border-slate-500 dark:text-white"
           >
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 hover:scale-110 transition-all"
               onClick={() => zoomIn({ duration: 500 })}
             >
-              <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
+              <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200" />
             </button>
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 hover:scale-110 transition-all"
               onClick={() => zoomOut({ duration: 500 })}
             >
               <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
             </button>
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 transition-all"
+              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 transition-all"
               onClick={() =>
                 setViewport(
                   lookAllElements(nodes, viewportWidth, viewportHeight),
@@ -723,11 +766,6 @@ export function DnDFlow() {
               <MdOutlineZoomInMap className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
             </button>
           </Panel>
-          {/* <Controls
-            onZoomIn={() => zoomIn({ duration: 800 })}
-            onZoomOut={() => zoomOut({ duration: 800 })}
-            onFitView={handleTransform}
-          /> */}
           <MiniMap
             zoomable
             pannable
@@ -749,6 +787,24 @@ export function DnDFlow() {
         selectedUnityId={selectedUnityId}
         unitphases={UNITYPHASES}
       />
+      <div
+        onClick={onToggleColorMode}
+        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-slate-700  dark:border-gray-600 fixed top-5 right-52 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
+          colorMode == 'light' ? 'hover:-rotate-90' : 'hover:-scale-x-100'
+        }`}
+      >
+        {colorMode == 'light' ? (
+          <CiLight className="text-3xl text-black " />
+        ) : (
+          <CiDark className="text-3xl text-white" />
+        )}
+      </div>
+
+      <AlertComponent
+        show={showAlert}
+        message={showAlertMessage}
+        severity={showAlertSeverity}
+      />
     </div>
   );
 }
@@ -764,15 +820,13 @@ export function DnDFlow() {
  * npm install @radix-ui/react-dialog
  * npm i react-icons
  * npm i @uidotdev/usehooks
+ * npm install @mui/material @emotion/react @emotion/styled
  */
 
 /**
  *To-Do:
- * arruma o zomm principal
- * adicionar cadeado para não editar
- * arrumar a posição
- * não arrastar fase para fora da outra
- * bug da unity
- * passar pela logica de controle quando tiver duas ligações (apenas phases)
- *
+ ajeitar handles
+ validar unitys 
+ excluir unitys
+
  */

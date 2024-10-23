@@ -49,6 +49,8 @@ export const Circle: FC<CircleProps> = ({
     setCurrentColor(tempColor);
     setCurrentFontColor(tempFontColor);
     setTextareaValue(tempTextareaValue);
+    data.label = tempTextareaValue;
+    data.color = tempColor;
   };
   const handleCancel = () => {
     setTempTextareaValue(data?.label || 'Escreva aqui');
@@ -71,22 +73,6 @@ export const Circle: FC<CircleProps> = ({
         isVisible={selected}
         lineClassName="!border-blue-400"
         handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
-      />
-      <Handle
-        type="source"
-        id="right"
-        position={Position.Right}
-        className={`handle handle-right ${
-          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
-        }`}
-      />
-      <Handle
-        type="source"
-        id="left"
-        position={Position.Left}
-        className={`handle handle-left ${
-          showOnMouseEnter ? 'opacity-1' : 'opacity-0'
-        }`}
       />
       <Handle
         type="source"
