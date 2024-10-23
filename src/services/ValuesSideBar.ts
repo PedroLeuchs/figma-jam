@@ -5,4 +5,6 @@ export const VALUESSIDEBAR = [
   { id: '3', label: 'Controle de lógica', type: 'logicControl' },
   { id: '5', label: 'Unity', type: 'unity' },
   { id: '6', label: 'Phase', type: 'phase' },
+  { id: '7', label: 'Text', type: 'label' },
+  { id: '8', label: 'Grupo', type: 'separator' },
 ];

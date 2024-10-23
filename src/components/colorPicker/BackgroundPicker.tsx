@@ -597,8 +597,10 @@ const BackgroundPicker: React.FC<ColorPickerProps> = ({
       {/* Menu de tons da cor selecionada */}
       {selectedColor && (
         <Toolbar.Root
-          className={`w-40 fixed  ${
-            lineEdit ? ' -left-[105%] bottom-0' : 'bottom-2 right-2'
+          className={`w-40   ${
+            lineEdit
+              ? 'absolute -left-[105%] bottom-0'
+              : 'fixed bottom-2 right-2'
           }  bg-gray-100 border border-zinc-300 rounded-lg p-2 shadow-md flex flex-col gap-1 transition-all duration-300`}
         >
           <div className="font-bold mb-2 text-center w-full">

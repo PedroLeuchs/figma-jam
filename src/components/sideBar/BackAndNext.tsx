@@ -48,16 +48,16 @@ const BackAndNext: React.FC<BackAndNextProps> = ({
       <button
         disabled={!canUndo}
         onClick={undo}
-        className="rounded-lg border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 p-1 hover:cursor-pointer disabled:cursor-not-allowed"
+        className="rounded-lg border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600  p-1 hover:cursor-pointer disabled:cursor-not-allowed"
       >
-        <MdOutlineTurnLeft className="text-2xl text-gray-600 " />
+        <MdOutlineTurnLeft className="text-2xl text-gray-600 dark:text-white " />
       </button>
       <button
         disabled={!canRedo}
         onClick={redo}
-        className="rounded-lg border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 p-1 hover:cursor-pointer disabled:cursor-not-allowed"
+        className="rounded-lg border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 p-1 hover:cursor-pointer disabled:cursor-not-allowed"
       >
-        <MdOutlineTurnRight className="text-2xl text-gray-600 " />
+        <MdOutlineTurnRight className="text-2xl text-gray-600  dark:text-white" />
       </button>
     </div>
   );
