@@ -1,8 +1,9 @@
 import { FC, useState } from 'react';
-import { NodeProps, Handle, Position, NodeResizer } from '@xyflow/react';
+import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
 import { Modal } from '../modal/Modal';
+import { ResizeIcon } from '../resizeCustom/ResizeCustom';
 
 interface PhaseProps extends NodeProps {
   color?: string;
@@ -61,13 +62,15 @@ const Phase: FC<PhaseProps> = ({
         textValue ? 'justify-start' : 'justify-center'
       } shadow-lg shadow-black/30 border border-gray-500`}
     >
-      <NodeResizer
-        minHeight={50}
-        minWidth={200}
-        isVisible={selected}
-        lineClassName="!border-blue-400"
-        handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
-      />
+      {(selected || showOnMouseEnter) && (
+        <NodeResizeControl
+          minHeight={50}
+          minWidth={100}
+          style={{ background: 'transparent', border: 'none' }}
+        >
+          <ResizeIcon />
+        </NodeResizeControl>
+      )}
       <Handle
         type="source"
         id="top"

@@ -21,6 +21,7 @@ import {
   ColorMode,
   MarkerType,
   NodeChange,
+  // NodeChange,
 } from '@xyflow/react';
 import { useDnD } from '../sideBar/DndContext';
 import '@xyflow/react/dist/style.css';
@@ -52,6 +53,8 @@ import { CiDark, CiLight } from 'react-icons/ci';
 
 import { useHistoryState } from '@uidotdev/usehooks';
 import { debounce } from '@mui/material';
+// import { useHandleNodesChangeWithHistory } from '../historyState/HistoryState';
+// import { debounce } from '@mui/material';
 
 export function DnDFlow() {
   const { state, set, undo, redo, canUndo, canRedo } = useHistoryState({
@@ -79,6 +82,53 @@ export function DnDFlow() {
     'error' | 'warning' | 'info' | 'success'
   >('error');
   const [isResizing, setIsResizing] = useState(false);
+
+  // function useHandleNodesChangeWithHistory(
+  //   onNodesChange: OnNodesChange, // Usando o tipo específico OnNodesChange
+  //   nodes: Node[], // Usando tipo específico para os nodes
+  //   set: any
+  // ) {
+  //   return useCallback(
+  //     (changes: NodeChange[]) => {
+  //       // Define mudanças como NodeChange<CustomNode>[]
+  //       // Chama a função onNodesChange original para aplicar as mudanças no estado dos nodes
+  //       onNodesChange(changes);
+
+  //       set({
+  //         ...state,
+  //         nodesHistoryState: [...state.nodesHistoryState, changes],
+  //       });
+
+  //       // Atualiza o histórico após aplicar as mudanças
+  //     },
+  //     [onNodesChange, nodes, set]
+  //   );
+  // }
+
+  // const handleNodesChangeWithHistory = useHandleNodesChangeWithHistory(
+  //   onNodesChange,
+  //   nodes,
+  //   set
+  // );
+
+  // const handleNodesChangeWithHistory = useCallback(
+  //   (changes: any) => {
+  //     // Atualiza os nodes usando o onNodesChange original
+  //     onNodesChange(changes);
+
+  //     // Após a atualização, salva o novo estado dos nodes no histórico
+  //     set((prevState) => ({
+  //       ...prevState,
+  //       nodesHistoryState: [
+  //         ...prevState.nodesHistoryState,
+  //         applyNodeChanges(changes, nodes),
+  //       ],
+  //     }));
+  //   },
+  //   [onNodesChange, nodes, set]
+  // );
+
+  // const [isResizing, setIsResizing] = useState(false);
 
   const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
     if (node === undefined) {
@@ -356,6 +406,7 @@ export function DnDFlow() {
           ingredients: type === 'square' ? EQUIPAMENT : null,
           machine: type === 'circle' ? MACHINES : null,
           unitphases: type === 'unity' ? UNITYPHASES : null,
+          operatorSelected: type === 'logicControl' ? 'AND' : null,
         },
         style: {},
       };
@@ -375,6 +426,9 @@ export function DnDFlow() {
 
       if (type !== 'unity') {
         newNode.data.unitphases = null;
+      }
+      if (type !== 'logicControl') {
+        newNode.data.operatorSelected = null;
       }
 
       if (type === 'unity') {
@@ -410,6 +464,7 @@ export function DnDFlow() {
             );
             return;
           }
+
           newNode = {
             ...newNode,
             parentId: parentGroup.id,
@@ -418,13 +473,33 @@ export function DnDFlow() {
               unitphases: UNITYPHASES,
               ingredients: null,
               machine: null,
+              operatorSelected: null,
             },
           };
-        } else if (parentGroup) {
+        } else if (type === 'logicControl') {
+          if (!parentGroup) {
+            onShowAlert(
+              'Você só pode adicionar um Controle de lógica dentro de uma Unity.',
+              'error'
+            );
+            return;
+          }
+          newNode = {
+            ...newNode,
+            parentId: parentGroup.id,
+            data: {
+              label: null,
+              unitphases: null,
+              ingredients: null,
+              machine: null,
+              operatorSelected: 'AND',
+            },
+          };
+        } else {
           newNode = {
             ...newNode,
             id: getId().toString(),
-            parentId: parentGroup.id,
+            parentId: '00',
           };
         }
       }
@@ -506,55 +581,6 @@ export function DnDFlow() {
     setColorMode(colorMode === 'light' ? 'dark' : 'light');
   };
 
-  // const handleSizeChange = useCallback(
-  //   (nodes: Node[], historyNodes: Node[]) => {
-  //     nodes.forEach((node) => {
-  //       const historyNode = historyNodes.find((hn) => hn.id === node.id);
-
-  //       if (historyNode && node.measured !== historyNode.measured) {
-  //         set({
-  //           ...state,
-  //           nodesHistoryState: nodes,
-  //         });
-  //       }
-  //       if (historyNode && node.position !== historyNode.position)
-  //         set({
-  //           ...state,
-  //           nodesHistoryState: nodes,
-  //         });
-  //     });
-  //   },
-  //   [set, state]
-  // );
-
-  // const handleNodeAndStateMeasuredEqualStyle = useCallback(
-  //   (nodes: Node[], historyNodes: Node[]) => {
-  //     console.log('loop here');
-  //     nodes.forEach((node) => {
-  //       if (node.measured !== node.style) {
-  //         node.style = node.measured;
-  //       }
-  //     });
-
-  //     historyNodes.forEach((node) => {
-  //       if (node.measured !== node.style) {
-  //         node.style = node.measured;
-  //       }
-  //     });
-  //   },
-  //   []
-  // );
-
-  // useEffect(() => {
-  //   handleNodeAndStateMeasuredEqualStyle(nodes, state.nodesHistoryState);
-  //   handleSizeChange(nodes, state.nodesHistoryState);
-  // }, [
-  //   nodes,
-  //   state.nodesHistoryState,
-  //   handleNodeAndStateMeasuredEqualStyle,
-  //   handleSizeChange,
-  // ]);
-
   useEffect(() => {
     nodes.forEach((node) => {
       if (!node.parentId) {
@@ -567,7 +593,6 @@ export function DnDFlow() {
   useEffect(() => {
     setEdges(state.edgesHistoryState);
     setNodes(state.nodesHistoryState);
-    console.log(state);
   }, [state, setEdges, setNodes]);
 
   useEffect(() => {
@@ -590,6 +615,7 @@ export function DnDFlow() {
       setShowAlert(false);
     }, 5000);
   };
+
   const handleResizeEnd = useCallback(
     (
       nodeId: string,
@@ -604,18 +630,14 @@ export function DnDFlow() {
             ? {
                 ...n,
                 measured:
-                  newDimensions &&
-                  newDimensions.width !== n.measured?.width &&
-                  newDimensions.height !== n.measured?.height
+                  newDimensions && newDimensions !== n.measured
                     ? {
                         width: newDimensions.width,
                         height: newDimensions.height,
                       }
                     : n.measured,
                 style:
-                  newDimensions &&
-                  newDimensions.width !== n.style?.width &&
-                  newDimensions.height !== n.style?.height
+                  newDimensions && newDimensions !== n.style
                     ? {
                         width: newDimensions.width,
                         height: newDimensions.height,
@@ -633,7 +655,6 @@ export function DnDFlow() {
             : n
         ),
       });
-      console.log('state 2', state);
     },
     [set, state]
   );
@@ -699,7 +720,37 @@ export function DnDFlow() {
         handleResize(nodeId, newDimensions, position, nodelabel); // Passa o id e as dimensões
       }
     });
+    handleLabelChange();
   };
+
+  const handleLabelChange = useCallback(() => {
+    // Verifica se há algum nó com label diferente em nodesHistoryState
+    const labelsDiffer = nodes.some((node, index) => {
+      const correspondingNode = state.nodesHistoryState[index];
+      return node.data.label !== correspondingNode?.data.label;
+    });
+
+    if (labelsDiffer) {
+      console.log('entrou');
+
+      // Atualiza o estado para refletir as novas labels de nodes
+      set({
+        ...state,
+        nodesHistoryState: nodes.map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            label: node.data.label,
+          },
+        })),
+      });
+      console.log('Labels foram atualizadas.');
+    } else {
+      // console.log('Todas as labels já estão iguais.');
+    }
+  }, [nodes, state, set]);
+  console.log('correspondingNode', state.nodesHistoryState[3].data.label);
+  console.log('node', nodes[3].data.label);
 
   return (
     <div className="w-screen h-screen relative right-0 dndflow">
@@ -740,22 +791,22 @@ export function DnDFlow() {
           />
           <Panel
             position="bottom-left"
-            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200  rounded border border-black dark:bg-slate-700 dark:border-slate-500 dark:text-white"
+            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200  rounded border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
           >
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 hover:scale-110 transition-all"
+              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
               onClick={() => zoomIn({ duration: 500 })}
             >
-              <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200" />
+              <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200 " />
             </button>
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 hover:scale-110 transition-all"
+              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
               onClick={() => zoomOut({ duration: 500 })}
             >
               <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
             </button>
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 transition-all"
+              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white hover:scale-110 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 transition-all"
               onClick={() =>
                 setViewport(
                   lookAllElements(nodes, viewportWidth, viewportHeight),
@@ -789,7 +840,7 @@ export function DnDFlow() {
       />
       <div
         onClick={onToggleColorMode}
-        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-slate-700  dark:border-gray-600 fixed top-5 right-52 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
+        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 fixed top-5 right-52 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
           colorMode == 'light' ? 'hover:-rotate-90' : 'hover:-scale-x-100'
         }`}
       >
@@ -825,8 +876,38 @@ export function DnDFlow() {
 
 /**
  *To-Do:
- ajeitar handles
- validar unitys 
- excluir unitys
 
- */
+- [x] Ajustar lógica do histórico de estados.
+- [x] Ajustar css do menu lateral.
+- [x] Ajustar para que as phases possam ser colocadas apenas as unitys que elas pertencem.
+- [x] Depois que existe uma phase dentro da unity, não pode mudar o tipo da unity.
+- [x] Austar as edges para não permitir conexão de inferior para inferior e superior para superior.
+- [x] Ajustar mensagem de erro e verificar se o json está correto conforme uma atualização de uma edge nula.
+- [x] Nenhum node pode fazer ligação nele mesmo.
+- [x] Atualizar o historico conforme o delete.
+- [x] Apenas um start e um end por receita.
+- [x] Ajustar Inicial Nodes exemplo.
+- [x] Adicionar modal de edição no grupo de nodes.
+- [x] Armazenar edição das edges no histórico.
+- [x] Adicionar alertas de erro.
+- [x] Só pode adicionar phases e controle de lógica dentro de uma unity.
+- [x] Ajustar Z-index das edges.
+
+- [x] Fazer documentação.
+
+- [x] Integração com o mes3.
+
+- [x] Fazer manual de uso do fluxograma.
+
+Doing:
+
+
+Done: 
+- [V] bloquear todos os cantos menos o inferior direito.
+- [V] Ajustar node tipo text para que possa ser escrito.
+
+Impossivel: 
+- [x] Armazenar o historico de uma label de todos os nodes.
+- [x] Armazenar tipo do controle de logica no historico.
+
+*/

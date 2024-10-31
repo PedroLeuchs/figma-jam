@@ -104,8 +104,9 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'logicControl',
+
     measured: { width: 100, height: 20 },
     position: { x: 700, y: 525 },
-    data: { typeControls: LOGIC_CONTROLS },
+    data: { typeControls: LOGIC_CONTROLS, operatorSelected: 'AND' },
   },
 ];

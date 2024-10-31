@@ -1,5 +1,6 @@
-import { NodeProps, NodeResizer } from '@xyflow/react';
+import { NodeProps, NodeResizeControl } from '@xyflow/react';
 import { FC, useEffect, useState } from 'react';
+import { ResizeIcon } from '../resizeCustom/ResizeCustom';
 
 interface SeparatorProps extends NodeProps {
   selected?: boolean;
@@ -10,7 +11,7 @@ interface SeparatorProps extends NodeProps {
 
 export const Separator: FC<SeparatorProps> = ({ selected = false, data }) => {
   const [label, setLabel] = useState(data.label);
-
+  const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
   useEffect(() => {
     // Seleciona a div com a classe 'react-flow__node'
     const nodeDiv = document.querySelector(
@@ -23,17 +24,21 @@ export const Separator: FC<SeparatorProps> = ({ selected = false, data }) => {
 
   return (
     <div
+      onMouseEnter={() => setShowOnMouseEnter(true)}
+      onMouseLeave={() => setShowOnMouseEnter(false)}
       className={`min-h-[100px] min-w-[100px] h-full w-full flex flex-col items-center justify-start p-2 border border-black dark:border-white relative ${
         selected ? '!z-[-1]' : '!z-[-1]'
       } `}
     >
-      <NodeResizer
-        minHeight={100}
-        minWidth={100}
-        isVisible={selected}
-        lineClassName="!border-blue-400"
-        handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
-      />
+      {(selected || showOnMouseEnter) && (
+        <NodeResizeControl
+          minHeight={100}
+          minWidth={100}
+          style={{ background: 'transparent', border: 'none' }}
+        >
+          <ResizeIcon />
+        </NodeResizeControl>
+      )}
       <input
         className="text-3xl font-bold text-center"
         type="text"

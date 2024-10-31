@@ -1,9 +1,10 @@
 import { FC, useState } from 'react';
-import { NodeProps, NodeResizer } from '@xyflow/react';
+import { NodeProps, NodeResizeControl } from '@xyflow/react';
 import { Modal } from '../modal/Modal';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
 import SelectComponent from '../select/Select';
+import { ResizeIcon } from '../resizeCustom/ResizeCustom';
 
 interface UnitPhase {
   Unidade: string;
@@ -33,6 +34,8 @@ export const Group: FC<GroupProps> = ({
   const [currentFontColor, setCurrentFontColor] = useState(fontColor);
   const [textValue, setTextValue] = useState(data.label);
   const [tempTextValue, setTempTextValue] = useState('');
+  const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
+
   const handleColorChange = (color: string) => {
     setTempColor(color); // Atualiza a cor temporariamente
   };
@@ -61,15 +64,19 @@ export const Group: FC<GroupProps> = ({
 
   return (
     <div
+      onMouseEnter={() => setShowOnMouseEnter(true)}
+      onMouseLeave={() => setShowOnMouseEnter(false)}
       className={`${currentColor} bg-opacity-50 fixed -z-50 w-full h-full min-w-[200px] min-h-[200px]  rounded-lg shadow-md`}
     >
-      <NodeResizer
-        minHeight={200}
-        minWidth={200}
-        isVisible={selected}
-        lineClassName="!border-blue-400"
-        handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
-      />
+      {(selected || showOnMouseEnter) && (
+        <NodeResizeControl
+          minHeight={200}
+          minWidth={200}
+          style={{ background: 'transparent', border: 'none' }}
+        >
+          <ResizeIcon />
+        </NodeResizeControl>
+      )}
       <div
         className={`${currentFontColor} opacity-100 p-2 text-center font-semibold text-xl`}
       >
