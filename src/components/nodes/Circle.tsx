@@ -1,9 +1,10 @@
 import { FC, useState } from 'react';
-import { NodeProps, Handle, Position, NodeResizer } from '@xyflow/react';
+import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
 import SelectComponent from '../select/Select';
 import { Modal } from '../modal/Modal';
+import { ResizeIcon } from '../resizeCustom/ResizeCustom';
 
 interface CircleProps extends NodeProps {
   color?: string;
@@ -67,13 +68,15 @@ export const Circle: FC<CircleProps> = ({
         textValue ? 'justify-start' : 'justify-center'
       }  rounded-full border border-gray-600 flex-col`}
     >
-      <NodeResizer
-        minHeight={100}
-        minWidth={100}
-        isVisible={selected}
-        lineClassName="!border-blue-400"
-        handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
-      />
+      {(selected || showOnMouseEnter) && (
+        <NodeResizeControl
+          minHeight={50}
+          minWidth={50}
+          style={{ background: 'transparent', border: 'none' }}
+        >
+          <ResizeIcon />
+        </NodeResizeControl>
+      )}
       <Handle
         type="source"
         id="top"

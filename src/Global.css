@@ -7,6 +7,9 @@
   margin: 0;
   padding: 0;
 }
+.react-flow__edges svg {
+  z-index: 9999 !important;
+}
 
 /* styles.css */
 .handle {
@@ -22,15 +25,6 @@
 }
 
 /* Estilos específicos para cada posição */
-.handle-right {
-  position: absolute; /* Ensure positioning is absolute */
-  right: -0.5rem; /* -right-2 */
-}
-
-.handle-left {
-  position: absolute; /* Ensure positioning is absolute */
-  left: -0.5rem; /* -left-2 */
-}
 
 .handle-top {
   position: absolute; /* Ensure positioning is absolute */
@@ -41,16 +35,7 @@
   position: absolute; /* Ensure positioning is absolute */
   bottom: -0.5rem; /* -bottom-2 */
 }
-.handle-bottom-left {
-  position: absolute; /* Ensure positioning is absolute */
-  bottom: -0.5rem; /* -bottom-2 */
-  left: 0; /* -left-2 */
-}
-.handle-bottom-right {
-  position: absolute; /* Ensure positioning is absolute */
-  bottom: -0.5rem; /* -bottom-2 */
-  left: 100%; /* -right-2 */
-}
+
 .react-flow__node-separator {
   z-index: -1 !important; /* Exemplo: definir um z-index menor */
 }
@@ -72,10 +57,26 @@
   background: #555; /* Cor do thumb quando é hover */
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #1a1a1a; /* Cor da track no modo escuro */
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #444; /* Cor do thumb no modo escuro */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #666; /* Cor do thumb no hover no modo escuro */
+}
+
 /* Para Firefox */
 * {
   scrollbar-width: thin; /* Faz a scrollbar ser fina */
   scrollbar-color: #888 #f1f1f1; /* Cor do thumb e da track */
+}
+
+.dark * {
+  scrollbar-color: #444 #1a1a1a;
 }
 
 /* Para Internet Explorer e Edge */

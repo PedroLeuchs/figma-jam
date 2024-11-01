@@ -1,9 +1,10 @@
 import { FC, useState } from 'react';
-import { NodeProps, Handle, Position, NodeResizer } from '@xyflow/react';
+import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
 import SelectComponent from '../select/Select';
 import { Modal } from '../modal/Modal';
+import { ResizeIcon } from '../resizeCustom/ResizeCustom';
 
 interface SquareProps extends NodeProps {
   color?: string;
@@ -27,6 +28,7 @@ export const Square: FC<SquareProps> = ({
   const [tempTextareaValue, setTempTextareaValue] = useState(
     data?.label || 'Escreva aqui'
   );
+
   const [textValue, setTextValue] = useState('');
   const [tempTextValue, setTempTextValue] = useState('');
   const [tempColor, setTempColor] = useState(color);
@@ -67,19 +69,17 @@ export const Square: FC<SquareProps> = ({
         textValue ? 'justify-start' : 'justify-center'
       }  shadow-lg shadow-black/30 border border-gray-500`}
     >
-      <NodeResizer
-        onResizeEnd={() => {
-          console.log('resize');
-        }}
-        minHeight={50}
-        minWidth={200}
-        isVisible={selected}
-        lineClassName="!border-blue-400"
-        handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
-      />
-
+      {(selected || showOnMouseEnter) && (
+        <NodeResizeControl
+          minHeight={50}
+          minWidth={200}
+          style={{ background: 'transparent', border: 'none' }}
+        >
+          <ResizeIcon />
+        </NodeResizeControl>
+      )}
       <Handle
-        type="target"
+        type="source"
         id="top"
         position={Position.Top}
         className={`handle handle-top ${
@@ -150,36 +150,6 @@ export const Square: FC<SquareProps> = ({
           />
         </>
       )}
-
-      {/* {selected && (
-        <div className="bg-white text-white absolute -bottom-14 rounded-lg border border-gray-200 hover:cursor-pointer">
-          <SelectComponent values={ingredients} type='square' onIngredientSelect={handleIngredientSelect} />
-        </div>
-      )} */}
-
-      {/* {selected && (
-        <>
-          <div
-            onClick={() => setShowFontColorPicker((prev) => !prev)}
-            className="bg-white text-white rounded-full p-1 absolute -top-10 right-10 border border-gray-600 hover:cursor-pointer"
-          >
-            <FaFont className="text-gray-600 text-2xl" />
-          </div>
-          {showFontColorPicker && <FontePicker onColorChange={handleFontColorChange} setShowColorPicker={setShowFontColorPicker} />}
-        </>
-      )}
-
-      {selected && (
-        <>
-          <div
-            onClick={() => setShowColorPicker((prev) => !prev)}
-            className="bg-white text-white rounded-full p-1 absolute -top-10 -right-0 border border-gray-600 hover:cursor-pointer"
-          >
-            <IoIosColorFill className="text-gray-600 text-2xl" />
-          </div>
-          {showColorPicker && <BackgroundPicker onColorChange={handleColorChange} setShowColorPicker={setShowColorPicker} />}
-        </>
-      )} */}
     </div>
   );
 };

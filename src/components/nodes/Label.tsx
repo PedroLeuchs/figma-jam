@@ -1,5 +1,6 @@
-import { NodeProps, NodeResizer } from '@xyflow/react';
-import { FC } from 'react';
+import { NodeProps, NodeResizeControl } from '@xyflow/react';
+import { FC, useState, useEffect } from 'react';
+import { ResizeIcon } from '../resizeCustom/ResizeCustom';
 
 interface LabelProps extends NodeProps {
   selected?: boolean;
@@ -11,31 +12,47 @@ export const Label: FC<LabelProps> = ({
   data,
   onChangeLabel,
 }) => {
+  const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
   const textareaValue =
     typeof data?.label === 'string' ? data.label : 'Escreva aqui';
 
+  const [textvalue, setTextValue] = useState(textareaValue);
+
+  // Atualiza textvalue quando data.label muda
+  useEffect(() => {
+    setTextValue(textareaValue);
+  }, [data?.label, textareaValue]); // Dependência para atualizar quando data.label mudar
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setTextValue(newValue);
     if (onChangeLabel) {
-      onChangeLabel(e.target.value);
+      onChangeLabel(newValue);
+      data.label = newValue;
     }
   };
 
   return (
     <div
+      onMouseEnter={() => setShowOnMouseEnter(true)}
+      onMouseLeave={() => setShowOnMouseEnter(false)}
       className={`min-h-[50px] min-w-[100px] h-full w-full flex flex-col items-center justify-start p-2`}
     >
-      <NodeResizer
-        minHeight={50}
-        minWidth={100}
-        isVisible={selected}
-        lineClassName="!border-blue-400"
-        handleClassName="!w-2 !h-2 !border-2 !rounded !border-blue-400 !bg-white"
-      />
+      {(selected || showOnMouseEnter) && (
+        <NodeResizeControl
+          minHeight={50}
+          minWidth={200}
+          style={{ background: 'transparent', border: 'none' }}
+        >
+          <ResizeIcon />
+        </NodeResizeControl>
+      )}
       <textarea
-        value={textareaValue}
+        value={textvalue}
         onChange={handleChange}
         className={`w-full h-full max-h-full py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent break-words placeholder-gray-300`}
         rows={1}
+        placeholder="Escreva aqui" // Adiciona placeholder para ajudar o usuário
       />
     </div>
   );

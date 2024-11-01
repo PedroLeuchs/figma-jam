@@ -2,7 +2,7 @@
 import { FC } from 'react';
 
 interface TextInputProps {
-  value: string;
+  value: string | undefined;
   onChange: (value: string) => void;
 }
 
