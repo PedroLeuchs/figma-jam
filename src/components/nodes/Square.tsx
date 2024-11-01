@@ -28,7 +28,6 @@ export const Square: FC<SquareProps> = ({
   const [tempTextareaValue, setTempTextareaValue] = useState(
     data?.label || 'Escreva aqui'
   );
-  console.log('data: ', data.label);
 
   const [textValue, setTextValue] = useState('');
   const [tempTextValue, setTempTextValue] = useState('');
@@ -80,7 +79,7 @@ export const Square: FC<SquareProps> = ({
         </NodeResizeControl>
       )}
       <Handle
-        type="target"
+        type="source"
         id="top"
         position={Position.Top}
         className={`handle handle-top ${

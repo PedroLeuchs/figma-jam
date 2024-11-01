@@ -12,7 +12,7 @@ interface UnitPhase {
 }
 interface GroupProps extends NodeProps {
   id: string;
-  data: { label: string; unitphases: UnitPhase[] };
+  data: { label: string; unitphases: UnitPhase[]; canSettings?: boolean };
   selected?: boolean;
   color?: string;
   fontColor?: string;
@@ -24,7 +24,7 @@ export const Group: FC<GroupProps> = ({
   id,
   data,
   selected = false,
-  color = 'bg-violet-700',
+  color = 'bg-cyan-100',
   fontColor = 'text-black',
   updateNodeLabel = () => {},
 }) => {
@@ -33,7 +33,7 @@ export const Group: FC<GroupProps> = ({
   const [currentColor, setCurrentColor] = useState(color);
   const [currentFontColor, setCurrentFontColor] = useState(fontColor);
   const [textValue, setTextValue] = useState(data.label);
-  const [tempTextValue, setTempTextValue] = useState('');
+  const [tempTextValue, setTempTextValue] = useState(data.label);
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
 
   const handleColorChange = (color: string) => {
@@ -84,6 +84,7 @@ export const Group: FC<GroupProps> = ({
       </div>
       {selected && (
         <Modal
+          canSettings={data.canSettings}
           components={[
             {
               Component: SelectComponent,
@@ -111,6 +112,9 @@ export const Group: FC<GroupProps> = ({
               id: '',
             },
           ]}
+          isUnity={true}
+          textValue={textValue}
+          tempTextValue={tempTextValue}
           onTextChange={setTempTextValue}
           onSave={handleSave} // Passa a função de salvar para o Modal
           onCancel={handleCancel}

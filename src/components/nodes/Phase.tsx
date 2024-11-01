@@ -13,8 +13,8 @@ interface PhaseProps extends NodeProps {
 const Phase: FC<PhaseProps> = ({
   data,
   selected = false,
-  color = 'bg-red-400',
-  fontColor = 'text-black',
+  color = 'bg-sky-900',
+  fontColor = 'text-white',
 }) => {
   const [currentColor, setCurrentColor] = useState(color);
   const [currentFontColor, setCurrentFontColor] = useState(fontColor);
@@ -126,6 +126,7 @@ const Phase: FC<PhaseProps> = ({
               id: '',
             },
           ]}
+          noConfig={true}
           textValue={tempTextValue}
           onTextChange={setTempTextValue}
           onSave={handleSave} // Passa a função de salvar para o Modal
