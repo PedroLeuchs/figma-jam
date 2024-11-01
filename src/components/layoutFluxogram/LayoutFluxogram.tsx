@@ -21,6 +21,8 @@ import {
   ColorMode,
   MarkerType,
   NodeChange,
+  Edge,
+  // NodeChange,
 } from '@xyflow/react';
 import { useDnD } from '../sideBar/DndContext';
 import '@xyflow/react/dist/style.css';
@@ -39,7 +41,7 @@ import { UNITYPHASES } from '../../services/Unitys';
 import {
   INITIAL_NODES,
   getId,
-  GROUPIDS,
+  // GROUPIDS,
   NODE_TYPES,
 } from '../../services/InicialNodes';
 import { EDGE_TYPES, INITIAL_EDGES } from '../../services/inicialEdges';
@@ -52,6 +54,8 @@ import { CiDark, CiLight } from 'react-icons/ci';
 
 import { useHistoryState } from '@uidotdev/usehooks';
 import { debounce } from '@mui/material';
+// import { useHandleNodesChangeWithHistory } from '../historyState/HistoryState';
+// import { debounce } from '@mui/material';
 
 export function DnDFlow() {
   const { state, set, undo, redo, canUndo, canRedo } = useHistoryState({
@@ -71,7 +75,7 @@ export function DnDFlow() {
   const [newLabel, setNewLabel] = useState<string>('');
   const { setViewport, zoomIn, zoomOut } = useReactFlow();
   const { getIntersectingNodes } = useReactFlow();
-  const [hasNodeOnUnityVerify, setHasNodeOnUnityVerify] = useState(false);
+  // const [hasNodeOnUnityVerify, setHasNodeOnUnityVerify] = useState(false);
   const [colorMode, setColorMode] = useState<ColorMode>('light');
   const [showAlert, setShowAlert] = useState(false);
   const [showAlertMessage, setShowAlertMessage] = useState('');
@@ -79,6 +83,55 @@ export function DnDFlow() {
     'error' | 'warning' | 'info' | 'success'
   >('error');
   const [isResizing, setIsResizing] = useState(false);
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  // function useHandleNodesChangeWithHistory(
+  //   onNodesChange: OnNodesChange, // Usando o tipo específico OnNodesChange
+  //   nodes: Node[], // Usando tipo específico para os nodes
+  //   set: any
+  // ) {
+  //   return useCallback(
+  //     (changes: NodeChange[]) => {
+  //       // Define mudanças como NodeChange<CustomNode>[]
+  //       // Chama a função onNodesChange original para aplicar as mudanças no estado dos nodes
+  //       onNodesChange(changes);
+
+  //       set({
+  //         ...state,
+  //         nodesHistoryState: [...state.nodesHistoryState, changes],
+  //       });
+
+  //       // Atualiza o histórico após aplicar as mudanças
+  //     },
+  //     [onNodesChange, nodes, set]
+  //   );
+  // }
+
+  // const handleNodesChangeWithHistory = useHandleNodesChangeWithHistory(
+  //   onNodesChange,
+  //   nodes,
+  //   set
+  // );
+
+  // const handleNodesChangeWithHistory = useCallback(
+  //   (changes: any) => {
+  //     // Atualiza os nodes usando o onNodesChange original
+  //     onNodesChange(changes);
+
+  //     // Após a atualização, salva o novo estado dos nodes no histórico
+  //     set((prevState) => ({
+  //       ...prevState,
+  //       nodesHistoryState: [
+  //         ...prevState.nodesHistoryState,
+  //         applyNodeChanges(changes, nodes),
+  //       ],
+  //     }));
+  //   },
+  //   [onNodesChange, nodes, set]
+  // );
+
+  // const [isResizing, setIsResizing] = useState(false);
 
   const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
     if (node === undefined) {
@@ -92,48 +145,58 @@ export function DnDFlow() {
     }
   }, []);
 
-  const verifyHasNodeOnUnity = useCallback(
-    (nodes: Node[]) => {
-      if (hasNodeOnUnityVerify) {
-        return;
-      }
+  // const verifyHasNodeOnUnity = useCallback(
+  //   (nodes: Node[]) => {
+  //     if (hasNodeOnUnityVerify) {
+  //       return;
+  //     }
 
-      nodes.forEach((node) => {
-        const isUnity = GROUPIDS.includes(node.id);
+  //     nodes.forEach((node) => {
+  //       const isUnity = GROUPIDS.includes(node.id);
 
-        if (isUnity) {
-          const { position, style } = node;
-          const { x, y } = position;
-          const { width, height } = style as { width: number; height: number };
+  //       if (isUnity) {
+  //         const { position, style } = node;
+  //         const { x, y } = position;
+  //         const { width, height } = style as { width: number; height: number };
 
-          const nodesInUnity = nodes.filter((otherNode) => {
-            const otherX = otherNode.position.x;
-            const otherY = otherNode.position.y;
+  //         // Filtra nodes que estão dentro da unidade
+  //         const nodesInUnity = nodes.filter((otherNode) => {
+  //           if (otherNode.id === node.id) return false;
 
-            if (otherNode.id === node.id) return false;
+  //           const otherX = otherNode.position.x;
+  //           const otherY = otherNode.position.y;
 
-            return (
-              otherX >= x &&
-              otherX <= x + width &&
-              otherY >= y &&
-              otherY <= y + height
-            );
-          });
+  //           return (
+  //             otherX >= x &&
+  //             otherX <= x + width &&
+  //             otherY >= y &&
+  //             otherY <= y + height
+  //           );
+  //         });
 
-          if (nodesInUnity.length > 0) {
-            nodesInUnity.forEach((foundNode) => {
-              if (foundNode.type !== 'unity') {
-                foundNode.parentId = node.id || '';
-                foundNode.position.x = foundNode.position.x - width;
-                foundNode.position.y = foundNode.position.y - height;
-              }
-            });
-          }
-        }
-      });
-    },
-    [hasNodeOnUnityVerify]
-  );
+  //         // Se houver nodes dentro da unidade, distribui-os em uma grade
+  //         if (nodesInUnity.length > 0) {
+  //           const gridColumns = Math.ceil(Math.sqrt(nodesInUnity.length));
+  //           const cellWidth = width / gridColumns;
+  //           const cellHeight = height / gridColumns;
+
+  //           nodesInUnity.forEach((foundNode, index) => {
+  //             const row = Math.floor(index / gridColumns);
+  //             const col = index % gridColumns;
+
+  //             foundNode.parentId = node.id || '';
+  //             foundNode.position = {
+  //               x: col * cellWidth + cellWidth / 2,
+  //               y: row * cellHeight + cellHeight / 2,
+  //             };
+  //             foundNode.extent = 'parent'; // Define para ficar posicionado relativo ao parent
+  //           });
+  //         }
+  //       }
+  //     });
+  //   },
+  //   [hasNodeOnUnityVerify]
+  // );
 
   const onNodeDragOver = useCallback(
     (_: MouseEvent, node: Node) => {
@@ -143,6 +206,8 @@ export function DnDFlow() {
       if (node.type === 'separator') {
         return;
       }
+      console.log('nodes: ', nodes);
+      console.log('state.nodesHistoryState: ', state.nodesHistoryState);
 
       const intersectingUnities = getIntersectingNodes(node).filter(
         (n) => n.type === 'unity'
@@ -150,7 +215,6 @@ export function DnDFlow() {
 
       if (intersectingUnities.length > 0) {
         const unityNode = intersectingUnities[0];
-
         const relativePosition = {
           x:
             node.position.x -
@@ -213,6 +277,31 @@ export function DnDFlow() {
       const sourceNode = nodes.find((node) => node.id === connection.source);
       const targetNode = nodes.find((node) => node.id === connection.target);
 
+      if (
+        connection.sourceHandle === 'top' ||
+        connection.targetHandle === 'bottom'
+      ) {
+        onShowAlert(
+          'Conexões do handle superior da origem ou para o handle inferior do destino não são permitidas.',
+          'error'
+        );
+        return;
+      }
+
+      if (sourceNode?.id === targetNode?.id) {
+        onShowAlert('Não é permitido conectar um nó a ele mesmo.', 'error');
+        return;
+      }
+      if (connection.sourceHandle === connection.targetHandle) {
+        const traducaoHandle =
+          connection.sourceHandle == 'bottom' ? 'inferiores' : 'superiores';
+        onShowAlert(
+          `Não é permitido conectar dois nodes pelas partes ${traducaoHandle}.`,
+          'error'
+        );
+        return;
+      }
+
       // Verificar se o targetNode já possui uma conexão de entrada
       const targetHasIncomingEdge = edges.some(
         (edge) =>
@@ -250,6 +339,7 @@ export function DnDFlow() {
       const newEdge = {
         ...connection,
         id: `${connection.source}-${connection.target}`,
+        style: { stroke: '#000000', zIndex: 99999 },
         sourceHandle: connection.sourceHandle ?? null,
         targetHandle: connection.targetHandle ?? null,
       };
@@ -305,11 +395,38 @@ export function DnDFlow() {
 
   removeMarcaDagua();
 
+  const doesPhaseBelongToUnity = (
+    unityName: string | unknown,
+    phaseName: string
+  ) => {
+    // Encontra a unidade correspondente no UNITYPHASES
+    const unity = UNITYPHASES.find((u) => u.Unidade === unityName);
+
+    if (!unity) return false; // Se a unidade não for encontrada, retorna falso
+
+    // Verifica se a phase está nas fases da unidade
+    return unity.Fases.includes(phaseName);
+  };
+
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
 
       if (!type) {
+        return;
+      }
+
+      // Conta a quantidade de triângulos já presentes
+      const triangleCount = nodes.filter(
+        (node) => node.type === 'triangle'
+      ).length;
+
+      // Se já houverem dois triângulos, exibe alerta e retorna
+      if (triangleCount >= 2 && type === 'triangle') {
+        onShowAlert(
+          'Você só pode adicionar no máximo dois triângulos.',
+          'error'
+        );
         return;
       }
 
@@ -356,13 +473,16 @@ export function DnDFlow() {
           ingredients: type === 'square' ? EQUIPAMENT : null,
           machine: type === 'circle' ? MACHINES : null,
           unitphases: type === 'unity' ? UNITYPHASES : null,
+          operatorSelected: type === 'logicControl' ? 'AND' : null,
         },
         style: {},
       };
 
       if (type !== 'unity') {
         newNode.parentId = '';
-        newNode.extent = 'parent';
+        if (type == 'phase' || type == 'logicControl') {
+          newNode.extent = 'parent';
+        }
       }
 
       if (type !== 'square') {
@@ -375,6 +495,22 @@ export function DnDFlow() {
 
       if (type !== 'unity') {
         newNode.data.unitphases = null;
+      }
+      if (type !== 'logicControl') {
+        newNode.data.operatorSelected = null;
+      }
+      if (type === 'triangle') {
+        let countTriangle = 0;
+        nodes.map((node) => {
+          if (node.type === 'triangle') {
+            countTriangle++;
+          }
+        });
+        if (countTriangle === 0) {
+          newNode.data.direction = false;
+        } else if (countTriangle === 1) {
+          newNode.data.direction = true;
+        }
       }
 
       if (type === 'unity') {
@@ -410,6 +546,14 @@ export function DnDFlow() {
             );
             return;
           }
+          if (!doesPhaseBelongToUnity(parentGroup.data.label, newLabel)) {
+            onShowAlert(
+              `${newLabel} não pertence a ${parentGroup.data.label}.`,
+              'error'
+            );
+            return;
+          }
+
           newNode = {
             ...newNode,
             parentId: parentGroup.id,
@@ -418,13 +562,33 @@ export function DnDFlow() {
               unitphases: UNITYPHASES,
               ingredients: null,
               machine: null,
+              operatorSelected: null,
             },
           };
-        } else if (parentGroup) {
+        } else if (type === 'logicControl') {
+          newNode = {
+            ...newNode,
+            parentId: parentGroup?.id ? parentGroup.id : '00',
+            data: {
+              label: null,
+              unitphases: null,
+              ingredients: null,
+              machine: null,
+              operatorSelected: 'AND',
+            },
+          };
+        } else {
+          if (parentGroup) {
+            onShowAlert(
+              'Você só pode adicionar Phase e Controle de lógica dentro de uma Unity.',
+              'error'
+            );
+            return;
+          }
           newNode = {
             ...newNode,
             id: getId().toString(),
-            parentId: parentGroup.id,
+            parentId: '',
           };
         }
       }
@@ -438,8 +602,30 @@ export function DnDFlow() {
     [screenToFlowPosition, type, setNodes, nodes, newLabel, state, set]
   );
 
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
+  // const mapNodesWithPhasesAndSettingsCheck = (nodes: Node[]) => {
+
+  //   // Percorre todos os nodes para configurar `hasPhases` e `canSettings` em cada `unity`
+  //   nodes.forEach((node) => {
+  //     if (node.type === 'unity') {
+  //       // Filtra os nodes filhos da unidade atual
+  //       const childrenNodes = nodes.filter(
+  //         (child) => child.parentId === node.id
+  //       );
+
+  //       // Verifica se a unidade contém algum `phase`
+  //       const hasPhases = childrenNodes.some((child) => child.type === 'phase');
+
+  //       // Define as propriedades `hasPhases` e `canSettings` com base nos `phases`
+  //       node.data.canSettings = hasPhases; // Se tiver phases, `canSettings` será `false`
+
+  //       // Armazena os nodes filhos dentro da propriedade `childrenNodes`
+  //     }
+  //   });
+
+  //   return nodes; // Retorna os nodes atualizados com as novas propriedades
+  // };
+
+  // Executando a função para mapear os nodes com `hasPhases` e `canSettings`
 
   const lookAllElements = (
     nodes: Node[],
@@ -506,68 +692,32 @@ export function DnDFlow() {
     setColorMode(colorMode === 'light' ? 'dark' : 'light');
   };
 
-  // const handleSizeChange = useCallback(
-  //   (nodes: Node[], historyNodes: Node[]) => {
-  //     nodes.forEach((node) => {
-  //       const historyNode = historyNodes.find((hn) => hn.id === node.id);
-
-  //       if (historyNode && node.measured !== historyNode.measured) {
-  //         set({
-  //           ...state,
-  //           nodesHistoryState: nodes,
-  //         });
-  //       }
-  //       if (historyNode && node.position !== historyNode.position)
-  //         set({
-  //           ...state,
-  //           nodesHistoryState: nodes,
-  //         });
-  //     });
-  //   },
-  //   [set, state]
-  // );
-
-  // const handleNodeAndStateMeasuredEqualStyle = useCallback(
-  //   (nodes: Node[], historyNodes: Node[]) => {
-  //     console.log('loop here');
-  //     nodes.forEach((node) => {
-  //       if (node.measured !== node.style) {
-  //         node.style = node.measured;
-  //       }
-  //     });
-
-  //     historyNodes.forEach((node) => {
-  //       if (node.measured !== node.style) {
-  //         node.style = node.measured;
-  //       }
-  //     });
-  //   },
-  //   []
-  // );
-
   // useEffect(() => {
-  //   handleNodeAndStateMeasuredEqualStyle(nodes, state.nodesHistoryState);
-  //   handleSizeChange(nodes, state.nodesHistoryState);
-  // }, [
-  //   nodes,
-  //   state.nodesHistoryState,
-  //   handleNodeAndStateMeasuredEqualStyle,
-  //   handleSizeChange,
-  // ]);
+  //   mapNodesWithPhasesAndSettingsCheck(nodes);
+  // }, [nodes, mapNodesWithPhasesAndSettingsCheck]);
 
   useEffect(() => {
-    nodes.forEach((node) => {
-      if (!node.parentId) {
-        verifyHasNodeOnUnity(nodes);
-        setHasNodeOnUnityVerify(true);
-      }
-    });
-  }, [nodes, verifyHasNodeOnUnity]);
+    const mapNodesWithPhasesAndSettingsCheck = (nodes: Node[]) => {
+      nodes.forEach((node) => {
+        if (node.type === 'unity') {
+          const childrenNodes = nodes.filter(
+            (child) => child.parentId === node.id
+          );
 
-  useEffect(() => {
+          const hasPhases = childrenNodes.some(
+            (child) => child.type === 'phase'
+          );
+          node.data.canSettings = hasPhases;
+        }
+      });
+
+      return nodes;
+    };
+
+    mapNodesWithPhasesAndSettingsCheck(state.nodesHistoryState);
     setEdges(state.edgesHistoryState);
     setNodes(state.nodesHistoryState);
-    console.log(state);
+    mapNodesWithPhasesAndSettingsCheck(state.nodesHistoryState);
   }, [state, setEdges, setNodes]);
 
   useEffect(() => {
@@ -590,6 +740,7 @@ export function DnDFlow() {
       setShowAlert(false);
     }, 5000);
   };
+
   const handleResizeEnd = useCallback(
     (
       nodeId: string,
@@ -604,18 +755,14 @@ export function DnDFlow() {
             ? {
                 ...n,
                 measured:
-                  newDimensions &&
-                  newDimensions.width !== n.measured?.width &&
-                  newDimensions.height !== n.measured?.height
+                  newDimensions && newDimensions !== n.measured
                     ? {
                         width: newDimensions.width,
                         height: newDimensions.height,
                       }
                     : n.measured,
                 style:
-                  newDimensions &&
-                  newDimensions.width !== n.style?.width &&
-                  newDimensions.height !== n.style?.height
+                  newDimensions && newDimensions !== n.style
                     ? {
                         width: newDimensions.width,
                         height: newDimensions.height,
@@ -633,7 +780,6 @@ export function DnDFlow() {
             : n
         ),
       });
-      console.log('state 2', state);
     },
     [set, state]
   );
@@ -699,7 +845,55 @@ export function DnDFlow() {
         handleResize(nodeId, newDimensions, position, nodelabel); // Passa o id e as dimensões
       }
     });
+    // handleLabelChange();
   };
+
+  const handleDeleteNodes = ({
+    nodes: deletedNodes,
+    edges: deletedEdges,
+  }: {
+    nodes: Node[];
+    edges: Edge[];
+  }) => {
+    const newNodes = nodes.filter(
+      (node) => !deletedNodes.some((deletedNode) => deletedNode.id === node.id)
+    );
+    const newEdges = edges.filter(
+      (edge) => !deletedEdges.some((deletedEdge) => deletedEdge.id === edge.id)
+    );
+
+    setNodes(newNodes);
+    setEdges(newEdges);
+    set({
+      ...state,
+      nodesHistoryState: newNodes,
+      edgesHistoryState: newEdges,
+    });
+  };
+
+  // const handleLabelChange = useCallback(() => {
+  //   // Verifica se há algum nó com label diferente em nodesHistoryState
+  //   const labelsDiffer = nodes.some((node, index) => {
+  //     const correspondingNode = state.nodesHistoryState[index];
+  //     return node.data.label !== correspondingNode?.data.label;
+  //   });
+
+  //   if (labelsDiffer) {
+
+  //     // Atualiza o estado para refletir as novas labels de nodes
+  //     set({
+  //       ...state,
+  //       nodesHistoryState: nodes.map((node) => ({
+  //         ...node,
+  //         data: {
+  //           ...node.data,
+  //           label: node.data.label,
+  //         },
+  //       })),
+  //     });
+  //   } else {
+  //   }
+  // }, [nodes, state, set]);
 
   return (
     <div className="w-screen h-screen relative right-0 dndflow">
@@ -719,11 +913,12 @@ export function DnDFlow() {
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          onDelete={handleDeleteNodes}
           connectionMode={ConnectionMode.Loose}
           defaultEdgeOptions={{ type: 'default' }}
           minZoom={0.01}
           maxZoom={2.5}
-          defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
           colorMode={colorMode}
         >
           <BackAndNext
@@ -740,22 +935,22 @@ export function DnDFlow() {
           />
           <Panel
             position="bottom-left"
-            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200  rounded border border-black dark:bg-slate-700 dark:border-slate-500 dark:text-white"
+            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200  rounded border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
           >
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 hover:scale-110 transition-all"
+              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
               onClick={() => zoomIn({ duration: 500 })}
             >
-              <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200" />
+              <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200 " />
             </button>
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 hover:scale-110 transition-all"
+              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
               onClick={() => zoomOut({ duration: 500 })}
             >
               <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
             </button>
             <button
-              className="p-2 border border-gray-400 rounded bg-gray-100 hover:bg-white hover:scale-110 dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-gray-600 transition-all"
+              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white hover:scale-110 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 transition-all"
               onClick={() =>
                 setViewport(
                   lookAllElements(nodes, viewportWidth, viewportHeight),
@@ -781,6 +976,8 @@ export function DnDFlow() {
       <SideBar
         nodes={nodes}
         edges={edges}
+        state={state}
+        set={set}
         setEdges={setEdges}
         ingredients={VALUESSIDEBAR}
         onDragStart={onDragStart}
@@ -789,7 +986,7 @@ export function DnDFlow() {
       />
       <div
         onClick={onToggleColorMode}
-        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-slate-700  dark:border-gray-600 fixed top-5 right-52 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
+        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 fixed top-5 right-64 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
           colorMode == 'light' ? 'hover:-rotate-90' : 'hover:-scale-x-100'
         }`}
       >
@@ -825,8 +1022,45 @@ export function DnDFlow() {
 
 /**
  *To-Do:
- ajeitar handles
- validar unitys 
- excluir unitys
+ - [x] Ajustar enquadramento do zoom.
+ - [x] Ajustar controle de logica quando solto em uma unity de fora pra dentro.
+ 
+ - [x] Fazer documentação.
+ - [x] Integração com o mes3.
+ - [x] Fazer manual de uso do fluxograma.
+ 
+ *Doing:
+ - [x] Ajustar cor da edge tipo arrow
+ 
+ - [x] Edição das labels(negrito, sublinhado, tamanho, itálico, cor).
+ 
+ *Done: 
+ 
+- [V] Ajustar a controle de lógica para que possa ser arrastado para fora de unitys também.
+- [V] se não ter nenhum triangulo o primeiro é start e o segundo é end .
 
- */
+- [?] Ajustar lógica do histórico de estados.(não precisou)
+- [V] Adicionar alertas de erro.
+- [V] Adicionar modal de edição no grupo de nodes.
+- [V] Ajustar para que as phases possam ser colocadas apenas as unitys que elas pertencem.
+- [V] Depois que existe uma phase dentro da unity, não pode mudar o tipo da unity.
+- [V] Ajustar Inicial Nodes exemplo.
+- [V] Ajustar css do menu lateral.
+- [V] Ajustar Z-index das edges.
+- [V] Armazenar edição das edges no histórico.
+- [V] Ajustar mensagem de erro e verificar se o json está correto conforme uma atualização de uma edge nula.
+- [V] Austar as edges para não permitir conexão de inferior para inferior e superior para superior.
+- [V] Atualizar o historico conforme o delete.
+- [V] Apenas um start e um end por receita.
+- [V] bloquear todos os cantos menos o inferior direito.
+- [V] Ajustar node tipo text para que possa ser escrito.
+- [V] Só pode adicionar phases dentro de uma unity.
+- [V] Ajustar edges.
+- [V] Nenhum node pode fazer ligação nele mesmo.
+
+
+  *Impossivel: 
+- [x] Armazenar o historico de uma label de todos os nodes.
+- [x] Armazenar tipo do controle de logica no historico.
+
+*/

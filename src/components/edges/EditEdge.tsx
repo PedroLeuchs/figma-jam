@@ -1,22 +1,29 @@
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import { MdHeight, MdColorLens } from 'react-icons/md';
 import { FaLongArrowAltRight } from 'react-icons/fa';
-import { Edge, MarkerType } from 'reactflow';
+import { Node, Edge, MarkerType } from '@xyflow/react';
 
 interface EditEdgeProps {
   edges: Edge[];
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
-  setCanEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  state: {
+    nodesHistoryState: Node[];
+    edgesHistoryState: Edge[];
+  };
+  set: (newPresent: {
+    nodesHistoryState: Node[];
+    edgesHistoryState: Edge[];
+  }) => void;
 }
 
-const EditEdge = (props: EditEdgeProps) => {
+const EditEdge: FC<EditEdgeProps> = ({ edges, setEdges, state, set }) => {
   const [showHeightPicker, setShowHeightPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showLineType, setShowLineType] = useState(false);
   const [animated, setAnimated] = useState(true);
-
+  const [color, setColor] = useState('black');
   const showOptions = (number: number) => {
     switch (number) {
       case 1:
@@ -39,7 +46,7 @@ const EditEdge = (props: EditEdgeProps) => {
 
   const updateEdge = (updatedEdge: Partial<Edge>) => {
     if (updatedEdge.style) {
-      const newEdges = props.edges.map((edge) => {
+      const newEdges = edges.map((edge) => {
         if (edge.selected) {
           return {
             ...edge,
@@ -52,9 +59,17 @@ const EditEdge = (props: EditEdgeProps) => {
         }
         return edge;
       });
-      props.setEdges(newEdges);
+
+      setEdges(newEdges);
+      set({
+        ...state,
+        edgesHistoryState: [
+          ...state.edgesHistoryState,
+          ...newEdges.filter((edge) => edge.selected),
+        ],
+      });
     } else {
-      const newEdges = props.edges.map((edge) => {
+      const newEdges = edges.map((edge) => {
         if (edge.selected) {
           return {
             ...edge,
@@ -68,7 +83,14 @@ const EditEdge = (props: EditEdgeProps) => {
         return edge;
       });
 
-      props.setEdges(newEdges);
+      setEdges(newEdges);
+      set({
+        ...state,
+        edgesHistoryState: [
+          ...state.edgesHistoryState,
+          ...newEdges.filter((edge) => edge.selected),
+        ],
+      });
     }
   };
 
@@ -86,19 +108,21 @@ const EditEdge = (props: EditEdgeProps) => {
     }
   };
 
-  const handleColorChange = (color: string) => {
-    updateEdge({ style: { stroke: color } });
-    setShowColorPicker(false);
-  };
-
   const handleArrowChange = (type: 'none' | 'end') => {
-    let markerEnd;
-    if (type === 'end') {
-      markerEnd = { type: MarkerType.ArrowClosed, orient: 'auto' };
-    }
+    const markerEnd =
+      type === 'end'
+        ? { color, type: MarkerType.ArrowClosed, orient: 'auto' }
+        : undefined;
     updateEdge({ markerEnd });
   };
 
+  const handleColorChange = (color: string) => {
+    setColor(color);
+    updateEdge({
+      style: { stroke: color },
+    });
+    setShowColorPicker(false);
+  };
   return (
     <Toolbar.Root className="w-full h-44 rounded-b-lg flex flex-col items-center justify-start">
       <div className="flex items-center justify-center w-full h-1/5">

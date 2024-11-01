@@ -21,11 +21,19 @@ interface SideBarProps {
     nodeType: string,
     label?: string
   ) => void;
+  nodes: Node[];
   edges: Edge[];
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+  state: {
+    nodesHistoryState: Node[];
+    edgesHistoryState: Edge[];
+  };
+  set: (newPresent: {
+    nodesHistoryState: Node[];
+    edgesHistoryState: Edge[];
+  }) => void;
   selectedUnityId: string;
   unitphases: UnitPhase[];
-  nodes: Node[];
 }
 
 const SideBar: React.FC<SideBarProps> = ({
@@ -36,6 +44,8 @@ const SideBar: React.FC<SideBarProps> = ({
   selectedUnityId,
   unitphases,
   nodes,
+  state,
+  set,
 }) => {
   const [canEdit, setCanEdit] = useState(false);
 
@@ -51,13 +61,13 @@ const SideBar: React.FC<SideBarProps> = ({
   );
 
   return (
-    <Toolbar.Root className="h-[78%] w-[8%] absolute top-5 right-5 bg-white rounded-2xl shadow-lg border border-zinc-300 flex flex-col items-center justify-start gap-2 py-5 dark:bg-zinc-900  dark:border-zinc-700 dark:text-white">
+    <Toolbar.Root className="h-[78%] w-[10%] absolute top-5 right-5 bg-white rounded-2xl shadow-lg border border-zinc-400 flex flex-col items-center justify-start gap-2 py-5 dark:bg-zinc-900  dark:border-zinc-700 dark:text-zinc-300">
       <h2 className="text-center text-xl">
         {selectedUnityNode
           ? `Componente ${selectedUnityNode.data.label}` // Mostra o label da unidade selecionada
           : 'Componente Principal'}{' '}
       </h2>
-      <hr className="bg-black w-11/12" />
+      <hr className="border-zinc-300 dark:border-zinc-700 w-11/12" />
 
       {/* Verifica se um node do tipo 'unity' está selecionado */}
       <div className="w-full flex flex-col gap-2 items-center justify-start overflow-y-auto h-[60%]">
@@ -72,7 +82,7 @@ const SideBar: React.FC<SideBarProps> = ({
                     key={index}
                     onDragStart={(event) => onDragStart(event, 'phase', fase)}
                     draggable
-                    className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-gray-600 transition-all duration-300 bg-red-400 dark:bg-red-700 text-black hover:-translate-x-4 hover:scale-105"
+                    className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-zinc-700 transition-all duration-300 bg-sky-900 dark:bg-sky-950 text-white hover:-translate-x-4 hover:scale-105 "
                   >
                     {fase}
                   </Toolbar.Button>
@@ -83,18 +93,18 @@ const SideBar: React.FC<SideBarProps> = ({
                 key={ingredient.id}
                 onDragStart={(event) => onDragStart(event, ingredient.type)}
                 draggable
-                className={`w-10/12 h-auto p-2 top-10 right-0 border text-black dark:text-white border-gray-300 transition-all duration-300 
+                className={`w-10/12 h-auto p-2 top-10 right-0 border text-black dark:text-zinc-300 border-gray-300 dark:border-zinc-700 transition-all duration-300 
                 ${
                   ingredient.type === 'circle'
                     ? 'rounded-full bg-gray-200 dark:bg-gray-700'
                     : ingredient.type === 'square'
                     ? 'bg-white dark:bg-slate-700 rounded-tl-lg '
                     : ingredient.type === 'unity'
-                    ? 'bg-violet-700/50  h-20'
+                    ? 'bg-cyan-950/80 text-white  h-20'
                     : ingredient.type === 'logicControl'
                     ? 'bg-gray-400 dark:bg-gray-800'
                     : ingredient.type === 'phase'
-                    ? 'bg-red-400 dark:bg-red-700'
+                    ? 'bg-sky-900 dark:bg-sky-950 text-white'
                     : ''
                 } hover:-translate-x-4 hover:scale-105`}
               >
@@ -105,10 +115,10 @@ const SideBar: React.FC<SideBarProps> = ({
               </Toolbar.Button>
             ))}
       </div>
-      <hr className="bg-black w-11/12" />
+      <hr className="border-zinc-300 dark:border-zinc-700 w-11/12" />
       {canEdit && (
         <div className="absolute bottom-0 w-full border-t border-zinc-300">
-          <EditEdge setEdges={setEdges} edges={edges} setCanEdit={setCanEdit} />
+          <EditEdge setEdges={setEdges} edges={edges} state={state} set={set} />
         </div>
       )}
     </Toolbar.Root>
