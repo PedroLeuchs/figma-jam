@@ -1000,7 +1000,8 @@ export function DnDFlow() {
               pannable
               style={{
                 position: 'absolute',
-                bottom: 30,
+                top: 2,
+                left: 2,
                 backgroundColor: zinc[400],
                 borderRadius: 10,
                 width: 130,
