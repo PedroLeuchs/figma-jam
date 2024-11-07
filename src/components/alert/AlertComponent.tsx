@@ -14,7 +14,7 @@ const AlertComponent: FC<AlertComponentProps> = ({
   show,
 }) => {
   return (
-    <div className="fixed bottom-5 left-5">
+    <div className="fixed z-50 bottom-5 lg:left-5 left-5 max-lg:right-5  ">
       <Collapse in={show}>
         <Alert variant="filled" severity={severity}>
           {message}
