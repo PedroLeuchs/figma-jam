@@ -44,7 +44,7 @@ const BackAndNext: React.FC<BackAndNextProps> = ({
   }, [canUndo, canRedo, undo, redo]);
 
   return (
-    <div className="fixed z-50 top-5 left-5 flex gap-3">
+    <div className="fixed z-50 lg:top-4 lg:left-5 left-2 top-2 flex p-1 gap-1 lg:bg-gray-200 rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400">
       <button
         disabled={!canUndo}
         onClick={undo}

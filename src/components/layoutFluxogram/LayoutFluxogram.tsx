@@ -16,7 +16,6 @@ import {
   useNodesState,
   BackgroundVariant,
   useReactFlow,
-  Panel,
   MiniMap,
   ColorMode,
   MarkerType,
@@ -46,14 +45,12 @@ import {
 } from '../../services/InicialNodes';
 import { EDGE_TYPES, INITIAL_EDGES } from '../../services/inicialEdges';
 
-import { MdOutlineZoomInMap } from 'react-icons/md';
-import { MdOutlineZoomIn } from 'react-icons/md';
-import { MdOutlineZoomOut } from 'react-icons/md';
 import BackAndNext from '../sideBar/BackAndNext';
 import { CiDark, CiLight } from 'react-icons/ci';
 
 import { useHistoryState } from '@uidotdev/usehooks';
 import { debounce } from '@mui/material';
+import ZoomControl from '../sideBar/ZoomControl';
 // import { useHandleNodesChangeWithHistory } from '../historyState/HistoryState';
 // import { debounce } from '@mui/material';
 
@@ -73,9 +70,8 @@ export function DnDFlow() {
   const { screenToFlowPosition } = useReactFlow();
   const [selectedUnityId, setSelectedUnityId] = useState<string>('');
   const [newLabel, setNewLabel] = useState<string>('');
-  const { setViewport, zoomIn, zoomOut } = useReactFlow();
+
   const { getIntersectingNodes } = useReactFlow();
-  // const [hasNodeOnUnityVerify, setHasNodeOnUnityVerify] = useState(false);
   const [colorMode, setColorMode] = useState<ColorMode>('light');
   const [showAlert, setShowAlert] = useState(false);
   const [showAlertMessage, setShowAlertMessage] = useState('');
@@ -85,6 +81,47 @@ export function DnDFlow() {
   const [isResizing, setIsResizing] = useState(false);
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
+
+  const [selectedNodeType, setSelectedNodeType] = useState<string | null>(null);
+  const [selectedNodeLabel, setSelectedNodeLabel] = useState<string | null>(
+    null
+  );
+
+  const handleNodeSelect = (nodeType: string, label?: string) => {
+    onShowAlert(
+      `${label} Selecionado. Clique na tela para adicionar o nó.`,
+      'info'
+    );
+
+    setSelectedNodeType(nodeType);
+    setSelectedNodeLabel(label || 'Novo Nó');
+  };
+
+  const handleClickOnWorkspace = (event: React.MouseEvent) => {
+    if (!selectedNodeType) return;
+
+    const position = screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    const newNode: Node = {
+      id: getId().toString(),
+      type: selectedNodeType,
+      position,
+      data: { label: selectedNodeLabel },
+      style: {},
+    };
+
+    set({
+      ...state,
+      nodesHistoryState: [...state.nodesHistoryState, newNode],
+    });
+
+    onShowAlert(`${selectedNodeLabel} Adicionado com sucesso.`, 'success');
+    setSelectedNodeType(null);
+    setSelectedNodeLabel(null);
+  };
 
   // function useHandleNodesChangeWithHistory(
   //   onNodesChange: OnNodesChange, // Usando o tipo específico OnNodesChange
@@ -366,6 +403,18 @@ export function DnDFlow() {
     },
     [nodes, edges, setEdges, set, state]
   );
+  const doesPhaseBelongToUnity = (
+    unityName: string | unknown,
+    phaseName: string
+  ) => {
+    // Encontra a unidade correspondente no UNITYPHASES
+    const unity = UNITYPHASES.find((u) => u.Unidade === unityName);
+
+    if (!unity) return false; // Se a unidade não for encontrada, retorna falso
+
+    // Verifica se a phase está nas fases da unidade
+    return unity.Fases.includes(phaseName);
+  };
 
   const onDragStart = (
     event: React.DragEvent<HTMLButtonElement>,
@@ -383,30 +432,6 @@ export function DnDFlow() {
 
     event.dataTransfer.dropEffect = 'move';
   }, []);
-
-  const removeMarcaDagua = () => {
-    const reactIconFlow = document.getElementsByClassName(
-      'react-flow__panel react-flow__attribution bottom right'
-    );
-    if (reactIconFlow.length > 0) {
-      reactIconFlow[0].classList.add('hidden');
-    }
-  };
-
-  removeMarcaDagua();
-
-  const doesPhaseBelongToUnity = (
-    unityName: string | unknown,
-    phaseName: string
-  ) => {
-    // Encontra a unidade correspondente no UNITYPHASES
-    const unity = UNITYPHASES.find((u) => u.Unidade === unityName);
-
-    if (!unity) return false; // Se a unidade não for encontrada, retorna falso
-
-    // Verifica se a phase está nas fases da unidade
-    return unity.Fases.includes(phaseName);
-  };
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
@@ -602,6 +627,17 @@ export function DnDFlow() {
     [screenToFlowPosition, type, setNodes, nodes, newLabel, state, set]
   );
 
+  const removeMarcaDagua = () => {
+    const reactIconFlow = document.getElementsByClassName(
+      'react-flow__panel react-flow__attribution bottom right'
+    );
+    if (reactIconFlow.length > 0) {
+      reactIconFlow[0].classList.add('hidden');
+    }
+  };
+
+  removeMarcaDagua();
+
   // const mapNodesWithPhasesAndSettingsCheck = (nodes: Node[]) => {
 
   //   // Percorre todos os nodes para configurar `hasPhases` e `canSettings` em cada `unity`
@@ -626,67 +662,6 @@ export function DnDFlow() {
   // };
 
   // Executando a função para mapear os nodes com `hasPhases` e `canSettings`
-
-  const lookAllElements = (
-    nodes: Node[],
-    viewportWidth: number,
-    viewportHeight: number
-  ) => {
-    if (nodes.length === 0) {
-      return { x: 0, y: 0, zoom: 1 };
-    }
-
-    let minX = nodes[0].position.x;
-    let minY = nodes[0].position.y;
-    let maxX = nodes[0].position.x;
-    let maxY = nodes[0].position.y;
-
-    nodes.forEach((node) => {
-      if (!node.parentId) {
-        if (node.position.x < minX) {
-          minX = node.position.x;
-        }
-        if (node.position.y < minY) {
-          minY = node.position.y;
-        }
-        if (node.position.x > maxX) {
-          maxX = node.position.x;
-        }
-        if (node.position.y > maxY) {
-          maxY = node.position.y;
-        }
-      }
-    });
-
-    const centerX = (maxX + minX) / 2;
-    const centerY = (maxY + minY) / 2;
-
-    const width = maxX - minX;
-    const height = maxY - minY;
-
-    const zoomX = viewportWidth / width;
-    const zoomY = viewportHeight / height;
-
-    let zoom = Math.min(zoomX, zoomY) * 0.9;
-
-    if (zoom < 0.08) {
-      zoom = 0.08;
-    } else {
-      zoom *= 0.98;
-    }
-
-    const factorX = (viewportHeight + viewportWidth) / (maxX - minX) / 3.5;
-    const factorY = (viewportHeight + viewportWidth) / (maxY - minY) / 3.5;
-
-    const xAdjusted = (centerX - viewportWidth / 2 / zoom) * -1 * factorX;
-    const yAdjusted = (centerY - viewportHeight / 2 / zoom) * -1 * factorY;
-
-    return {
-      x: xAdjusted,
-      y: yAdjusted,
-      zoom,
-    };
-  };
 
   const onToggleColorMode = () => {
     setColorMode(colorMode === 'light' ? 'dark' : 'light');
@@ -901,8 +876,11 @@ export function DnDFlow() {
       {/* <DnDProvider> */}
       <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
         <ReactFlow
+          panOnScroll={false}
+          panOnDrag={true}
+          zoomOnPinch={true}
           onNodeClick={onNodeClick}
-          onPaneClick={onNodeClick}
+          onPaneClick={handleClickOnWorkspace}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           nodes={nodes}
@@ -918,7 +896,11 @@ export function DnDFlow() {
           defaultEdgeOptions={{ type: 'default' }}
           minZoom={0.01}
           maxZoom={2.5}
-          defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
+          defaultViewport={{
+            x: 0,
+            y: 0,
+            zoom: viewportWidth < 1000 ? 0.3 : 1,
+          }}
           colorMode={colorMode}
         >
           <BackAndNext
@@ -933,42 +915,91 @@ export function DnDFlow() {
             gap={40}
             color={colorMode == 'light' ? zinc[200] : zinc[800]}
           />
-          <Panel
-            position="bottom-left"
-            className="flex flex-col items-center justify-center p-1 gap-1 bg-gray-200  rounded border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
-          >
-            <button
-              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
-              onClick={() => zoomIn({ duration: 500 })}
-            >
-              <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200 " />
-            </button>
-            <button
-              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
-              onClick={() => zoomOut({ duration: 500 })}
-            >
-              <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
-            </button>
-            <button
-              className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white hover:scale-110 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 transition-all"
-              onClick={() =>
-                setViewport(
-                  lookAllElements(nodes, viewportWidth, viewportHeight),
-                  { duration: 500 }
-                )
-              }
-            >
-              <MdOutlineZoomInMap className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
-            </button>
-          </Panel>
-          <MiniMap
-            zoomable
-            pannable
-            style={{
-              backgroundColor: zinc[400],
-              borderRadius: 10,
-            }}
+
+          <ZoomControl
+            nodes={nodes}
+            viewportHeight={viewportHeight}
+            viewportWidth={viewportWidth}
           />
+
+          {/* dispositivos xl  */}
+          <div className="2xl:flex xl:hidden lg:hidden md:hidden sm:hidden xs:hidden hidden">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                backgroundColor: zinc[400],
+                borderRadius: 10,
+                width: 220,
+                height: 150,
+              }}
+            />
+          </div>
+          {/* dispositivos xl  */}
+          <div className="2xl:hidden xl:flex lg:hidden md:hidden sm:hidden xs:hidden hidden">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                backgroundColor: zinc[400],
+                borderRadius: 10,
+                width: 220,
+                height: 140,
+              }}
+            />
+          </div>
+          {/* dispositivos lg  */}
+          <div className="2xl:hidden xl:hidden lg:flex md:hidden sm:hidden xs:hidden hidden">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                backgroundColor: zinc[400],
+                borderRadius: 10,
+                width: 200,
+                height: 140,
+              }}
+            />
+          </div>
+          {/* dispositivos md  */}
+          <div className="xl:hidden lg:hidden md:flex sm:hidden xs:hidden hidden">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                backgroundColor: zinc[900],
+                borderRadius: 10,
+                width: 170,
+                height: 110,
+              }}
+            />
+          </div>
+          {/* dispositivos sm  */}
+          <div className="xl:hidden lg:hidden md:hidden sm:flex xs:hidden hidden">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                backgroundColor: zinc[400],
+                borderRadius: 10,
+                width: 150,
+                height: 80,
+              }}
+            />
+          </div>
+          {/* dispositivos xs  */}
+          <div className="xl:hidden lg:hidden md:hidden sm:hidden xs:flex flex ">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                backgroundColor: zinc[400],
+                borderRadius: 10,
+                width: 130,
+                height: 60,
+              }}
+            />
+          </div>
         </ReactFlow>
       </div>
       {/* </DnDProvider> */}
@@ -983,10 +1014,13 @@ export function DnDFlow() {
         onDragStart={onDragStart}
         selectedUnityId={selectedUnityId}
         unitphases={UNITYPHASES}
+        onNodeSelect={handleNodeSelect}
+        viewportWidth={viewportWidth}
+        viewportHeight={viewportHeight}
       />
       <div
         onClick={onToggleColorMode}
-        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 fixed top-5 right-64 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
+        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 fixed top-2 2xl:right-72 xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
           colorMode == 'light' ? 'hover:-rotate-90' : 'hover:-scale-x-100'
         }`}
       >
@@ -1030,6 +1064,7 @@ export function DnDFlow() {
  - [x] Fazer manual de uso do fluxograma.
  
  *Doing:
+ - [x] Mobile.
  - [x] Ajustar cor da edge tipo arrow
  
  - [x] Edição das labels(negrito, sublinhado, tamanho, itálico, cor).
