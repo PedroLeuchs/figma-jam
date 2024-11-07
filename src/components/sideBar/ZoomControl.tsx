@@ -89,6 +89,7 @@ const ZoomControl: FC<ZoomControlProps> = ({
   return (
     <Panel
       position="bottom-left"
+      style={{ position: 'absolute', bottom: 30, left: 2 }}
       className="flex flex-col items-center justify-center p-1 gap-1 lg:bg-gray-200  rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
     >
       <button

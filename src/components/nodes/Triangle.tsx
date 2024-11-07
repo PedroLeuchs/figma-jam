@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { NodeProps, Handle, Position } from '@xyflow/react';
 
 interface TriangleProps extends NodeProps {
@@ -8,6 +8,12 @@ interface TriangleProps extends NodeProps {
 export const Triangle: FC<TriangleProps> = ({ data }) => {
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
   const directionSet = data.direction;
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowOnMouseEnter(true);
+    }
+  }, [showOnMouseEnter]);
 
   return (
     <div

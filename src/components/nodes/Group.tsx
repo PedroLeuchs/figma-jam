@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { NodeProps, NodeResizeControl } from '@xyflow/react';
 import { Modal } from '../modal/Modal';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
@@ -35,6 +35,12 @@ export const Group: FC<GroupProps> = ({
   const [textValue, setTextValue] = useState(data.label);
   const [tempTextValue, setTempTextValue] = useState(data.label);
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowOnMouseEnter(true);
+    }
+  }, [selected, showOnMouseEnter]);
 
   const handleColorChange = (color: string) => {
     setTempColor(color); // Atualiza a cor temporariamente

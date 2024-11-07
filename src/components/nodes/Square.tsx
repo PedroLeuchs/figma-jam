@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
@@ -34,6 +34,12 @@ export const Square: FC<SquareProps> = ({
   const [tempColor, setTempColor] = useState(color);
   const [tempFontColor, setTempFontColor] = useState(fontColor);
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowOnMouseEnter(true);
+    }
+  }, [selected, showOnMouseEnter]);
 
   const handleColorChange = (color: string) => {
     setTempColor(color); // Atualiza a cor temporariamente

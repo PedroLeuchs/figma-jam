@@ -25,6 +25,12 @@ export const Separator: FC<SeparatorProps> = ({ selected = false, data }) => {
   const [tempLineHeight, setTempLineHeight] = useState('border-2');
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
 
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowOnMouseEnter(true);
+    }
+  }, [selected, showOnMouseEnter]);
+
   const handleColorChange = (color: string) => {
     setTempColor(color); // Atualiza a cor temporariamente
   };
