@@ -102,7 +102,7 @@ const SideBar: React.FC<SideBarProps> = ({
   return (
     <>
       {isOpenNav === 'flex' && (
-        <div className="bg-black/40 w-screen h-screen fixed top-0 left-0"></div>
+        <div className="lg:hidden bg-black/20 w-screen h-screen fixed top-0 left-0"></div>
       )}
       <div
         onClick={handleOpenNav}
@@ -118,9 +118,9 @@ const SideBar: React.FC<SideBarProps> = ({
       <Toolbar.Root
         className={` ${isOpenNav} ${
           isOpenNav == 'flex'
-            ? 'lg:top-5 top-20 right-4 left-4 h-[78%]'
-            : ' w-56 top-0 right-0 h-0'
-        } z-40   absolute bg-white rounded-lg shadow-lg border border-zinc-400 flex-col items-center justify-start gap-2 py-5 dark:bg-zinc-900  dark:border-zinc-700 dark:text-zinc-300 transition-all duration-300`}
+            ? 'lg:top-5 top-20 max-lg:right-10 right-4 max-lg:left-10 h-[78%]'
+            : '  top-0 right-0 h-0'
+        } z-40 lg:w-56  absolute bg-white rounded-lg shadow-lg border border-zinc-400 flex-col items-center justify-start gap-2 py-5 dark:bg-zinc-900  dark:border-zinc-700 dark:text-zinc-300 transition-all duration-300`}
       >
         <h2 className="text-center text-xl">
           {selectedUnityNode
