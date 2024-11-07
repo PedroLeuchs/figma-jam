@@ -87,34 +87,63 @@ const ZoomControl: FC<ZoomControlProps> = ({
   };
 
   return (
-    <Panel
-      position="bottom-left"
-      style={{ position: 'absolute', bottom: 30, left: 2 }}
-      className="flex flex-col items-center justify-center p-1 gap-1 lg:bg-gray-200  rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
-    >
-      <button
-        className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
-        onClick={() => zoomIn({ duration: 500 })}
+    <>
+      <Panel
+        style={{ position: 'absolute', top: 65, left: 0 }}
+        className="lg:hidden flex  items-center justify-center p-1 gap-1 lg:bg-gray-200  rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
       >
-        <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200 " />
-      </button>
-      <button
-        className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
-        onClick={() => zoomOut({ duration: 500 })}
+        <button
+          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
+          onClick={() => zoomIn({ duration: 500 })}
+        >
+          <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200 " />
+        </button>
+        <button
+          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
+          onClick={() => zoomOut({ duration: 500 })}
+        >
+          <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
+        </button>
+        <button
+          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white hover:scale-110 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 transition-all"
+          onClick={() =>
+            setViewport(lookAllElements(nodes, viewportWidth, viewportHeight), {
+              duration: 500,
+            })
+          }
+        >
+          <MdOutlineZoomInMap className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
+        </button>
+      </Panel>
+      <Panel
+        position="bottom-left"
+        style={{ position: 'absolute', bottom: 5, left: 5 }}
+        className="lg:flex hidden flex-col items-center justify-center p-1 gap-1 lg:bg-gray-200  rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
       >
-        <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
-      </button>
-      <button
-        className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white hover:scale-110 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 transition-all"
-        onClick={() =>
-          setViewport(lookAllElements(nodes, viewportWidth, viewportHeight), {
-            duration: 500,
-          })
-        }
-      >
-        <MdOutlineZoomInMap className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
-      </button>
-    </Panel>
+        <button
+          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
+          onClick={() => zoomIn({ duration: 500 })}
+        >
+          <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200 " />
+        </button>
+        <button
+          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
+          onClick={() => zoomOut({ duration: 500 })}
+        >
+          <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
+        </button>
+        <button
+          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white hover:scale-110 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 transition-all"
+          onClick={() =>
+            setViewport(lookAllElements(nodes, viewportWidth, viewportHeight), {
+              duration: 500,
+            })
+          }
+        >
+          <MdOutlineZoomInMap className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
+        </button>
+      </Panel>
+    </>
   );
 };
 
