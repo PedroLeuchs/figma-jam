@@ -81,11 +81,17 @@ export function DnDFlow() {
   const [isResizing, setIsResizing] = useState(false);
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-
+  // const [canEditEdges, setCanEditEdges] = useState(false);
   const [selectedNodeType, setSelectedNodeType] = useState<string | null>(null);
   const [selectedNodeLabel, setSelectedNodeLabel] = useState<string | null>(
     null
   );
+
+  // useEffect(() => {
+  //   // Verifica se algum edge está selecionado
+  //   const isAnySelected = edges.some((edge) => edge.selected);
+  //   setCanEditEdges(isAnySelected);
+  // }, [edges]);
 
   const handleNodeSelect = (nodeType: string, label?: string) => {
     onShowAlert(
@@ -967,7 +973,7 @@ export function DnDFlow() {
               zoomable
               pannable
               style={{
-                backgroundColor: zinc[900],
+                backgroundColor: zinc[400],
                 borderRadius: 10,
                 width: 170,
                 height: 110,
@@ -988,11 +994,13 @@ export function DnDFlow() {
             />
           </div>
           {/* dispositivos xs  */}
-          <div className="xl:hidden lg:hidden md:hidden sm:hidden xs:flex flex ">
+          <div className=" xl:hidden lg:hidden md:hidden sm:hidden xs:flex flex ">
             <MiniMap
               zoomable
               pannable
               style={{
+                position: 'absolute',
+                bottom: 30,
                 backgroundColor: zinc[400],
                 borderRadius: 10,
                 width: 130,
@@ -1066,6 +1074,9 @@ export function DnDFlow() {
  *Doing:
  - [x] Mobile.
  - [x] Ajustar cor da edge tipo arrow
+ - [x] Ajustar para não deixar adicionar mais de dois triangulos pelo mobile.
+ - [x] Ajustar add unity pelo mobile.
+ - [x] Ajustar edges pelo mobile.
  
  - [x] Edição das labels(negrito, sublinhado, tamanho, itálico, cor).
  

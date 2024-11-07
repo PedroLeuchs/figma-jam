@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
@@ -32,6 +32,12 @@ export const Circle: FC<CircleProps> = ({
   const [textValue, setTextValue] = useState('');
   const [tempTextValue, setTempTextValue] = useState('');
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowOnMouseEnter(true);
+    }
+  }, [selected, showOnMouseEnter]);
 
   const handleColorChange = (color: string) => {
     setTempColor(color);

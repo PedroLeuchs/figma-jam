@@ -23,6 +23,12 @@ export const Label: FC<LabelProps> = ({
     setTextValue(textareaValue);
   }, [data?.label, textareaValue]); // Dependência para atualizar quando data.label mudar
 
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowOnMouseEnter(true);
+    }
+  }, [selected, showOnMouseEnter]);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setTextValue(newValue);
