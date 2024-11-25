@@ -3,7 +3,7 @@ import * as Toolbar from '@radix-ui/react-toolbar';
 
 interface ColorPickerProps {
   onColorChange: (color: string) => void;
-  setShowColorPicker: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowColorPicker?: React.Dispatch<React.SetStateAction<boolean>>;
   lineEdit?: boolean;
   isSeparator?: boolean;
 }
@@ -852,6 +852,7 @@ const BackgroundPicker: React.FC<ColorPickerProps> = ({
 
   const handleColorPick = (color: string) => {
     if (lineEdit) {
+      setSelectedColor(null);
       if (HEX_COLORS[color]) {
         const hexColor = HEX_COLORS[color];
         onColorChange(hexColor);
@@ -860,7 +861,9 @@ const BackgroundPicker: React.FC<ColorPickerProps> = ({
       }
     } else {
       onColorChange(color);
-      setShowColorPicker(false);
+      if (setShowColorPicker) {
+        setShowColorPicker(false);
+      }
       setSelectedColor(null);
     }
   };
@@ -895,7 +898,7 @@ const BackgroundPicker: React.FC<ColorPickerProps> = ({
         <Toolbar.Root
           className={`w-40   ${
             lineEdit
-              ? 'absolute -left-[105%] bottom-0'
+              ? 'absolute lg:-top-10 -top-3/4 lg:left-full -right-2/3 '
               : 'fixed bottom-2 right-2'
           }  bg-gray-100 border border-zinc-300 rounded-lg p-2 shadow-md flex flex-col gap-1 transition-all duration-300`}
         >

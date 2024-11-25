@@ -1,6 +1,7 @@
 import { NodeProps, NodeResizeControl } from '@xyflow/react';
 import { FC, useState, useEffect } from 'react';
 import { ResizeIcon } from '../resizeCustom/ResizeCustom';
+import { ModalEditLabel } from '../modal/ModalEditLabel';
 
 interface LabelProps extends NodeProps {
   selected?: boolean;
@@ -12,6 +13,20 @@ export const Label: FC<LabelProps> = ({
   data,
   onChangeLabel,
 }) => {
+  const [textValueModalLabel, setTextValueModalLabel] =
+    useState('Texto Exemplo');
+  const [italic, setItalic] = useState(false);
+  const [underline, setUnderline] = useState(false);
+  const [bold, setBold] = useState<
+    | 'font-light'
+    | 'font-normal'
+    | 'font-semibold'
+    | 'font-bold'
+    | 'font-extrabold'
+  >('font-normal');
+  const [fontSize, setFontSize] = useState<number>(16);
+  const [color, setColor] = useState<string>('black');
+
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
   const textareaValue =
     typeof data?.label === 'string' ? data.label : 'Escreva aqui';
@@ -56,10 +71,31 @@ export const Label: FC<LabelProps> = ({
       <textarea
         value={textvalue}
         onChange={handleChange}
-        className={`w-full h-full max-h-full py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent break-words placeholder-gray-300`}
+        className={`w-full h-full max-h-full py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent break-words placeholder-gray-300
+          ${italic ? 'italic' : 'not-italic'} ${
+          underline ? 'underline' : 'no-underline'
+        } ${bold} text-center underline-offset-2
+          `}
+        style={{ fontSize: `${fontSize}px`, color: color }}
         rows={1}
         placeholder="Escreva aqui" // Adiciona placeholder para ajudar o usuário
       />
+      {(selected || showOnMouseEnter) && (
+        <ModalEditLabel
+          bold={bold}
+          italic={italic}
+          underline={underline}
+          fontSize={fontSize}
+          setFontSize={setFontSize}
+          textValueModalLabel={textValueModalLabel}
+          setBold={setBold}
+          setItalic={setItalic}
+          setUnderline={setUnderline}
+          setTextValueModalLabel={setTextValueModalLabel}
+          color={color}
+          setColor={setColor}
+        />
+      )}
     </div>
   );
 };

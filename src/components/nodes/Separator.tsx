@@ -44,8 +44,7 @@ export const Separator: FC<SeparatorProps> = ({ selected = false, data }) => {
     setCurrentColor(tempColor);
     setCurrentFontColor(tempFontColor);
     setLineHeight(tempLineHeight);
-    console.log(tempLineHeight);
-    console.log(lineHeight);
+
 
     data.label = tempTextValue;
   };

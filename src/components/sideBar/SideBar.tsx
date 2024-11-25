@@ -1,6 +1,5 @@
 import * as Toolbar from '@radix-ui/react-toolbar';
-import EditEdge from '../edges/EditEdge';
-import { Edge, Node } from '@xyflow/react';
+import { Node } from '@xyflow/react';
 import { useCallback, useEffect, useState } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import { IoClose } from 'react-icons/io5';
@@ -24,16 +23,6 @@ interface SideBarProps {
     label?: string
   ) => void;
   nodes: Node[];
-  edges: Edge[];
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
-  state: {
-    nodesHistoryState: Node[];
-    edgesHistoryState: Edge[];
-  };
-  set: (newPresent: {
-    nodesHistoryState: Node[];
-    edgesHistoryState: Edge[];
-  }) => void;
   selectedUnityId: string;
   unitphases: UnitPhase[];
   onNodeSelect: (nodeType: string, label?: string) => void;
@@ -44,21 +33,13 @@ interface SideBarProps {
 const SideBar: React.FC<SideBarProps> = ({
   ingredients,
   onDragStart,
-  edges,
-  setEdges,
   selectedUnityId,
   unitphases,
   nodes,
-  state,
-  set,
   onNodeSelect,
   viewportWidth,
-  viewportHeight,
 }) => {
-  const [canEdit, setCanEdit] = useState(false);
   const [isOpenNav, setIsOpenNav] = useState<'flex' | 'hidden'>('flex');
-
-  console.log(viewportWidth, viewportHeight);
 
   const ajustedNavBar = useCallback(() => {
     if (viewportWidth < 900) {
@@ -71,12 +52,6 @@ const SideBar: React.FC<SideBarProps> = ({
   useEffect(() => {
     ajustedNavBar();
   }, [ajustedNavBar]);
-
-  useEffect(() => {
-    // Verifica se algum edge está selecionado
-    const isAnySelected = edges.some((edge) => edge.selected);
-    setCanEdit(isAnySelected);
-  }, [edges]);
 
   const handleNodeSelect = (nodeType: string, label?: string) => {
     if (window.innerWidth < 900) {
@@ -141,6 +116,9 @@ const SideBar: React.FC<SideBarProps> = ({
                   unitphase.Fases.map((fase, index) => (
                     <Toolbar.Button
                       key={index}
+                      onClick={() =>
+                        handleNodeSelect('phase', unitphase.Fases[index])
+                      }
                       onDragStart={(event) => onDragStart(event, 'phase', fase)}
                       draggable
                       className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-zinc-700 transition-all duration-300 bg-sky-900 dark:bg-sky-950 text-white hover:-translate-x-4 hover:scale-105 "
@@ -180,16 +158,6 @@ const SideBar: React.FC<SideBarProps> = ({
               ))}
         </div>
         <hr className="border-zinc-300 dark:border-zinc-700 w-11/12" />
-        {canEdit && (
-          <div className="absolute bottom-0 w-full border-t border-zinc-300">
-            <EditEdge
-              setEdges={setEdges}
-              edges={edges}
-              state={state}
-              set={set}
-            />
-          </div>
-        )}
       </Toolbar.Root>
     </>
   );

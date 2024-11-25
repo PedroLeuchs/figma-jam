@@ -3,7 +3,7 @@ import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
 import FontePicker from '../colorPicker/FontePicker';
 import { Modal } from '../modal/Modal';
-import { ResizeIcon } from '../resizeCustom/ResizeCustom';
+import { ResizeIconWhite2 } from '../resizeCustom/ResizeCustom';
 
 interface PhaseProps extends NodeProps {
   color?: string;
@@ -71,10 +71,10 @@ const Phase: FC<PhaseProps> = ({
       {(selected || showOnMouseEnter) && (
         <NodeResizeControl
           minHeight={50}
-          minWidth={100}
+          minWidth={200}
           style={{ background: 'transparent', border: 'none' }}
         >
-          <ResizeIcon />
+          <ResizeIconWhite2 />
         </NodeResizeControl>
       )}
       <Handle

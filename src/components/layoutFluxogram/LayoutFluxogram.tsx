@@ -51,6 +51,7 @@ import { CiDark, CiLight } from 'react-icons/ci';
 import { useHistoryState } from '@uidotdev/usehooks';
 import { debounce } from '@mui/material';
 import ZoomControl from '../sideBar/ZoomControl';
+import ModalEditEdges from '../modal/ModalEditEdges';
 // import { useHandleNodesChangeWithHistory } from '../historyState/HistoryState';
 // import { debounce } from '@mui/material';
 
@@ -86,6 +87,10 @@ export function DnDFlow() {
   const [selectedNodeLabel, setSelectedNodeLabel] = useState<string | null>(
     null
   );
+  const [countTriangle, setCountTriangle] = useState(
+    nodes.filter((node) => node.type === 'triangle').length
+  );
+  const [modalEdgeOpen, setmodalEdgeOpen] = useState(false);
 
   // useEffect(() => {
   //   // Verifica se algum edge está selecionado
@@ -103,30 +108,99 @@ export function DnDFlow() {
     setSelectedNodeLabel(label || 'Novo Nó');
   };
 
+  const handleClickOnTheNodeOnMobile = useCallback(
+    (nodeType: string, label?: string, parentId?: string) => {
+      if (nodeType === 'phase' || nodeType === 'logicControl') {
+        const newNode: Node = {
+          id: getId().toString(),
+          type: nodeType,
+          parentId: parentId,
+          measured: {
+            width: nodeType === 'phase' ? 200 : 50,
+            height: 50,
+          },
+          position: { x: 0, y: 0 },
+          data: {
+            label: label ? label : '',
+            unitphases: nodeType === 'phase' ? UNITYPHASES : null,
+            operatorSelected: nodeType === 'logicControl' ? 'AND' : null,
+          },
+          style: {},
+          extent: 'parent',
+        };
+
+        setNodes((prevNodes) => [...prevNodes, newNode]);
+        set({
+          ...state,
+          nodesHistoryState: [...state.nodesHistoryState, newNode],
+        });
+        setSelectedNodeType(null);
+        setSelectedNodeLabel(null);
+      } else {
+        return;
+      }
+    },
+    [setNodes, state, set]
+  );
+
   const handleClickOnWorkspace = (event: React.MouseEvent) => {
     if (!selectedNodeType) return;
+
+    setCountTriangle(nodes.filter((node) => node.type === 'triangle').length);
+
+    // Se já houverem dois triângulos, exibe alerta e retorna
+    if (countTriangle >= 2 && selectedNodeType === 'triangle') {
+      onShowAlert('Você só pode adicionar no máximo dois triângulos.', 'error');
+      setSelectedNodeType(null);
+      setSelectedNodeLabel(null);
+      return;
+    }
 
     const position = screenToFlowPosition({
       x: event.clientX,
       y: event.clientY,
     });
 
-    const newNode: Node = {
-      id: getId().toString(),
-      type: selectedNodeType,
-      position,
-      data: { label: selectedNodeLabel },
-      style: {},
-    };
+    if (selectedNodeType === 'unity') {
+      const unityNode: Node = {
+        id: getId('unity').toString(),
+        type: 'unity',
+        position,
+        data: { label: UNITYPHASES[0].Unidade, unitphases: UNITYPHASES },
+        style: { width: 500, height: 500 },
+        measured: { width: 500, height: 500 },
+      };
 
-    set({
-      ...state,
-      nodesHistoryState: [...state.nodesHistoryState, newNode],
-    });
+      set({
+        ...state,
+        nodesHistoryState: [...state.nodesHistoryState, unityNode],
+      });
 
-    onShowAlert(`${selectedNodeLabel} Adicionado com sucesso.`, 'success');
-    setSelectedNodeType(null);
-    setSelectedNodeLabel(null);
+      onShowAlert(
+        `${UNITYPHASES[0].Unidade} Adicionado com sucesso.`,
+        'success'
+      );
+      setSelectedNodeType(null);
+      setSelectedNodeLabel(null);
+      return;
+    } else {
+      const newNode: Node = {
+        id: getId().toString(),
+        type: selectedNodeType,
+        position,
+        data: { label: selectedNodeLabel },
+        style: {},
+      };
+
+      set({
+        ...state,
+        nodesHistoryState: [...state.nodesHistoryState, newNode],
+      });
+
+      onShowAlert(`${selectedNodeLabel} Adicionado com sucesso.`, 'success');
+      setSelectedNodeType(null);
+      setSelectedNodeLabel(null);
+    }
   };
 
   // function useHandleNodesChangeWithHistory(
@@ -176,17 +250,28 @@ export function DnDFlow() {
 
   // const [isResizing, setIsResizing] = useState(false);
 
-  const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
-    if (node === undefined) {
-      setSelectedUnityId('');
-      return;
-    }
-    if (node.type === 'unity') {
-      setSelectedUnityId(node.id);
-    } else {
-      setSelectedUnityId('');
-    }
-  }, []);
+  const onNodeClick = useCallback(
+    (_?: React.MouseEvent, node?: Node) => {
+      if (node === undefined) {
+        setSelectedUnityId('');
+        return;
+      }
+      if (node.type === 'unity') {
+        setSelectedUnityId(node.id);
+        if (selectedNodeLabel !== null && selectedNodeType !== null) {
+          const parentId = node.id;
+          handleClickOnTheNodeOnMobile(
+            selectedNodeType,
+            selectedNodeLabel,
+            parentId
+          );
+        }
+      } else {
+        setSelectedUnityId('');
+      }
+    },
+    [selectedNodeLabel, selectedNodeType, handleClickOnTheNodeOnMobile]
+  );
 
   // const verifyHasNodeOnUnity = useCallback(
   //   (nodes: Node[]) => {
@@ -249,8 +334,6 @@ export function DnDFlow() {
       if (node.type === 'separator') {
         return;
       }
-      console.log('nodes: ', nodes);
-      console.log('state.nodesHistoryState: ', state.nodesHistoryState);
 
       const intersectingUnities = getIntersectingNodes(node).filter(
         (n) => n.type === 'unity'
@@ -316,7 +399,11 @@ export function DnDFlow() {
   );
 
   const onConnect = useCallback(
-    (connection: Connection & { markerEnd?: { type: MarkerType } }) => {
+    (
+      connection: Connection & {
+        markerEnd?: { type: MarkerType; color?: string };
+      }
+    ) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
       const targetNode = nodes.find((node) => node.id === connection.target);
 
@@ -388,7 +475,10 @@ export function DnDFlow() {
       };
 
       if (sourceNode?.type === 'phase' && targetNode?.type === 'phase') {
-        newEdge.markerEnd = { type: MarkerType.ArrowClosed };
+        newEdge.markerEnd = {
+          color: '#000000',
+          type: MarkerType.ArrowClosed,
+        };
       }
 
       setEdges((edges) =>
@@ -448,12 +538,10 @@ export function DnDFlow() {
       }
 
       // Conta a quantidade de triângulos já presentes
-      const triangleCount = nodes.filter(
-        (node) => node.type === 'triangle'
-      ).length;
+      setCountTriangle(nodes.filter((node) => node.type === 'triangle').length);
 
       // Se já houverem dois triângulos, exibe alerta e retorna
-      if (triangleCount >= 2 && type === 'triangle') {
+      if (countTriangle >= 2 && type === 'triangle') {
         onShowAlert(
           'Você só pode adicionar no máximo dois triângulos.',
           'error'
@@ -776,7 +864,7 @@ export function DnDFlow() {
       },
       100
     ),
-    [handleResizeEnd]
+    [handleResizeEnd ]
   );
 
   const handleResize = useCallback(
@@ -826,7 +914,6 @@ export function DnDFlow() {
         handleResize(nodeId, newDimensions, position, nodelabel); // Passa o id e as dimensões
       }
     });
-    // handleLabelChange();
   };
 
   const handleDeleteNodes = ({
@@ -852,30 +939,6 @@ export function DnDFlow() {
     });
   };
 
-  // const handleLabelChange = useCallback(() => {
-  //   // Verifica se há algum nó com label diferente em nodesHistoryState
-  //   const labelsDiffer = nodes.some((node, index) => {
-  //     const correspondingNode = state.nodesHistoryState[index];
-  //     return node.data.label !== correspondingNode?.data.label;
-  //   });
-
-  //   if (labelsDiffer) {
-
-  //     // Atualiza o estado para refletir as novas labels de nodes
-  //     set({
-  //       ...state,
-  //       nodesHistoryState: nodes.map((node) => ({
-  //         ...node,
-  //         data: {
-  //           ...node.data,
-  //           label: node.data.label,
-  //         },
-  //       })),
-  //     });
-  //   } else {
-  //   }
-  // }, [nodes, state, set]);
-
   return (
     <div className="w-screen h-screen relative right-0 dndflow">
       {/* <div className="w-screen h-screen dndflow"> */}
@@ -885,12 +948,13 @@ export function DnDFlow() {
           panOnScroll={false}
           panOnDrag={true}
           zoomOnPinch={true}
-          onNodeClick={onNodeClick}
           onPaneClick={handleClickOnWorkspace}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           nodes={nodes}
           edges={edges}
+          onEdgeClick={() => setmodalEdgeOpen(!modalEdgeOpen)}
+          onNodeClick={onNodeClick}
           onNodeDragStop={onNodeDragOver}
           onNodesChange={handleNodeChanges}
           onEdgesChange={onEdgesChange}
@@ -1015,10 +1079,6 @@ export function DnDFlow() {
 
       <SideBar
         nodes={nodes}
-        edges={edges}
-        state={state}
-        set={set}
-        setEdges={setEdges}
         ingredients={VALUESSIDEBAR}
         onDragStart={onDragStart}
         selectedUnityId={selectedUnityId}
@@ -1039,7 +1099,14 @@ export function DnDFlow() {
           <CiDark className="text-3xl text-white" />
         )}
       </div>
-
+      <ModalEditEdges
+        edges={edges}
+        state={state}
+        set={set}
+        setEdges={setEdges}
+        modalEdgeOpen={modalEdgeOpen}
+        setmodalEdgeOpen={setmodalEdgeOpen}
+      />
       <AlertComponent
         show={showAlert}
         message={showAlertMessage}
@@ -1064,50 +1131,63 @@ export function DnDFlow() {
  */
 
 /**
+ * 
+ * 
+ * Anotarion:
+ * mudar a lógica de edição de todos os nodes, para que eu possa salvar no historico de estados, e para que seja possivel deletar os mesmos.
+ * fazer um modal igual foi feito com edges, mapeando todos os nodes e pegar o selecionado
+ * 
  *To-Do:
  - [x] Ajustar enquadramento do zoom.
- - [x] Ajustar controle de logica quando solto em uma unity de fora pra dentro.
- 
  - [x] Fazer documentação.
  - [x] Integração com o mes3.
  - [x] Fazer manual de uso do fluxograma.
  
+
+ *Not Important now:
+ - [x] Ajustar controle de logica quando solto em uma unity de fora pra dentro.
+
+
  *Doing:
- - [x] Mobile.
- - [x] Ajustar cor da edge tipo arrow
- - [x] Ajustar para não deixar adicionar mais de dois triangulos pelo mobile.
- - [x] Ajustar add unity pelo mobile.
- - [x] Ajustar edges pelo mobile.
+ - [x] Conseguir apagar os nodes pelo botão de delete.
  
- - [x] Edição das labels(negrito, sublinhado, tamanho, itálico, cor).
+ 
+ 
+ - [x] Mobile.
+ 
  
  *Done: 
  
-- [V] Ajustar a controle de lógica para que possa ser arrastado para fora de unitys também.
-- [V] se não ter nenhum triangulo o primeiro é start e o segundo é end .
-
-- [?] Ajustar lógica do histórico de estados.(não precisou)
-- [V] Adicionar alertas de erro.
-- [V] Adicionar modal de edição no grupo de nodes.
-- [V] Ajustar para que as phases possam ser colocadas apenas as unitys que elas pertencem.
-- [V] Depois que existe uma phase dentro da unity, não pode mudar o tipo da unity.
-- [V] Ajustar Inicial Nodes exemplo.
-- [V] Ajustar css do menu lateral.
-- [V] Ajustar Z-index das edges.
-- [V] Armazenar edição das edges no histórico.
-- [V] Ajustar mensagem de erro e verificar se o json está correto conforme uma atualização de uma edge nula.
-- [V] Austar as edges para não permitir conexão de inferior para inferior e superior para superior.
-- [V] Atualizar o historico conforme o delete.
-- [V] Apenas um start e um end por receita.
-- [V] bloquear todos os cantos menos o inferior direito.
-- [V] Ajustar node tipo text para que possa ser escrito.
-- [V] Só pode adicionar phases dentro de uma unity.
-- [V] Ajustar edges.
-- [V] Nenhum node pode fazer ligação nele mesmo.
-
-
-  *Impossivel: 
-- [x] Armazenar o historico de uma label de todos os nodes.
-- [x] Armazenar tipo do controle de logica no historico.
-
+ - [V] Conseguir apagar as edges pelo botão de delete.
+ - [V] Ajustar edges pelo mobile.
+ - [V] Edição das labels(negrito, sublinhado, tamanho, itálico, cor).
+ - [V] Ajustar para não deixar adicionar mais de dois triangulos pelo mobile.
+ - [V] Ajustar cor da edge tipo arrow
+ - [V] Ajustar a controle de lógica para que possa ser arrastado para fora de unitys também.
+ - [V] se não ter nenhum triangulo o primeiro é start e o segundo é end .
+ - [V] Ajustar add unity pelo mobile.
+ - [?] Ajustar lógica do histórico de estados.(não precisou)
+ - [V] Adicionar alertas de erro.
+ - [V] Adicionar modal de edição no grupo de nodes.
+ - [V] Ajustar para que as phases possam ser colocadas apenas as unitys que elas pertencem.
+ - [V] Depois que existe uma phase dentro da unity, não pode mudar o tipo da unity.
+ - [V] Ajustar Inicial Nodes exemplo.
+ - [V] Ajustar css do menu lateral.
+ - [V] Ajustar Z-index das edges.
+ - [V] Armazenar edição das edges no histórico.
+ - [V] Ajustar mensagem de erro e verificar se o json está correto conforme uma atualização de uma edge nula.
+ - [V] Austar as edges para não permitir conexão de inferior para inferior e superior para superior.
+ - [V] Atualizar o historico conforme o delete.
+ - [V] Apenas um start e um end por receita.
+ - [V] bloquear todos os cantos menos o inferior direito.
+ - [V] Ajustar node tipo text para que possa ser escrito.
+ - [V] Só pode adicionar phases dentro de uma unity.
+ - [V] Ajustar edges.
+ - [V] Nenhum node pode fazer ligação nele mesmo.
+ 
+ 
+ *Impossivel: 
+ - [x] Armazenar o historico de uma label de todos os nodes.
+ - [x] Armazenar tipo do controle de logica no historico.
+ 
 */
