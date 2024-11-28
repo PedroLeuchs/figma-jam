@@ -37,25 +37,26 @@ import { EQUIPAMENT } from '../../services/Equipament';
 import { MACHINES } from '../../services/Machines';
 import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
 import { UNITYPHASES } from '../../services/Unitys';
-import {
-  INITIAL_NODES,
-  getId,
-  // GROUPIDS,
-  NODE_TYPES,
-} from '../../services/InicialNodes';
+import { INITIAL_NODES, getId, NODE_TYPES } from '../../services/InicialNodes';
 import { EDGE_TYPES, INITIAL_EDGES } from '../../services/inicialEdges';
 
 import BackAndNext from '../sideBar/BackAndNext';
 import { CiDark, CiLight } from 'react-icons/ci';
+import { IoSettingsOutline } from 'react-icons/io5';
 
 import { useHistoryState } from '@uidotdev/usehooks';
 import { debounce } from '@mui/material';
 import ZoomControl from '../sideBar/ZoomControl';
 import ModalEditEdges from '../modal/ModalEditEdges';
-// import { useHandleNodesChangeWithHistory } from '../historyState/HistoryState';
-// import { debounce } from '@mui/material';
+import { ModalCircle } from '../modal/ModalNodes/ModalCircle';
+import { ModalSquare } from '../modal/ModalNodes/ModalSquare';
+import { ModalUnity } from '../modal/ModalNodes/ModalUnity';
+import { ModalPhase } from '../modal/ModalNodes/ModalPhase';
+import { ModalSeparator } from '../modal/ModalNodes/ModalSeparator';
+import { ModalEditLabel } from '../modal/ModalNodes/ModalEditLabel';
 
 export function DnDFlow() {
+  //nodes and edges
   const { state, set, undo, redo, canUndo, canRedo } = useHistoryState({
     nodesHistoryState: INITIAL_NODES,
     edgesHistoryState: INITIAL_EDGES,
@@ -67,36 +68,76 @@ export function DnDFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(
     state.nodesHistoryState
   );
-  const [type, setType] = useDnD();
-  const { screenToFlowPosition } = useReactFlow();
-  const [selectedUnityId, setSelectedUnityId] = useState<string>('');
-  const [newLabel, setNewLabel] = useState<string>('');
 
+  const { screenToFlowPosition } = useReactFlow();
   const { getIntersectingNodes } = useReactFlow();
   const [colorMode, setColorMode] = useState<ColorMode>('light');
+  //alerts
   const [showAlert, setShowAlert] = useState(false);
   const [showAlertMessage, setShowAlertMessage] = useState('');
   const [showAlertSeverity, setShowAlertSeverity] = useState<
     'error' | 'warning' | 'info' | 'success'
   >('error');
+
   const [isResizing, setIsResizing] = useState(false);
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-  // const [canEditEdges, setCanEditEdges] = useState(false);
+  //nodes
   const [selectedNodeType, setSelectedNodeType] = useState<string | null>(null);
   const [selectedNodeLabel, setSelectedNodeLabel] = useState<string | null>(
     null
   );
+  const [selectedUnityId, setSelectedUnityId] = useState<string>('');
+  const [newLabel, setNewLabel] = useState<string>('');
+  const [type, setType] = useDnD();
+  const [nodeEditing, setNodeEditing] = useState<Node | null>(null);
   const [countTriangle, setCountTriangle] = useState(
     nodes.filter((node) => node.type === 'triangle').length
   );
+
+  //modal
+  const [watingNode, setWatingNode] = useState(false);
+  const [modalCircle, setModalCircle] = useState(false);
+  const [modalPhase, setModalPhase] = useState(false);
+  const [modalSquare, setModalSquare] = useState(false);
+  const [modalSeparator, setModalSeparator] = useState(false);
+  const [modalUnity, setModalUnity] = useState(false);
+  const [modalLabel, setModalLabel] = useState(false);
   const [modalEdgeOpen, setmodalEdgeOpen] = useState(false);
 
-  // useEffect(() => {
-  //   // Verifica se algum edge está selecionado
-  //   const isAnySelected = edges.some((edge) => edge.selected);
-  //   setCanEditEdges(isAnySelected);
-  // }, [edges]);
+  const handleWaitingClickOnNode = () => {
+    onShowAlert('Clique no nó que deseja editar.', 'info');
+    setWatingNode(true);
+  };
+
+  const openModalEditNode = useCallback(
+    (node: Node) => {
+      setWatingNode(false);
+      setNodeEditing(node);
+
+      const nodeType = node.type;
+
+      if (nodeType === 'circle') {
+        setModalCircle(true);
+      }
+      if (nodeType === 'square') {
+        setModalSquare(true);
+      }
+      if (nodeType === 'phase') {
+        setModalPhase(true);
+      }
+      if (nodeType === 'unity') {
+        setModalUnity(true);
+      }
+      if (nodeType === 'label') {
+        setModalLabel(true);
+      }
+      if (nodeType === 'separator') {
+        setModalSeparator(true);
+      }
+    },
+    [setWatingNode, setNodeEditing, setModalCircle] // Dependências
+  );
 
   const handleNodeSelect = (nodeType: string, label?: string) => {
     onShowAlert(
@@ -203,59 +244,16 @@ export function DnDFlow() {
     }
   };
 
-  // function useHandleNodesChangeWithHistory(
-  //   onNodesChange: OnNodesChange, // Usando o tipo específico OnNodesChange
-  //   nodes: Node[], // Usando tipo específico para os nodes
-  //   set: any
-  // ) {
-  //   return useCallback(
-  //     (changes: NodeChange[]) => {
-  //       // Define mudanças como NodeChange<CustomNode>[]
-  //       // Chama a função onNodesChange original para aplicar as mudanças no estado dos nodes
-  //       onNodesChange(changes);
-
-  //       set({
-  //         ...state,
-  //         nodesHistoryState: [...state.nodesHistoryState, changes],
-  //       });
-
-  //       // Atualiza o histórico após aplicar as mudanças
-  //     },
-  //     [onNodesChange, nodes, set]
-  //   );
-  // }
-
-  // const handleNodesChangeWithHistory = useHandleNodesChangeWithHistory(
-  //   onNodesChange,
-  //   nodes,
-  //   set
-  // );
-
-  // const handleNodesChangeWithHistory = useCallback(
-  //   (changes: any) => {
-  //     // Atualiza os nodes usando o onNodesChange original
-  //     onNodesChange(changes);
-
-  //     // Após a atualização, salva o novo estado dos nodes no histórico
-  //     set((prevState) => ({
-  //       ...prevState,
-  //       nodesHistoryState: [
-  //         ...prevState.nodesHistoryState,
-  //         applyNodeChanges(changes, nodes),
-  //       ],
-  //     }));
-  //   },
-  //   [onNodesChange, nodes, set]
-  // );
-
-  // const [isResizing, setIsResizing] = useState(false);
-
   const onNodeClick = useCallback(
     (_?: React.MouseEvent, node?: Node) => {
       if (node === undefined) {
         setSelectedUnityId('');
         return;
       }
+      if (watingNode == true) {
+        openModalEditNode(node);
+      }
+
       if (node.type === 'unity') {
         setSelectedUnityId(node.id);
         if (selectedNodeLabel !== null && selectedNodeType !== null) {
@@ -270,64 +268,18 @@ export function DnDFlow() {
         setSelectedUnityId('');
       }
     },
-    [selectedNodeLabel, selectedNodeType, handleClickOnTheNodeOnMobile]
+    [
+      selectedNodeLabel,
+      selectedNodeType,
+      handleClickOnTheNodeOnMobile,
+      openModalEditNode,
+      watingNode,
+    ]
   );
-
-  // const verifyHasNodeOnUnity = useCallback(
-  //   (nodes: Node[]) => {
-  //     if (hasNodeOnUnityVerify) {
-  //       return;
-  //     }
-
-  //     nodes.forEach((node) => {
-  //       const isUnity = GROUPIDS.includes(node.id);
-
-  //       if (isUnity) {
-  //         const { position, style } = node;
-  //         const { x, y } = position;
-  //         const { width, height } = style as { width: number; height: number };
-
-  //         // Filtra nodes que estão dentro da unidade
-  //         const nodesInUnity = nodes.filter((otherNode) => {
-  //           if (otherNode.id === node.id) return false;
-
-  //           const otherX = otherNode.position.x;
-  //           const otherY = otherNode.position.y;
-
-  //           return (
-  //             otherX >= x &&
-  //             otherX <= x + width &&
-  //             otherY >= y &&
-  //             otherY <= y + height
-  //           );
-  //         });
-
-  //         // Se houver nodes dentro da unidade, distribui-os em uma grade
-  //         if (nodesInUnity.length > 0) {
-  //           const gridColumns = Math.ceil(Math.sqrt(nodesInUnity.length));
-  //           const cellWidth = width / gridColumns;
-  //           const cellHeight = height / gridColumns;
-
-  //           nodesInUnity.forEach((foundNode, index) => {
-  //             const row = Math.floor(index / gridColumns);
-  //             const col = index % gridColumns;
-
-  //             foundNode.parentId = node.id || '';
-  //             foundNode.position = {
-  //               x: col * cellWidth + cellWidth / 2,
-  //               y: row * cellHeight + cellHeight / 2,
-  //             };
-  //             foundNode.extent = 'parent'; // Define para ficar posicionado relativo ao parent
-  //           });
-  //         }
-  //       }
-  //     });
-  //   },
-  //   [hasNodeOnUnityVerify]
-  // );
 
   const onNodeDragOver = useCallback(
     (_: MouseEvent, node: Node) => {
+
       if (node.type === 'unity') {
         return;
       }
@@ -499,6 +451,7 @@ export function DnDFlow() {
     },
     [nodes, edges, setEdges, set, state]
   );
+
   const doesPhaseBelongToUnity = (
     unityName: string | unknown,
     phaseName: string
@@ -732,38 +685,9 @@ export function DnDFlow() {
 
   removeMarcaDagua();
 
-  // const mapNodesWithPhasesAndSettingsCheck = (nodes: Node[]) => {
-
-  //   // Percorre todos os nodes para configurar `hasPhases` e `canSettings` em cada `unity`
-  //   nodes.forEach((node) => {
-  //     if (node.type === 'unity') {
-  //       // Filtra os nodes filhos da unidade atual
-  //       const childrenNodes = nodes.filter(
-  //         (child) => child.parentId === node.id
-  //       );
-
-  //       // Verifica se a unidade contém algum `phase`
-  //       const hasPhases = childrenNodes.some((child) => child.type === 'phase');
-
-  //       // Define as propriedades `hasPhases` e `canSettings` com base nos `phases`
-  //       node.data.canSettings = hasPhases; // Se tiver phases, `canSettings` será `false`
-
-  //       // Armazena os nodes filhos dentro da propriedade `childrenNodes`
-  //     }
-  //   });
-
-  //   return nodes; // Retorna os nodes atualizados com as novas propriedades
-  // };
-
-  // Executando a função para mapear os nodes com `hasPhases` e `canSettings`
-
   const onToggleColorMode = () => {
     setColorMode(colorMode === 'light' ? 'dark' : 'light');
   };
-
-  // useEffect(() => {
-  //   mapNodesWithPhasesAndSettingsCheck(nodes);
-  // }, [nodes, mapNodesWithPhasesAndSettingsCheck]);
 
   useEffect(() => {
     const mapNodesWithPhasesAndSettingsCheck = (nodes: Node[]) => {
@@ -864,7 +788,7 @@ export function DnDFlow() {
       },
       100
     ),
-    [handleResizeEnd ]
+    [handleResizeEnd]
   );
 
   const handleResize = useCallback(
@@ -1064,18 +988,17 @@ export function DnDFlow() {
               pannable
               style={{
                 position: 'absolute',
-                top: 2,
-                left: 2,
+                top: 1,
+                left: 1,
                 backgroundColor: zinc[400],
-                borderRadius: 10,
-                width: 130,
-                height: 60,
+                borderRadius: 5,
+                width: 80,
+                height: 80,
               }}
             />
           </div>
         </ReactFlow>
       </div>
-      {/* </DnDProvider> */}
 
       <SideBar
         nodes={nodes}
@@ -1090,7 +1013,7 @@ export function DnDFlow() {
       <div
         onClick={onToggleColorMode}
         className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 fixed top-2 2xl:right-72 xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
-          colorMode == 'light' ? 'hover:-rotate-90' : 'hover:-scale-x-100'
+          colorMode == 'light' ? 'hover:rotate-180' : 'hover:-scale-x-100'
         }`}
       >
         {colorMode == 'light' ? (
@@ -1099,6 +1022,12 @@ export function DnDFlow() {
           <CiDark className="text-3xl text-white" />
         )}
       </div>
+      <div
+        onClick={handleWaitingClickOnNode}
+        className="bg-gray-100 cursor-pointer border-gray-400 border dark:bg-zinc-700 dark:border-zinc-600 fixed top-2 2xl:right-[350px] xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 hover:rotate-180 transition-all duration-300"
+      >
+        <IoSettingsOutline className="text-3xl text-black" />
+      </div>
       <ModalEditEdges
         edges={edges}
         state={state}
@@ -1106,6 +1035,66 @@ export function DnDFlow() {
         setEdges={setEdges}
         modalEdgeOpen={modalEdgeOpen}
         setmodalEdgeOpen={setmodalEdgeOpen}
+      />
+      <ModalCircle
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalCircle={modalCircle}
+        setModalCircle={setModalCircle}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalPhase
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalPhase={modalPhase}
+        setModalPhase={setModalPhase}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalSquare
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalSquare={modalSquare}
+        setModalSquare={setModalSquare}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalSeparator
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalSeparator={modalSeparator}
+        setModalSeparator={setModalSeparator}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalUnity
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalUnity={modalUnity}
+        setModalUnity={setModalUnity}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalEditLabel
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalLabel={modalLabel}
+        setModalLabel={setModalLabel}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
       />
       <AlertComponent
         show={showAlert}
@@ -1134,8 +1123,6 @@ export function DnDFlow() {
  * 
  * 
  * Anotarion:
- * mudar a lógica de edição de todos os nodes, para que eu possa salvar no historico de estados, e para que seja possivel deletar os mesmos.
- * fazer um modal igual foi feito com edges, mapeando todos os nodes e pegar o selecionado
  * 
  *To-Do:
  - [x] Ajustar enquadramento do zoom.
@@ -1143,14 +1130,13 @@ export function DnDFlow() {
  - [x] Integração com o mes3.
  - [x] Fazer manual de uso do fluxograma.
  
-
  *Not Important now:
  - [x] Ajustar controle de logica quando solto em uma unity de fora pra dentro.
-
-
- *Doing:
- - [x] Conseguir apagar os nodes pelo botão de delete.
  
+ 
+ *Doing:
+ 
+ - [x] Conseguir apagar os nodes pelo botão de delete.
  
  
  - [x] Mobile.
@@ -1158,6 +1144,12 @@ export function DnDFlow() {
  
  *Done: 
  
+ - [V] Fazer Modal Square .
+ - [V] Fazer Modal Circle.
+ - [V] Fazer Modal Unity.
+ - [v] Fazer Modal Separator.
+ - [V] Fazer Modal Label.
+ - [V] Fazer Modal Phase.
  - [V] Conseguir apagar as edges pelo botão de delete.
  - [V] Ajustar edges pelo mobile.
  - [V] Edição das labels(negrito, sublinhado, tamanho, itálico, cor).

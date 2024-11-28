@@ -1,54 +1,53 @@
 import { TextField } from '@mui/material';
 import * as Dialog from '@radix-ui/react-dialog';
 import { FC, useState } from 'react';
-import { BsFonts } from 'react-icons/bs';
 import { RxFontItalic } from 'react-icons/rx';
 import { RiFontColor } from 'react-icons/ri';
-import BackgroundPicker from '../colorPicker/BackgroundPicker';
+import BackgroundPicker from '../../colorPicker/BackgroundPicker';
 import { IoIosColorPalette } from 'react-icons/io';
+import { Edge, Node } from '@xyflow/react';
 
 interface ModalEditLabelProps {
-  textValueModalLabel: string;
-  italic: boolean;
-  underline: boolean;
-  fontSize: number;
-  bold:
+  state: {
+    nodesHistoryState: Node[];
+    edgesHistoryState: Edge[];
+  };
+  set: (newPresent: {
+    nodesHistoryState: Node[];
+    edgesHistoryState: Edge[];
+  }) => void;
+  nodes: Node[];
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  modalLabel: boolean;
+  setModalLabel: React.Dispatch<React.SetStateAction<boolean>>;
+  nodeEditing: Node | null;
+  setNodeEditing: React.Dispatch<React.SetStateAction<Node | null>>;
+}
+
+export const ModalEditLabel: FC<ModalEditLabelProps> = ({
+  set,
+  state,
+  nodes,
+  setNodes,
+  modalLabel,
+  setModalLabel,
+  nodeEditing,
+  setNodeEditing,
+}) => {
+  //estados normais
+  const [textValueModalLabel, setTextValueModalLabel] =
+    useState('Texto Exemplo');
+  const [italic, setItalic] = useState(false);
+  const [underline, setUnderline] = useState(false);
+  const [bold, setBold] = useState<
     | 'font-light'
     | 'font-normal'
     | 'font-semibold'
     | 'font-bold'
-    | 'font-extrabold';
-  color?: string;
-  setTextValueModalLabel: (value: string) => void;
-  setItalic: (value: boolean) => void;
-  setFontSize: (value: number) => void;
-  setUnderline: (value: boolean) => void;
-  setColor?: (value: string) => void;
-  setBold: (
-    value:
-      | 'font-light'
-      | 'font-normal'
-      | 'font-semibold'
-      | 'font-bold'
-      | 'font-extrabold'
-  ) => void;
-}
-
-export const ModalEditLabel: FC<ModalEditLabelProps> = ({
-  textValueModalLabel,
-  italic,
-  bold,
-  underline,
-  setBold,
-  setItalic,
-  setTextValueModalLabel,
-  setUnderline,
-  setFontSize,
-  fontSize,
-  color,
-  setColor,
-}) => {
-  const [modalOpen, setModalOpen] = useState(false);
+    | 'font-extrabold'
+  >('font-normal');
+  const [fontSize, setFontSize] = useState<number>(16);
+  const [color, setColor] = useState<string>('black');
 
   // Estados locais para edição temporária
   const [tempTextValue, setTempTextValue] = useState(textValueModalLabel);
@@ -59,26 +58,42 @@ export const ModalEditLabel: FC<ModalEditLabelProps> = ({
   const [colorPicker, setColorPicker] = useState('black');
   const [showColorPicker, setShowColorPicker] = useState(false);
 
+  const onDelete = () => {
+    // Filtra as edges, removendo a que está selecionada
+    const updatedNodes = nodes.filter((node) => !node.selected);
+
+    // Atualiza o estado com as Nodes restantes
+    setNodes(updatedNodes);
+
+    // Atualiza o estado histórico
+    set({
+      ...state,
+      nodesHistoryState: updatedNodes,
+    });
+
+    // Fecha o modal
+    setModalLabel(false);
+  };
+
   const onCancel = () => {
     // Fechar o modal sem salvar alterações
-    setModalOpen(false);
+    setModalLabel(false);
   };
 
   const handleColorChange = (color: string) => {
     setColorPicker(color || 'black');
   };
 
-  const handleSave = () => {
+  const onSave = () => {
     // Aplicar as alterações aos estados principais
     setTextValueModalLabel(tempTextValue);
     setItalic(tempItalic);
     setUnderline(tempUnderline);
     setFontSize(tempFontSize);
     setBold(tempBold);
-    if (setColor) {
-      setColor(colorPicker);
-    }
-    setModalOpen(false);
+    setColor(colorPicker);
+    updatedLabelNodes();
+    setModalLabel(false);
   };
 
   const handleFontWeightChange = (
@@ -87,9 +102,39 @@ export const ModalEditLabel: FC<ModalEditLabelProps> = ({
     setTempBold(event.target.value as typeof bold);
   };
 
+  const updatedLabelNodes = () => {
+    // Atualizar o nó com as novas informações
+    const updatedNodes = nodes.map((node) => {
+      if (node?.id === nodeEditing?.id) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            color: colorPicker,
+            italic: tempItalic,
+            underline: tempUnderline,
+            bold: tempBold,
+            fontSize: tempFontSize,
+          },
+        };
+      }
+      return node;
+    });
+
+    // Atualizar o estado com os nós atualizados
+    setNodes(updatedNodes);
+
+    // Atualizar o estado histórico
+    set({
+      ...state,
+      nodesHistoryState: updatedNodes,
+    });
+    setNodeEditing(null);
+  };
+
   return (
     <Dialog.Root
-      open={modalOpen}
+      open={modalLabel}
       onOpenChange={(isOpen) => {
         if (isOpen) {
           // Sincronizar os estados temporários com os principais ao abrir o modal
@@ -100,17 +145,9 @@ export const ModalEditLabel: FC<ModalEditLabelProps> = ({
           setTempBold(bold);
           setColorPicker(color || 'black');
         }
-        setModalOpen(isOpen);
+        setModalLabel(isOpen);
       }}
     >
-      <Dialog.Trigger asChild>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="absolute top-0 left-0 rounded-full p-2 bg-white hover:bg-gray-200 border border-gray-500 hover:border-gray-600"
-        >
-          <BsFonts className="text-lg" />
-        </button>
-      </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed z-40 inset-0 bg-black/30" />
         <Dialog.Content className="fixed z-50 left-1/2 top-1/2 lg:max-h-[85vh] lg:w-[30vw] w-11/12 h-[95%] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-5 flex flex-col items-center justify-between gap-4">
@@ -205,16 +242,22 @@ export const ModalEditLabel: FC<ModalEditLabelProps> = ({
             <hr className="h-1" />
           </div>
           <hr className="h-1 w-full flex" />
-          <div className="flex justify-end gap-2 w-full">
+          <div className="flex lg:justify-end lg:gap-5 gap-2 justify-center">
             <button
-              onClick={onCancel}
-              className="bg-red-500 text-white px-4 py-2 rounded"
+              onClick={onDelete}
+              className=" bg-red-500 text-white rounded lg:px-4 px-2 lg:py-2 py-1 lg:text-lg text-base font-semibold"
             >
-              Cancelar
+              Deletar
             </button>
             <button
-              onClick={handleSave}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={onCancel}
+              className=" bg-red-500 text-white rounded lg:px-4 px-2 lg:py-2 py-1 lg:text-lg text-base font-semibold"
+            >
+              Cencelar
+            </button>
+            <button
+              onClick={onSave}
+              className=" bg-blue-500 text-white rounded lg:px-4 px-2 lg:py-2 py-1 lg:text-lg text-base font-semibold"
             >
               Salvar Alterações
             </button>

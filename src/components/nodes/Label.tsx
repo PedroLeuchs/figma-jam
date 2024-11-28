@@ -1,11 +1,25 @@
 import { NodeProps, NodeResizeControl } from '@xyflow/react';
 import { FC, useState, useEffect } from 'react';
 import { ResizeIcon } from '../resizeCustom/ResizeCustom';
-import { ModalEditLabel } from '../modal/ModalEditLabel';
 
-interface LabelProps extends NodeProps {
+interface dataProps {
+  label?: string;
+  italic?: boolean;
+  underline?: boolean;
+  bold?:
+    | 'font-light'
+    | 'font-normal'
+    | 'font-semibold'
+    | 'font-bold'
+    | 'font-extrabold';
+  fontSize?: number;
+  color?: string;
+}
+
+interface LabelProps extends Omit<NodeProps, 'data'> {
   selected?: boolean;
-  onChangeLabel?: (newLabel: string) => void; // Mantenha essa propriedade se você precisar dela
+  onChangeLabel?: (newLabel: string) => void;
+  data?: dataProps;
 }
 
 export const Label: FC<LabelProps> = ({
@@ -13,25 +27,31 @@ export const Label: FC<LabelProps> = ({
   data,
   onChangeLabel,
 }) => {
-  const [textValueModalLabel, setTextValueModalLabel] =
-    useState('Texto Exemplo');
-  const [italic, setItalic] = useState(false);
-  const [underline, setUnderline] = useState(false);
+  const [italic, setItalic] = useState(data?.italic || false);
+  const [underline, setUnderline] = useState(data?.underline || false);
   const [bold, setBold] = useState<
     | 'font-light'
     | 'font-normal'
     | 'font-semibold'
     | 'font-bold'
     | 'font-extrabold'
-  >('font-normal');
-  const [fontSize, setFontSize] = useState<number>(16);
-  const [color, setColor] = useState<string>('black');
+  >(data?.bold || 'font-normal');
+  const [fontSize, setFontSize] = useState<number>(data?.fontSize || 16);
+  const [color, setColor] = useState<string>(data?.color || 'black');
 
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
   const textareaValue =
     typeof data?.label === 'string' ? data.label : 'Escreva aqui';
 
   const [textvalue, setTextValue] = useState(textareaValue);
+
+  useEffect(() => {
+    setItalic(data?.italic || false);
+    setUnderline(data?.underline || false);
+    setBold(data?.bold || 'font-normal');
+    setFontSize(data?.fontSize || 16);
+    setColor(data?.color || 'black');
+  }, [data]);
 
   // Atualiza textvalue quando data.label muda
   useEffect(() => {
@@ -49,7 +69,9 @@ export const Label: FC<LabelProps> = ({
     setTextValue(newValue);
     if (onChangeLabel) {
       onChangeLabel(newValue);
-      data.label = newValue;
+      if (data) {
+        data.label = newValue;
+      }
     }
   };
 
@@ -80,22 +102,6 @@ export const Label: FC<LabelProps> = ({
         rows={1}
         placeholder="Escreva aqui" // Adiciona placeholder para ajudar o usuário
       />
-      {(selected || showOnMouseEnter) && (
-        <ModalEditLabel
-          bold={bold}
-          italic={italic}
-          underline={underline}
-          fontSize={fontSize}
-          setFontSize={setFontSize}
-          textValueModalLabel={textValueModalLabel}
-          setBold={setBold}
-          setItalic={setItalic}
-          setUnderline={setUnderline}
-          setTextValueModalLabel={setTextValueModalLabel}
-          color={color}
-          setColor={setColor}
-        />
-      )}
     </div>
   );
 };

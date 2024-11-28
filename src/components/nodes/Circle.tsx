@@ -1,37 +1,41 @@
 import { FC, useEffect, useState } from 'react';
 import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
-import BackgroundPicker from '../colorPicker/BackgroundPicker';
-import FontePicker from '../colorPicker/FontePicker';
-import SelectComponent from '../select/Select';
-import { Modal } from '../modal/Modal';
 import { ResizeIcon } from '../resizeCustom/ResizeCustom';
 
 interface CircleProps extends NodeProps {
-  color?: string;
-  fontColor?: string;
+
+  data: {
+    label: string;
+    machine: { id: string; label: string }[];
+    color?: string;
+    fontColor?: string;
+  };
 }
 
-export const Circle: FC<CircleProps> = ({
-  data,
-  selected = false,
-  color = 'bg-zinc-300',
-  fontColor = 'text-black',
-}) => {
-  const { machine = [] } = data as { machine: { id: string; label: string }[] };
-
-  const [currentColor, setCurrentColor] = useState(color);
-  const [currentFontColor, setCurrentFontColor] = useState(fontColor);
+export const Circle: FC<CircleProps> = ({ data, selected = false }) => {
+  const [currentColor, setCurrentColor] = useState(data.color || 'bg-gray-200');
+  const [currentFontColor, setCurrentFontColor] = useState(
+    data.fontColor || 'text-black'
+  );
   const [textareaValue, setTextareaValue] = useState(
     data?.label || 'Escreva aqui'
   );
-  const [tempTextareaValue, setTempTextareaValue] = useState(
-    data?.label || 'Escreva aqui'
-  );
-  const [tempColor, setTempColor] = useState(color);
-  const [tempFontColor, setTempFontColor] = useState(fontColor);
-  const [textValue, setTextValue] = useState('');
-  const [tempTextValue, setTempTextValue] = useState('');
+
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
+
+  if (data.label !== textareaValue) {
+    setTextareaValue(data.label);
+  }
+  if (data.color != currentColor) {
+    if (data.color) {
+      setCurrentColor(data.color);
+    }
+  }
+  if (data.fontColor != currentFontColor) {
+    if (data.fontColor) {
+      setCurrentFontColor(data.fontColor);
+    }
+  }
 
   useEffect(() => {
     if (window.innerWidth < 768) {
@@ -39,40 +43,11 @@ export const Circle: FC<CircleProps> = ({
     }
   }, [selected, showOnMouseEnter]);
 
-  const handleColorChange = (color: string) => {
-    setTempColor(color);
-  };
-
-  const handleFontColorChange = (color: string) => {
-    setTempFontColor(color);
-  };
-
-  const handleMachineSelect = (machine: string) => {
-    setTempTextareaValue(machine);
-  };
-
-  const handleSave = () => {
-    setTextValue(tempTextValue);
-    setCurrentColor(tempColor);
-    setCurrentFontColor(tempFontColor);
-    setTextareaValue(tempTextareaValue);
-    data.label = tempTextareaValue;
-    data.color = tempColor;
-  };
-  const handleCancel = () => {
-    setTempTextareaValue(data?.label || 'Escreva aqui');
-    setTempFontColor(''); // Atualiza a cor da fonte temporariamente
-    setTempColor(''); // Atualiza a cor temporariamente
-    setTextareaValue(data?.label || 'Escreva aqui');
-  };
-
   return (
     <div
       onMouseEnter={() => setShowOnMouseEnter(true)}
       onMouseLeave={() => setShowOnMouseEnter(false)}
-      className={`${currentColor} drop-shadow-lg shadow-black !min-w-[100px] min-h-[100px] w-auto h-full flex items-center  ${
-        textValue ? 'justify-start' : 'justify-center'
-      }  rounded-full border border-gray-600 flex-col`}
+      className={`${currentColor} drop-shadow-lg shadow-black !min-w-[100px] min-h-[100px] w-auto h-full flex items-center justify-center rounded-full border border-gray-600 flex-col`}
     >
       {(selected || showOnMouseEnter) && (
         <NodeResizeControl
@@ -100,14 +75,6 @@ export const Circle: FC<CircleProps> = ({
         }`}
       />
 
-      <div
-        className={`text-start font-semibold w-full ${
-          textValue ? 'px-4 pt-2' : ''
-        }  ${currentFontColor}`}
-      >
-        {textValue}
-      </div>
-
       <textarea
         className={`${currentFontColor} w-[100px] max-w-full min-h-[40px] max-h-[200px] py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent placeholder-gray-300`}
         rows={1}
@@ -119,44 +86,6 @@ export const Circle: FC<CircleProps> = ({
           target.style.height = `${target.scrollHeight}px`;
         }}
       />
-
-      {selected && (
-        <div className="fixed -top-10 left-0 ">
-          <Modal
-            components={[
-              {
-                Component: SelectComponent,
-                props: {
-                  values: machine,
-                  type: 'circle',
-                  onMachineSelect: handleMachineSelect,
-                },
-                id: '',
-              },
-              {
-                Component: FontePicker,
-                props: {
-                  onColorChange: handleFontColorChange,
-                  setShowColorPicker: () => {},
-                },
-                id: '',
-              },
-              {
-                Component: BackgroundPicker,
-                props: {
-                  onColorChange: handleColorChange,
-                  setShowColorPicker: () => {},
-                },
-                id: '',
-              },
-            ]}
-            textValue={tempTextValue}
-            onTextChange={setTempTextValue}
-            onSave={handleSave}
-            onCancel={handleCancel}
-          />
-        </div>
-      )}
     </div>
   );
 };

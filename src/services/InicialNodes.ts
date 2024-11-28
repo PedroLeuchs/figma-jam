@@ -23,7 +23,6 @@ export const NODE_TYPES = {
   phase: Phase,
   label: Label,
   separator: Separator,
-  
 };
 
 export const GROUPIDS: string[] = [];
@@ -49,6 +48,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'circle',
+
     measured: { width: 100, height: 100 },
     position: { x: 209, y: 250 },
     data: { label: MACHINES[0].label, machine: MACHINES },
