@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   Handle,
   NodeProps,
@@ -18,6 +18,12 @@ const LogicControl: FC<LogicControlProps> = ({ selected = false, data }) => {
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
   const [operator, setOperator] = useState<'AND' | 'OR'>(data.operatorSelected);
   const [width, setWidth] = useState(100); // Estado para guardar a largura atual
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowOnMouseEnter(true);
+    }
+  }, [selected, showOnMouseEnter]);
 
   // Obter as edges atuais (conexões) da store do React Flow
   const edges = useStore((state) => state.edges);

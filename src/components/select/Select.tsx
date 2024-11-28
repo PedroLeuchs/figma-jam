@@ -2,8 +2,8 @@ import * as Select from '@radix-ui/react-select';
 import { FC, useState } from 'react';
 
 interface SelectProps {
-  values: { id: string; label: string }[];
-  valuesUnity: { Unidade: string; Fases: string[] }[];
+  values?: { id: string; label: string }[];
+  valuesUnity?: { Unidade: string; Fases: string[] }[];
   type: string;
   onIngredientSelect?: (value: string) => void;
   onMachineSelect?: (value: string) => void;
@@ -75,7 +75,7 @@ const SelectComponent: FC<SelectProps> = ({
       </Select.Trigger>
 
       <Select.Portal>
-        <Select.Content className="bg-white rounded shadow-lg border border-gray-300 fixed top-[35%] right-[40%] left-[40%] !max-h-[47vh] h-auto">
+        <Select.Content className="bg-white z-50 rounded shadow-lg border border-gray-300 fixed top-[35%] right-[40%] left-[40%] !max-h-[47vh] h-auto">
           <Select.ScrollUpButton className="text-gray-700" />
 
           <div className="p-2">

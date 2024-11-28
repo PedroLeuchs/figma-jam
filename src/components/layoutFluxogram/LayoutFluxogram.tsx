@@ -37,24 +37,26 @@ import { EQUIPAMENT } from '../../services/Equipament';
 import { MACHINES } from '../../services/Machines';
 import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
 import { UNITYPHASES } from '../../services/Unitys';
-import {
-  INITIAL_NODES,
-  getId,
-  // GROUPIDS,
-  NODE_TYPES,
-} from '../../services/InicialNodes';
+import { INITIAL_NODES, getId, NODE_TYPES } from '../../services/InicialNodes';
 import { EDGE_TYPES, INITIAL_EDGES } from '../../services/inicialEdges';
 
 import BackAndNext from '../sideBar/BackAndNext';
 import { CiDark, CiLight } from 'react-icons/ci';
+import { IoSettingsOutline } from 'react-icons/io5';
 
 import { useHistoryState } from '@uidotdev/usehooks';
 import { debounce } from '@mui/material';
 import ZoomControl from '../sideBar/ZoomControl';
-// import { useHandleNodesChangeWithHistory } from '../historyState/HistoryState';
-// import { debounce } from '@mui/material';
+import ModalEditEdges from '../modal/ModalEditEdges';
+import { ModalCircle } from '../modal/ModalNodes/ModalCircle';
+import { ModalSquare } from '../modal/ModalNodes/ModalSquare';
+import { ModalUnity } from '../modal/ModalNodes/ModalUnity';
+import { ModalPhase } from '../modal/ModalNodes/ModalPhase';
+import { ModalSeparator } from '../modal/ModalNodes/ModalSeparator';
+import { ModalEditLabel } from '../modal/ModalNodes/ModalEditLabel';
 
 export function DnDFlow() {
+  //nodes and edges
   const { state, set, undo, redo, canUndo, canRedo } = useHistoryState({
     nodesHistoryState: INITIAL_NODES,
     edgesHistoryState: INITIAL_EDGES,
@@ -66,25 +68,75 @@ export function DnDFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(
     state.nodesHistoryState
   );
-  const [type, setType] = useDnD();
-  const { screenToFlowPosition } = useReactFlow();
-  const [selectedUnityId, setSelectedUnityId] = useState<string>('');
-  const [newLabel, setNewLabel] = useState<string>('');
 
+  const { screenToFlowPosition } = useReactFlow();
   const { getIntersectingNodes } = useReactFlow();
   const [colorMode, setColorMode] = useState<ColorMode>('light');
+  //alerts
   const [showAlert, setShowAlert] = useState(false);
   const [showAlertMessage, setShowAlertMessage] = useState('');
   const [showAlertSeverity, setShowAlertSeverity] = useState<
     'error' | 'warning' | 'info' | 'success'
   >('error');
+
   const [isResizing, setIsResizing] = useState(false);
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-
+  //nodes
   const [selectedNodeType, setSelectedNodeType] = useState<string | null>(null);
   const [selectedNodeLabel, setSelectedNodeLabel] = useState<string | null>(
     null
+  );
+  const [selectedUnityId, setSelectedUnityId] = useState<string>('');
+  const [newLabel, setNewLabel] = useState<string>('');
+  const [type, setType] = useDnD();
+  const [nodeEditing, setNodeEditing] = useState<Node | null>(null);
+  const [countTriangle, setCountTriangle] = useState(
+    nodes.filter((node) => node.type === 'triangle').length
+  );
+
+  //modal
+  const [watingNode, setWatingNode] = useState(false);
+  const [modalCircle, setModalCircle] = useState(false);
+  const [modalPhase, setModalPhase] = useState(false);
+  const [modalSquare, setModalSquare] = useState(false);
+  const [modalSeparator, setModalSeparator] = useState(false);
+  const [modalUnity, setModalUnity] = useState(false);
+  const [modalLabel, setModalLabel] = useState(false);
+  const [modalEdgeOpen, setmodalEdgeOpen] = useState(false);
+
+  const handleWaitingClickOnNode = () => {
+    onShowAlert('Clique no nó que deseja editar.', 'info');
+    setWatingNode(true);
+  };
+
+  const openModalEditNode = useCallback(
+    (node: Node) => {
+      setWatingNode(false);
+      setNodeEditing(node);
+
+      const nodeType = node.type;
+
+      if (nodeType === 'circle') {
+        setModalCircle(true);
+      }
+      if (nodeType === 'square') {
+        setModalSquare(true);
+      }
+      if (nodeType === 'phase') {
+        setModalPhase(true);
+      }
+      if (nodeType === 'unity') {
+        setModalUnity(true);
+      }
+      if (nodeType === 'label') {
+        setModalLabel(true);
+      }
+      if (nodeType === 'separator') {
+        setModalSeparator(true);
+      }
+    },
+    [setWatingNode, setNodeEditing, setModalCircle] // Dependências
   );
 
   const handleNodeSelect = (nodeType: string, label?: string) => {
@@ -97,154 +149,143 @@ export function DnDFlow() {
     setSelectedNodeLabel(label || 'Novo Nó');
   };
 
+  const handleClickOnTheNodeOnMobile = useCallback(
+    (nodeType: string, label?: string, parentId?: string) => {
+      if (nodeType === 'phase' || nodeType === 'logicControl') {
+        const newNode: Node = {
+          id: getId().toString(),
+          type: nodeType,
+          parentId: parentId,
+          measured: {
+            width: nodeType === 'phase' ? 200 : 50,
+            height: 50,
+          },
+          position: { x: 0, y: 0 },
+          data: {
+            label: label ? label : '',
+            unitphases: nodeType === 'phase' ? UNITYPHASES : null,
+            operatorSelected: nodeType === 'logicControl' ? 'AND' : null,
+          },
+          style: {},
+          extent: 'parent',
+        };
+
+        setNodes((prevNodes) => [...prevNodes, newNode]);
+        set({
+          ...state,
+          nodesHistoryState: [...state.nodesHistoryState, newNode],
+        });
+        setSelectedNodeType(null);
+        setSelectedNodeLabel(null);
+      } else {
+        return;
+      }
+    },
+    [setNodes, state, set]
+  );
+
   const handleClickOnWorkspace = (event: React.MouseEvent) => {
     if (!selectedNodeType) return;
+
+    setCountTriangle(nodes.filter((node) => node.type === 'triangle').length);
+
+    // Se já houverem dois triângulos, exibe alerta e retorna
+    if (countTriangle >= 2 && selectedNodeType === 'triangle') {
+      onShowAlert('Você só pode adicionar no máximo dois triângulos.', 'error');
+      setSelectedNodeType(null);
+      setSelectedNodeLabel(null);
+      return;
+    }
 
     const position = screenToFlowPosition({
       x: event.clientX,
       y: event.clientY,
     });
 
-    const newNode: Node = {
-      id: getId().toString(),
-      type: selectedNodeType,
-      position,
-      data: { label: selectedNodeLabel },
-      style: {},
-    };
+    if (selectedNodeType === 'unity') {
+      const unityNode: Node = {
+        id: getId('unity').toString(),
+        type: 'unity',
+        position,
+        data: { label: UNITYPHASES[0].Unidade, unitphases: UNITYPHASES },
+        style: { width: 500, height: 500 },
+        measured: { width: 500, height: 500 },
+      };
 
-    set({
-      ...state,
-      nodesHistoryState: [...state.nodesHistoryState, newNode],
-    });
+      set({
+        ...state,
+        nodesHistoryState: [...state.nodesHistoryState, unityNode],
+      });
 
-    onShowAlert(`${selectedNodeLabel} Adicionado com sucesso.`, 'success');
-    setSelectedNodeType(null);
-    setSelectedNodeLabel(null);
+      onShowAlert(
+        `${UNITYPHASES[0].Unidade} Adicionado com sucesso.`,
+        'success'
+      );
+      setSelectedNodeType(null);
+      setSelectedNodeLabel(null);
+      return;
+    } else {
+      const newNode: Node = {
+        id: getId().toString(),
+        type: selectedNodeType,
+        position,
+        data: { label: selectedNodeLabel },
+        style: {},
+      };
+
+      set({
+        ...state,
+        nodesHistoryState: [...state.nodesHistoryState, newNode],
+      });
+
+      onShowAlert(`${selectedNodeLabel} Adicionado com sucesso.`, 'success');
+      setSelectedNodeType(null);
+      setSelectedNodeLabel(null);
+    }
   };
 
-  // function useHandleNodesChangeWithHistory(
-  //   onNodesChange: OnNodesChange, // Usando o tipo específico OnNodesChange
-  //   nodes: Node[], // Usando tipo específico para os nodes
-  //   set: any
-  // ) {
-  //   return useCallback(
-  //     (changes: NodeChange[]) => {
-  //       // Define mudanças como NodeChange<CustomNode>[]
-  //       // Chama a função onNodesChange original para aplicar as mudanças no estado dos nodes
-  //       onNodesChange(changes);
+  const onNodeClick = useCallback(
+    (_?: React.MouseEvent, node?: Node) => {
+      if (node === undefined) {
+        setSelectedUnityId('');
+        return;
+      }
+      if (watingNode == true) {
+        openModalEditNode(node);
+      }
 
-  //       set({
-  //         ...state,
-  //         nodesHistoryState: [...state.nodesHistoryState, changes],
-  //       });
-
-  //       // Atualiza o histórico após aplicar as mudanças
-  //     },
-  //     [onNodesChange, nodes, set]
-  //   );
-  // }
-
-  // const handleNodesChangeWithHistory = useHandleNodesChangeWithHistory(
-  //   onNodesChange,
-  //   nodes,
-  //   set
-  // );
-
-  // const handleNodesChangeWithHistory = useCallback(
-  //   (changes: any) => {
-  //     // Atualiza os nodes usando o onNodesChange original
-  //     onNodesChange(changes);
-
-  //     // Após a atualização, salva o novo estado dos nodes no histórico
-  //     set((prevState) => ({
-  //       ...prevState,
-  //       nodesHistoryState: [
-  //         ...prevState.nodesHistoryState,
-  //         applyNodeChanges(changes, nodes),
-  //       ],
-  //     }));
-  //   },
-  //   [onNodesChange, nodes, set]
-  // );
-
-  // const [isResizing, setIsResizing] = useState(false);
-
-  const onNodeClick = useCallback((_?: React.MouseEvent, node?: Node) => {
-    if (node === undefined) {
-      setSelectedUnityId('');
-      return;
-    }
-    if (node.type === 'unity') {
-      setSelectedUnityId(node.id);
-    } else {
-      setSelectedUnityId('');
-    }
-  }, []);
-
-  // const verifyHasNodeOnUnity = useCallback(
-  //   (nodes: Node[]) => {
-  //     if (hasNodeOnUnityVerify) {
-  //       return;
-  //     }
-
-  //     nodes.forEach((node) => {
-  //       const isUnity = GROUPIDS.includes(node.id);
-
-  //       if (isUnity) {
-  //         const { position, style } = node;
-  //         const { x, y } = position;
-  //         const { width, height } = style as { width: number; height: number };
-
-  //         // Filtra nodes que estão dentro da unidade
-  //         const nodesInUnity = nodes.filter((otherNode) => {
-  //           if (otherNode.id === node.id) return false;
-
-  //           const otherX = otherNode.position.x;
-  //           const otherY = otherNode.position.y;
-
-  //           return (
-  //             otherX >= x &&
-  //             otherX <= x + width &&
-  //             otherY >= y &&
-  //             otherY <= y + height
-  //           );
-  //         });
-
-  //         // Se houver nodes dentro da unidade, distribui-os em uma grade
-  //         if (nodesInUnity.length > 0) {
-  //           const gridColumns = Math.ceil(Math.sqrt(nodesInUnity.length));
-  //           const cellWidth = width / gridColumns;
-  //           const cellHeight = height / gridColumns;
-
-  //           nodesInUnity.forEach((foundNode, index) => {
-  //             const row = Math.floor(index / gridColumns);
-  //             const col = index % gridColumns;
-
-  //             foundNode.parentId = node.id || '';
-  //             foundNode.position = {
-  //               x: col * cellWidth + cellWidth / 2,
-  //               y: row * cellHeight + cellHeight / 2,
-  //             };
-  //             foundNode.extent = 'parent'; // Define para ficar posicionado relativo ao parent
-  //           });
-  //         }
-  //       }
-  //     });
-  //   },
-  //   [hasNodeOnUnityVerify]
-  // );
+      if (node.type === 'unity') {
+        setSelectedUnityId(node.id);
+        if (selectedNodeLabel !== null && selectedNodeType !== null) {
+          const parentId = node.id;
+          handleClickOnTheNodeOnMobile(
+            selectedNodeType,
+            selectedNodeLabel,
+            parentId
+          );
+        }
+      } else {
+        setSelectedUnityId('');
+      }
+    },
+    [
+      selectedNodeLabel,
+      selectedNodeType,
+      handleClickOnTheNodeOnMobile,
+      openModalEditNode,
+      watingNode,
+    ]
+  );
 
   const onNodeDragOver = useCallback(
     (_: MouseEvent, node: Node) => {
+
       if (node.type === 'unity') {
         return;
       }
       if (node.type === 'separator') {
         return;
       }
-      console.log('nodes: ', nodes);
-      console.log('state.nodesHistoryState: ', state.nodesHistoryState);
 
       const intersectingUnities = getIntersectingNodes(node).filter(
         (n) => n.type === 'unity'
@@ -310,7 +351,11 @@ export function DnDFlow() {
   );
 
   const onConnect = useCallback(
-    (connection: Connection & { markerEnd?: { type: MarkerType } }) => {
+    (
+      connection: Connection & {
+        markerEnd?: { type: MarkerType; color?: string };
+      }
+    ) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
       const targetNode = nodes.find((node) => node.id === connection.target);
 
@@ -382,7 +427,10 @@ export function DnDFlow() {
       };
 
       if (sourceNode?.type === 'phase' && targetNode?.type === 'phase') {
-        newEdge.markerEnd = { type: MarkerType.ArrowClosed };
+        newEdge.markerEnd = {
+          color: '#000000',
+          type: MarkerType.ArrowClosed,
+        };
       }
 
       setEdges((edges) =>
@@ -403,6 +451,7 @@ export function DnDFlow() {
     },
     [nodes, edges, setEdges, set, state]
   );
+
   const doesPhaseBelongToUnity = (
     unityName: string | unknown,
     phaseName: string
@@ -442,12 +491,10 @@ export function DnDFlow() {
       }
 
       // Conta a quantidade de triângulos já presentes
-      const triangleCount = nodes.filter(
-        (node) => node.type === 'triangle'
-      ).length;
+      setCountTriangle(nodes.filter((node) => node.type === 'triangle').length);
 
       // Se já houverem dois triângulos, exibe alerta e retorna
-      if (triangleCount >= 2 && type === 'triangle') {
+      if (countTriangle >= 2 && type === 'triangle') {
         onShowAlert(
           'Você só pode adicionar no máximo dois triângulos.',
           'error'
@@ -638,38 +685,9 @@ export function DnDFlow() {
 
   removeMarcaDagua();
 
-  // const mapNodesWithPhasesAndSettingsCheck = (nodes: Node[]) => {
-
-  //   // Percorre todos os nodes para configurar `hasPhases` e `canSettings` em cada `unity`
-  //   nodes.forEach((node) => {
-  //     if (node.type === 'unity') {
-  //       // Filtra os nodes filhos da unidade atual
-  //       const childrenNodes = nodes.filter(
-  //         (child) => child.parentId === node.id
-  //       );
-
-  //       // Verifica se a unidade contém algum `phase`
-  //       const hasPhases = childrenNodes.some((child) => child.type === 'phase');
-
-  //       // Define as propriedades `hasPhases` e `canSettings` com base nos `phases`
-  //       node.data.canSettings = hasPhases; // Se tiver phases, `canSettings` será `false`
-
-  //       // Armazena os nodes filhos dentro da propriedade `childrenNodes`
-  //     }
-  //   });
-
-  //   return nodes; // Retorna os nodes atualizados com as novas propriedades
-  // };
-
-  // Executando a função para mapear os nodes com `hasPhases` e `canSettings`
-
   const onToggleColorMode = () => {
     setColorMode(colorMode === 'light' ? 'dark' : 'light');
   };
-
-  // useEffect(() => {
-  //   mapNodesWithPhasesAndSettingsCheck(nodes);
-  // }, [nodes, mapNodesWithPhasesAndSettingsCheck]);
 
   useEffect(() => {
     const mapNodesWithPhasesAndSettingsCheck = (nodes: Node[]) => {
@@ -820,7 +838,6 @@ export function DnDFlow() {
         handleResize(nodeId, newDimensions, position, nodelabel); // Passa o id e as dimensões
       }
     });
-    // handleLabelChange();
   };
 
   const handleDeleteNodes = ({
@@ -846,30 +863,6 @@ export function DnDFlow() {
     });
   };
 
-  // const handleLabelChange = useCallback(() => {
-  //   // Verifica se há algum nó com label diferente em nodesHistoryState
-  //   const labelsDiffer = nodes.some((node, index) => {
-  //     const correspondingNode = state.nodesHistoryState[index];
-  //     return node.data.label !== correspondingNode?.data.label;
-  //   });
-
-  //   if (labelsDiffer) {
-
-  //     // Atualiza o estado para refletir as novas labels de nodes
-  //     set({
-  //       ...state,
-  //       nodesHistoryState: nodes.map((node) => ({
-  //         ...node,
-  //         data: {
-  //           ...node.data,
-  //           label: node.data.label,
-  //         },
-  //       })),
-  //     });
-  //   } else {
-  //   }
-  // }, [nodes, state, set]);
-
   return (
     <div className="w-screen h-screen relative right-0 dndflow">
       {/* <div className="w-screen h-screen dndflow"> */}
@@ -879,12 +872,13 @@ export function DnDFlow() {
           panOnScroll={false}
           panOnDrag={true}
           zoomOnPinch={true}
-          onNodeClick={onNodeClick}
           onPaneClick={handleClickOnWorkspace}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
           nodes={nodes}
           edges={edges}
+          onEdgeClick={() => setmodalEdgeOpen(!modalEdgeOpen)}
+          onNodeClick={onNodeClick}
           onNodeDragStop={onNodeDragOver}
           onNodesChange={handleNodeChanges}
           onEdgesChange={onEdgesChange}
@@ -967,7 +961,7 @@ export function DnDFlow() {
               zoomable
               pannable
               style={{
-                backgroundColor: zinc[900],
+                backgroundColor: zinc[400],
                 borderRadius: 10,
                 width: 170,
                 height: 110,
@@ -988,28 +982,26 @@ export function DnDFlow() {
             />
           </div>
           {/* dispositivos xs  */}
-          <div className="xl:hidden lg:hidden md:hidden sm:hidden xs:flex flex ">
+          <div className=" xl:hidden lg:hidden md:hidden sm:hidden xs:flex flex ">
             <MiniMap
               zoomable
               pannable
               style={{
+                position: 'absolute',
+                top: 1,
+                left: 1,
                 backgroundColor: zinc[400],
-                borderRadius: 10,
-                width: 130,
-                height: 60,
+                borderRadius: 5,
+                width: 80,
+                height: 80,
               }}
             />
           </div>
         </ReactFlow>
       </div>
-      {/* </DnDProvider> */}
 
       <SideBar
         nodes={nodes}
-        edges={edges}
-        state={state}
-        set={set}
-        setEdges={setEdges}
         ingredients={VALUESSIDEBAR}
         onDragStart={onDragStart}
         selectedUnityId={selectedUnityId}
@@ -1021,7 +1013,7 @@ export function DnDFlow() {
       <div
         onClick={onToggleColorMode}
         className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 fixed top-2 2xl:right-72 xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
-          colorMode == 'light' ? 'hover:-rotate-90' : 'hover:-scale-x-100'
+          colorMode == 'light' ? 'hover:rotate-180' : 'hover:-scale-x-100'
         }`}
       >
         {colorMode == 'light' ? (
@@ -1030,7 +1022,80 @@ export function DnDFlow() {
           <CiDark className="text-3xl text-white" />
         )}
       </div>
-
+      <div
+        onClick={handleWaitingClickOnNode}
+        className="bg-gray-100 cursor-pointer border-gray-400 border dark:bg-zinc-700 dark:border-zinc-600 fixed top-2 2xl:right-[350px] xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 hover:rotate-180 transition-all duration-300"
+      >
+        <IoSettingsOutline className="text-3xl text-black" />
+      </div>
+      <ModalEditEdges
+        edges={edges}
+        state={state}
+        set={set}
+        setEdges={setEdges}
+        modalEdgeOpen={modalEdgeOpen}
+        setmodalEdgeOpen={setmodalEdgeOpen}
+      />
+      <ModalCircle
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalCircle={modalCircle}
+        setModalCircle={setModalCircle}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalPhase
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalPhase={modalPhase}
+        setModalPhase={setModalPhase}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalSquare
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalSquare={modalSquare}
+        setModalSquare={setModalSquare}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalSeparator
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalSeparator={modalSeparator}
+        setModalSeparator={setModalSeparator}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalUnity
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalUnity={modalUnity}
+        setModalUnity={setModalUnity}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      <ModalEditLabel
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalLabel={modalLabel}
+        setModalLabel={setModalLabel}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
       <AlertComponent
         show={showAlert}
         message={showAlertMessage}
@@ -1055,47 +1120,66 @@ export function DnDFlow() {
  */
 
 /**
+ * 
+ * 
+ * Anotarion:
+ * 
  *To-Do:
  - [x] Ajustar enquadramento do zoom.
- - [x] Ajustar controle de logica quando solto em uma unity de fora pra dentro.
- 
  - [x] Fazer documentação.
  - [x] Integração com o mes3.
  - [x] Fazer manual de uso do fluxograma.
  
- *Doing:
- - [x] Mobile.
- - [x] Ajustar cor da edge tipo arrow
+ *Not Important now:
+ - [x] Ajustar controle de logica quando solto em uma unity de fora pra dentro.
  
- - [x] Edição das labels(negrito, sublinhado, tamanho, itálico, cor).
+ 
+ *Doing:
+ 
+ - [x] Conseguir apagar os nodes pelo botão de delete.
+ 
+ 
+ - [x] Mobile.
+ 
  
  *Done: 
  
-- [V] Ajustar a controle de lógica para que possa ser arrastado para fora de unitys também.
-- [V] se não ter nenhum triangulo o primeiro é start e o segundo é end .
-
-- [?] Ajustar lógica do histórico de estados.(não precisou)
-- [V] Adicionar alertas de erro.
-- [V] Adicionar modal de edição no grupo de nodes.
-- [V] Ajustar para que as phases possam ser colocadas apenas as unitys que elas pertencem.
-- [V] Depois que existe uma phase dentro da unity, não pode mudar o tipo da unity.
-- [V] Ajustar Inicial Nodes exemplo.
-- [V] Ajustar css do menu lateral.
-- [V] Ajustar Z-index das edges.
-- [V] Armazenar edição das edges no histórico.
-- [V] Ajustar mensagem de erro e verificar se o json está correto conforme uma atualização de uma edge nula.
-- [V] Austar as edges para não permitir conexão de inferior para inferior e superior para superior.
-- [V] Atualizar o historico conforme o delete.
-- [V] Apenas um start e um end por receita.
-- [V] bloquear todos os cantos menos o inferior direito.
-- [V] Ajustar node tipo text para que possa ser escrito.
-- [V] Só pode adicionar phases dentro de uma unity.
-- [V] Ajustar edges.
-- [V] Nenhum node pode fazer ligação nele mesmo.
-
-
-  *Impossivel: 
-- [x] Armazenar o historico de uma label de todos os nodes.
-- [x] Armazenar tipo do controle de logica no historico.
-
+ - [V] Fazer Modal Square .
+ - [V] Fazer Modal Circle.
+ - [V] Fazer Modal Unity.
+ - [v] Fazer Modal Separator.
+ - [V] Fazer Modal Label.
+ - [V] Fazer Modal Phase.
+ - [V] Conseguir apagar as edges pelo botão de delete.
+ - [V] Ajustar edges pelo mobile.
+ - [V] Edição das labels(negrito, sublinhado, tamanho, itálico, cor).
+ - [V] Ajustar para não deixar adicionar mais de dois triangulos pelo mobile.
+ - [V] Ajustar cor da edge tipo arrow
+ - [V] Ajustar a controle de lógica para que possa ser arrastado para fora de unitys também.
+ - [V] se não ter nenhum triangulo o primeiro é start e o segundo é end .
+ - [V] Ajustar add unity pelo mobile.
+ - [?] Ajustar lógica do histórico de estados.(não precisou)
+ - [V] Adicionar alertas de erro.
+ - [V] Adicionar modal de edição no grupo de nodes.
+ - [V] Ajustar para que as phases possam ser colocadas apenas as unitys que elas pertencem.
+ - [V] Depois que existe uma phase dentro da unity, não pode mudar o tipo da unity.
+ - [V] Ajustar Inicial Nodes exemplo.
+ - [V] Ajustar css do menu lateral.
+ - [V] Ajustar Z-index das edges.
+ - [V] Armazenar edição das edges no histórico.
+ - [V] Ajustar mensagem de erro e verificar se o json está correto conforme uma atualização de uma edge nula.
+ - [V] Austar as edges para não permitir conexão de inferior para inferior e superior para superior.
+ - [V] Atualizar o historico conforme o delete.
+ - [V] Apenas um start e um end por receita.
+ - [V] bloquear todos os cantos menos o inferior direito.
+ - [V] Ajustar node tipo text para que possa ser escrito.
+ - [V] Só pode adicionar phases dentro de uma unity.
+ - [V] Ajustar edges.
+ - [V] Nenhum node pode fazer ligação nele mesmo.
+ 
+ 
+ *Impossivel: 
+ - [x] Armazenar o historico de uma label de todos os nodes.
+ - [x] Armazenar tipo do controle de logica no historico.
+ 
 */

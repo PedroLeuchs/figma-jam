@@ -1,217 +1,116 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import BackgroundPicker from '../colorPicker/BackgroundPicker';
-import { MdHeight, MdColorLens } from 'react-icons/md';
-import { FaLongArrowAltRight } from 'react-icons/fa';
-import { Node, Edge, MarkerType } from '@xyflow/react';
 
 interface EditEdgeProps {
-  edges: Edge[];
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
-  state: {
-    nodesHistoryState: Node[];
-    edgesHistoryState: Edge[];
-  };
-  set: (newPresent: {
-    nodesHistoryState: Node[];
-    edgesHistoryState: Edge[];
-  }) => void;
+  setHeightTemp: (height: number) => void;
+  setAnimatedTemp: (animated: boolean) => void;
+  setLineTypeTemp: (type: 'none' | 'end') => void;
+  setColorTemp: (color: string) => void;
+  animated: boolean;
 }
 
-const EditEdge: FC<EditEdgeProps> = ({ edges, setEdges, state, set }) => {
-  const [showHeightPicker, setShowHeightPicker] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [showLineType, setShowLineType] = useState(false);
-  const [animated, setAnimated] = useState(true);
-  const [color, setColor] = useState('black');
-  const showOptions = (number: number) => {
-    switch (number) {
-      case 1:
-        setShowHeightPicker(!showHeightPicker);
-        setShowColorPicker(false);
-        setShowLineType(false);
-        break;
-      case 2:
-        setShowHeightPicker(false);
-        setShowColorPicker(!showColorPicker);
-        setShowLineType(false);
-        break;
-      case 3:
-        setShowHeightPicker(false);
-        setShowColorPicker(false);
-        setShowLineType(!showLineType);
-        break;
-    }
-  };
-
-  const updateEdge = (updatedEdge: Partial<Edge>) => {
-    if (updatedEdge.style) {
-      const newEdges = edges.map((edge) => {
-        if (edge.selected) {
-          return {
-            ...edge,
-            style: {
-              ...edge.style,
-              ...updatedEdge.style,
-            },
-            // ...updatedEdge,
-          };
-        }
-        return edge;
-      });
-
-      setEdges(newEdges);
-      set({
-        ...state,
-        edgesHistoryState: [
-          ...state.edgesHistoryState,
-          ...newEdges.filter((edge) => edge.selected),
-        ],
-      });
-    } else {
-      const newEdges = edges.map((edge) => {
-        if (edge.selected) {
-          return {
-            ...edge,
-            // style: {
-            //     ...edge.style,
-            //     ...updatedEdge.style,
-            // },
-            ...updatedEdge,
-          };
-        }
-        return edge;
-      });
-
-      setEdges(newEdges);
-      set({
-        ...state,
-        edgesHistoryState: [
-          ...state.edgesHistoryState,
-          ...newEdges.filter((edge) => edge.selected),
-        ],
-      });
-    }
-  };
-
+const EditEdge: FC<EditEdgeProps> = ({
+  setHeightTemp,
+  setAnimatedTemp,
+  setLineTypeTemp,
+  setColorTemp,
+  animated,
+}) => {
   const handleLineHeightChange = (height: number) => {
-    updateEdge({ style: { strokeWidth: height } });
+    setHeightTemp(height);
   };
 
   const handleAnimatedChange = () => {
-    setAnimated(!animated);
-
-    if (animated) {
-      updateEdge({ animated: true });
-    } else {
-      updateEdge({ animated: false });
-    }
+    setAnimatedTemp(!animated);
   };
 
   const handleArrowChange = (type: 'none' | 'end') => {
-    const markerEnd =
-      type === 'end'
-        ? { color, type: MarkerType.ArrowClosed, orient: 'auto' }
-        : undefined;
-    updateEdge({ markerEnd });
+    setLineTypeTemp(type);
   };
 
   const handleColorChange = (color: string) => {
-    setColor(color);
-    updateEdge({
-      style: { stroke: color },
-    });
-    setShowColorPicker(false);
+    setColorTemp(color);
   };
   return (
-    <Toolbar.Root className="w-full h-44 rounded-b-lg flex flex-col items-center justify-start">
-      <div className="flex items-center justify-center w-full h-1/5">
-        <Toolbar.Button
-          onClick={() => showOptions(1)}
-          className="w-1/3 h-full border-b border-r border-zinc-300 flex items-center justify-center hover:bg-gray-100 hover:border-zinc-400"
-        >
-          <MdHeight className="text-lg" />
-        </Toolbar.Button>
-        <Toolbar.Button
-          onClick={() => showOptions(2)}
-          className="w-1/3 h-full border-b border-zinc-300 flex items-center justify-center hover:bg-gray-100 hover:border-zinc-400"
-        >
-          <MdColorLens className="text-lg" />
-        </Toolbar.Button>
-        <Toolbar.Button
-          onClick={() => showOptions(3)}
-          className="w-1/3 h-full border-b border-l border-zinc-300 flex items-center justify-center hover:bg-gray-100 hover:border-zinc-400"
-        >
-          <FaLongArrowAltRight className="text-lg" />
-        </Toolbar.Button>
-      </div>
-      <div className="h-2/3 w-full flex items-center justify-center">
-        {showHeightPicker && (
-          <Toolbar.Root className="w-full h-2/3 flex">
-            <div className="w-4/5 flex flex-col">
+    <Toolbar.Root className="w-full h-full rounded-b-lg flex flex-col items-center justify-start">
+      <div className="h-full w-full flex flex-col items-center lg:gap-5 md:gap-3 gap-2 justify-start">
+        <Toolbar.Root className="w-full h-2/3 flex">
+          <div className="flex flex-col h-1/3 w-full lg:gap-2 gap-1">
+            <h1 className="lg:text-xl md:text-base text-sm font-semibold">
+              Expessura da linha
+            </h1>
+            <div className="w-full flex flex-col items-center p-5">
               <Toolbar.Button
                 onClick={() => handleLineHeightChange(1)}
-                className="w-full h-1/3 p-2 hover:bg-gray-100"
+                className="w-full h-1/6 p-2 hover:bg-gray-100"
               >
                 <hr className="border border-black " />
               </Toolbar.Button>
               <Toolbar.Button
                 onClick={() => handleLineHeightChange(2)}
-                className="w-full h-1/3 p-2 hover:bg-gray-100"
+                className="w-full h-1/6 p-2 hover:bg-gray-100"
               >
                 <hr className="border-2 border-black " />
               </Toolbar.Button>
               <Toolbar.Button
                 onClick={() => handleLineHeightChange(4)}
-                className="w-full h-1/3 p-2 hover:bg-gray-100"
+                className="w-full h-1/6 p-2 hover:bg-gray-100"
               >
                 <hr className="border-4 border-black " />
               </Toolbar.Button>
               <Toolbar.Button
-                onClick={() => handleLineHeightChange(8)}
-                className="w-full h-1/3 p-2 hover:bg-gray-100"
+                onClick={() => handleLineHeightChange(6)}
+                className="w-full h-2/6 p-2 hover:bg-gray-100"
               >
                 <hr className="border-8 border-black " />
               </Toolbar.Button>
-            </div>
-            <div className="w-1/5">
               <Toolbar.Button
                 onClick={() => handleAnimatedChange()}
-                className="w-full h-full p-2 hover:bg-gray-100"
+                className="w-[98%] flex h-1/6 hover:bg-gray-100 overflow-hidden "
               >
-                <hr className="h-1/6 w-1/5 bg-black animate-bounce" />
-                <hr className="h-1/6 w-1/5 bg-black animate-bounce" />
-                <hr className="h-1/6 w-1/5 bg-black animate-bounce" />
-                <hr className="h-1/6 w-1/5 bg-black animate-bounce" />
-                <hr className="h-1/6 w-1/5 bg-black animate-bounce" />
-                <hr className="h-1/6 w-1/5 bg-black animate-bounce" />
+                <div className="h-full  py-2 gap-2 flex items-center justify-center -translate-x-1/3">
+                  <hr className="border-t-8 h-full w-96 border-dashed border-black animate-linearLine" />
+                  <hr className="border-t-8 h-full w-96 border-dashed border-black animate-linearLine" />
+                  <hr className="border-t-8 h-full w-96 border-dashed border-black animate-linearLine" />
+                </div>
               </Toolbar.Button>
             </div>
-          </Toolbar.Root>
-        )}
-        {showColorPicker && (
-          <BackgroundPicker
-            onColorChange={handleColorChange}
-            setShowColorPicker={setShowColorPicker}
-            lineEdit={true}
-          />
-        )}
-        {showLineType && (
-          <Toolbar.Root className="w-full h-2/3 flex flex-col items-center justify-center gap-2">
+          </div>
+        </Toolbar.Root>
+        <div className="flex flex-col w-full h-1/3 items-start">
+          <h1 className="lg:text-xl md:text-base text-sm font-semibold">
+            Cor da linha
+          </h1>
+          <div className="w-44">
+            <BackgroundPicker
+              onColorChange={handleColorChange}
+              lineEdit={true}
+            />
+          </div>
+        </div>
+
+        <div className="w-full h-1/3 flex flex-col">
+          <h1 className="lg:text-xl md:text-base text-sm font-semibold">
+            Tipo da linha
+          </h1>
+          <Toolbar.Root className="w-1/3 h-2/3 flex flex-col items-center justify-start gap-2 pl-5 pt-2">
             <Toolbar.Button
-              className="w-full h-1/2 p-2 hover:bg-gray-100 flex items-center justify-center"
+              className="w-full h-1/2 p-2 hover:bg-gray-100 flex items-center justify-start"
               onClick={() => handleArrowChange('none')}
             >
-              <hr className="border-2 border-black w-1/5" />
+              <hr className="border-2 border-black w-full" />
             </Toolbar.Button>
             <Toolbar.Button
-              className="w-full h-1/2 p-2 hover:bg-gray-100 flex items-center justify-center"
+              className="w-full h-1/2 p-2 hover:bg-gray-100 flex items-center justify-start"
               onClick={() => handleArrowChange('end')}
             >
-              <FaLongArrowAltRight className="text-lg" />
+              {/* <hr className="border-[3px] border-black w-full" />
+              <FaLongArrowAltRight className="text-4xl -translate-x-1" /> */}
+              <div className="relative w-full h-1 bg-black arrow-line -z-50"></div>
             </Toolbar.Button>
           </Toolbar.Root>
-        )}
+        </div>
       </div>
     </Toolbar.Root>
   );
