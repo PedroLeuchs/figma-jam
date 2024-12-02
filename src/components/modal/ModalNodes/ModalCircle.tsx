@@ -119,27 +119,44 @@ export const ModalCircle: FC<ModalProps> = ({
   return (
     <Dialog.Root open={modalCircle} onOpenChange={setModalCircle}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/30 data-[state=open]:animate-overlayShow" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 lg:max-h-[85vh] lg:w-[30vw] w-11/12 h-[95%] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow flex flex-col justify-between lg:gap-12 md:gap-8 gap-4">
+        <Dialog.Overlay className="fixed z-40 inset-0 bg-black/30 data-[state=open]:animate-overlayShow" />
+        <Dialog.Content className="fixed z-50 left-1/2 top-1/2 lg:max-h-[85vh] lg:w-[30vw] w-11/12 h-[95%] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow flex flex-col justify-between lg:gap-12 md:gap-8 gap-4">
           <Dialog.Title className="lg:text-xl md:text-lg text-base font-semibold">
             Editar {nodeEditing && (nodeEditing.data.label as string)}
           </Dialog.Title>
 
-          <div className="h-5/6 flex flex-col justify-start items-start">
-            <SelectComponent
-              type="circle"
-              values={machine}
-              onMachineSelect={handleMachineSelect}
-            />
-            <hr />
-            <FontePicker
-              setShowColorPicker={() => {}}
-              onColorChange={handleFontColorChange}
-            />
-            <BackgroundPicker
-              setShowColorPicker={() => {}}
-              onColorChange={handleColorChange}
-            />
+          <div className="h-5/6 flex flex-col justify-start items-start gap-5">
+            <hr className="h-1 w-full" />
+            <div>
+              <h1 className="lg:text-base text-sm font-semibold">
+                Selecione um silo
+              </h1>
+              <SelectComponent
+                type="circle"
+                values={machine}
+                onMachineSelect={handleMachineSelect}
+              />
+            </div>
+            <hr className="h-1 w-full" />
+            <div>
+              <h1 className="lg:text-base text-sm font-semibold">
+                Escolha de cor da fonte
+              </h1>
+              <FontePicker
+                setShowColorPicker={() => {}}
+                onColorChange={handleFontColorChange}
+              />
+            </div>
+            <hr className="h-1 w-full" />
+            <div>
+              <h1 className="lg:text-base text-sm font-semibold">
+                Escolha de cor do fundo
+              </h1>
+              <BackgroundPicker
+                setShowColorPicker={() => {}}
+                onColorChange={handleColorChange}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-5">

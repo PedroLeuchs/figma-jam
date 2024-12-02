@@ -159,23 +159,22 @@ export const ModalSquare: FC<ModalProps> = ({
             </div>
           </div>
           <hr className="h-1 w-full" />
-
-          <div className="flex justify-end gap-5">
+          <div className="flex lg:justify-end lg:gap-5 gap-2 justify-center">
             <button
               onClick={onDelete}
-              className="mt-2 bg-red-500 text-white rounded px-4 py-2"
+              className=" bg-red-500 text-white rounded lg:px-4 px-2 lg:py-2 py-1 lg:text-lg text-base font-semibold"
             >
               Deletar
             </button>
             <button
               onClick={onCancel}
-              className="mt-2 bg-red-500 text-white rounded px-4 py-2"
+              className=" bg-red-500 text-white rounded lg:px-4 px-2 lg:py-2 py-1 lg:text-lg text-base font-semibold"
             >
               Cencelar
             </button>
             <button
               onClick={onSave}
-              className="mt-2 bg-blue-500 text-white rounded px-4 py-2"
+              className=" bg-blue-500 text-white rounded lg:px-4 px-2 lg:py-2 py-1 lg:text-lg text-base font-semibold"
             >
               Salvar Alterações
             </button>
