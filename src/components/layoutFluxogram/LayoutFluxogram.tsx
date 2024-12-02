@@ -112,7 +112,6 @@ export function DnDFlow() {
 
   const openModalEditNode = useCallback(
     (node: Node) => {
-      setWatingNode(false);
       setNodeEditing(node);
 
       const nodeType = node.type;
@@ -135,6 +134,8 @@ export function DnDFlow() {
       if (nodeType === 'separator') {
         setModalSeparator(true);
       }
+
+      setWatingNode(false);
     },
     [setWatingNode, setNodeEditing, setModalCircle] // Dependências
   );
@@ -279,7 +280,6 @@ export function DnDFlow() {
 
   const onNodeDragOver = useCallback(
     (_: MouseEvent, node: Node) => {
-
       if (node.type === 'unity') {
         return;
       }
@@ -916,8 +916,8 @@ export function DnDFlow() {
             viewportWidth={viewportWidth}
           />
 
-          {/* dispositivos xl  */}
-          <div className="2xl:flex xl:hidden lg:hidden md:hidden sm:hidden xs:hidden hidden">
+          {/* dispositivos 2xl  */}
+          {/* <div className="2xl:flex xl:hidden lg:hidden md:hidden sm:hidden xs:hidden hidden">
             <MiniMap
               zoomable
               pannable
@@ -928,9 +928,9 @@ export function DnDFlow() {
                 height: 150,
               }}
             />
-          </div>
+          </div> */}
           {/* dispositivos xl  */}
-          <div className="2xl:hidden xl:flex lg:hidden md:hidden sm:hidden xs:hidden hidden">
+          {/* <div className="2xl:hidden xl:flex lg:hidden md:hidden sm:hidden xs:hidden hidden">
             <MiniMap
               zoomable
               pannable
@@ -941,9 +941,9 @@ export function DnDFlow() {
                 height: 140,
               }}
             />
-          </div>
+          </div> */}
           {/* dispositivos lg  */}
-          <div className="2xl:hidden xl:hidden lg:flex md:hidden sm:hidden xs:hidden hidden">
+          {/* <div className="2xl:hidden xl:hidden lg:flex md:hidden sm:hidden xs:hidden hidden">
             <MiniMap
               zoomable
               pannable
@@ -954,9 +954,9 @@ export function DnDFlow() {
                 height: 140,
               }}
             />
-          </div>
+          </div> */}
           {/* dispositivos md  */}
-          <div className="xl:hidden lg:hidden md:flex sm:hidden xs:hidden hidden">
+          {/* <div className="xl:hidden lg:hidden md:flex sm:hidden xs:hidden hidden">
             <MiniMap
               zoomable
               pannable
@@ -967,9 +967,9 @@ export function DnDFlow() {
                 height: 110,
               }}
             />
-          </div>
+          </div> */}
           {/* dispositivos sm  */}
-          <div className="xl:hidden lg:hidden md:hidden sm:flex xs:hidden hidden">
+          {/* <div className="xl:hidden lg:hidden md:hidden sm:flex xs:hidden hidden">
             <MiniMap
               zoomable
               pannable
@@ -980,9 +980,9 @@ export function DnDFlow() {
                 height: 80,
               }}
             />
-          </div>
+          </div> */}
           {/* dispositivos xs  */}
-          <div className=" xl:hidden lg:hidden md:hidden sm:hidden xs:flex flex ">
+          {/* <div className=" xl:hidden lg:hidden md:hidden sm:hidden xs:flex flex ">
             <MiniMap
               zoomable
               pannable
@@ -994,6 +994,51 @@ export function DnDFlow() {
                 borderRadius: 5,
                 width: 80,
                 height: 80,
+              }}
+            />
+          </div> */}
+          <div className=" lg:flex md:hidden sm:hidden hidden">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                position: 'absolute',
+                bottom: 1,
+                right: 1,
+                backgroundColor: zinc[400],
+                borderRadius: 5,
+                width: viewportWidth / 9.5,
+                height: viewportHeight / 7,
+              }}
+            />
+          </div>
+          <div className=" lg:hidden md:flex sm:hidden hidden ">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                position: 'absolute',
+                top: 1,
+                left: 1,
+                backgroundColor: zinc[400],
+                borderRadius: 5,
+                width: viewportWidth / 11,
+                height: viewportHeight / 14,
+              }}
+            />
+          </div>
+          <div className=" lg:hidden md:hidden sm:flex  ">
+            <MiniMap
+              zoomable
+              pannable
+              style={{
+                position: 'absolute',
+                top: 1,
+                left: 1,
+                backgroundColor: zinc[400],
+                borderRadius: 5,
+                width: viewportWidth / 5.5,
+                height: viewportHeight / 10,
               }}
             />
           </div>
