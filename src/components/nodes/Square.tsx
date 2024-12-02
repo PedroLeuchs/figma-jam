@@ -1,38 +1,27 @@
 import { FC, useEffect, useState } from 'react';
 import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
-import BackgroundPicker from '../colorPicker/BackgroundPicker';
-import FontePicker from '../colorPicker/FontePicker';
-import SelectComponent from '../select/Select';
-import { Modal } from '../modal/Modal';
 import { ResizeIcon } from '../resizeCustom/ResizeCustom';
 
 interface SquareProps extends NodeProps {
   color?: string;
   fontColor?: string;
+  data: {
+    label: string;
+    ingredients: { id: string; label: string }[];
+    color?: string;
+    fontColor?: string;
+  };
 }
 
-export const Square: FC<SquareProps> = ({
-  data,
-  selected = false,
-  color = 'bg-white',
-  fontColor = 'text-black',
-}) => {
-  const { ingredients = [] } = data as {
-    ingredients: { id: string; label: string }[];
-  };
-  const [currentColor, setCurrentColor] = useState(color);
-  const [currentFontColor, setCurrentFontColor] = useState(fontColor);
+export const Square: FC<SquareProps> = ({ data, selected = false }) => {
+  const [currentColor, setCurrentColor] = useState(data.color || 'bg-gray-100');
+  const [currentFontColor, setCurrentFontColor] = useState(
+    data.fontColor || 'text-black'
+  );
   const [textareaValue, setTextareaValue] = useState(
     data?.label || 'Escreva aqui'
   );
-  const [tempTextareaValue, setTempTextareaValue] = useState(
-    data?.label || 'Escreva aqui'
-  );
 
-  const [textValue, setTextValue] = useState('');
-  const [tempTextValue, setTempTextValue] = useState('');
-  const [tempColor, setTempColor] = useState(color);
-  const [tempFontColor, setTempFontColor] = useState(fontColor);
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
 
   useEffect(() => {
@@ -41,39 +30,25 @@ export const Square: FC<SquareProps> = ({
     }
   }, [selected, showOnMouseEnter]);
 
-  const handleColorChange = (color: string) => {
-    setTempColor(color); // Atualiza a cor temporariamente
-  };
-
-  const handleFontColorChange = (color: string) => {
-    setTempFontColor(color);
-  };
-
-  const handleIngredientSelect = (ingredient: string) => {
-    setTempTextareaValue(ingredient);
-  };
-  const handleSave = () => {
-    setTextValue(tempTextValue);
-    setCurrentColor(tempColor);
-    setCurrentFontColor(tempFontColor);
-    setTextareaValue(tempTextareaValue);
-    data.label = tempTextareaValue;
-    data.color = tempColor;
-  };
-  const handleCancel = () => {
-    setTempTextareaValue(data?.label || 'Escreva aqui');
-    setTempFontColor('');
-    setTempColor('');
-    setTextareaValue(data?.label || 'Escreva aqui');
-  };
+  if (data.label !== textareaValue) {
+    setTextareaValue(data.label);
+  }
+  if (data.color != currentColor) {
+    if (data.color) {
+      setCurrentColor(data.color);
+    }
+  }
+  if (data.fontColor != currentFontColor) {
+    if (data.fontColor) {
+      setCurrentFontColor(data.fontColor);
+    }
+  }
 
   return (
     <div
       onMouseEnter={() => setShowOnMouseEnter(true)}
       onMouseLeave={() => setShowOnMouseEnter(false)}
-      className={`${currentColor} rounded w-full h-full min-w-[200px] min-h-[50px] flex flex-col items-center ${
-        textValue ? 'justify-start' : 'justify-center'
-      }  shadow-lg shadow-black/30 border border-gray-500`}
+      className={`${currentColor} rounded w-full h-full min-w-[200px] min-h-[50px] flex flex-col items-center justify-center shadow-lg shadow-black/30 border border-gray-500`}
     >
       {(selected || showOnMouseEnter) && (
         <NodeResizeControl
@@ -101,12 +76,6 @@ export const Square: FC<SquareProps> = ({
         }`}
       />
 
-      <div
-        className={`text-start font-semibold w-full px-2 ${currentFontColor}`}
-      >
-        {textValue}
-      </div>
-
       <textarea
         className={`${currentFontColor} w-full h-full max-h-full py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent break-words placeholder-gray-300`}
         rows={1}
@@ -118,44 +87,6 @@ export const Square: FC<SquareProps> = ({
           target.style.height = `${target.scrollHeight}px`;
         }}
       />
-
-      {selected && (
-        <>
-          <Modal
-            components={[
-              {
-                Component: SelectComponent,
-                props: {
-                  values: ingredients,
-                  type: 'square',
-                  onIngredientSelect: handleIngredientSelect,
-                },
-                id: '',
-              },
-              {
-                Component: FontePicker,
-                props: {
-                  onColorChange: handleFontColorChange,
-                  setShowColorPicker: () => {}, // Não precisa do setShowColorPicker aqui
-                },
-                id: '',
-              },
-              {
-                Component: BackgroundPicker,
-                props: {
-                  onColorChange: handleColorChange,
-                  setShowColorPicker: () => {}, // Não precisa do setShowColorPicker aqui
-                },
-                id: '',
-              },
-            ]}
-            textValue={tempTextValue}
-            onTextChange={setTempTextValue}
-            onSave={handleSave} // Passa a função de salvar para o Modal
-            onCancel={handleCancel} // Passa a função de salvar para o Modal
-          />
-        </>
-      )}
     </div>
   );
 };

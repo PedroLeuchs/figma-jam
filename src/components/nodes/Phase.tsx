@@ -1,34 +1,44 @@
 import { FC, useEffect, useState } from 'react';
 import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
-import BackgroundPicker from '../colorPicker/BackgroundPicker';
-import FontePicker from '../colorPicker/FontePicker';
-import { Modal } from '../modal/Modal';
-import { ResizeIcon } from '../resizeCustom/ResizeCustom';
+import { ResizeIconWhite2 } from '../resizeCustom/ResizeCustom';
 
 interface PhaseProps extends NodeProps {
-  color?: string;
-  fontColor?: string;
+  data: {
+    label: string;
+    color?: string;
+    fontColor?: string;
+  };
 }
 
-const Phase: FC<PhaseProps> = ({
-  data,
-  selected = false,
-  color = 'bg-sky-900',
-  fontColor = 'text-white',
-}) => {
-  const [currentColor, setCurrentColor] = useState(color);
-  const [currentFontColor, setCurrentFontColor] = useState(fontColor);
+const Phase: FC<PhaseProps> = ({ data, selected = false }) => {
+  const [currentColor, setCurrentColor] = useState(data.color || 'bg-cyan-700');
+  const [currentFontColor, setCurrentFontColor] = useState(
+    data.fontColor || 'text-white'
+  );
   const [textareaValue, setTextareaValue] = useState(
     data?.label || 'Phase nova'
   );
-  const [tempTextareaValue, setTempTextareaValue] = useState(
-    data?.label || 'Phase nova'
-  );
-  const [textValue, setTextValue] = useState('');
-  const [tempTextValue, setTempTextValue] = useState('');
-  const [tempColor, setTempColor] = useState(color);
-  const [tempFontColor, setTempFontColor] = useState(fontColor);
+
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
+
+  if (data.label !== textareaValue) {
+    if (data.label) {
+      setTextareaValue(data.label);
+    } else {
+      data.label = textareaValue;
+      setTextareaValue(textareaValue);
+    }
+  }
+  if (data.color != currentColor) {
+    if (data.color) {
+      setCurrentColor(data.color);
+    }
+  }
+  if (data.fontColor != currentFontColor) {
+    if (data.fontColor) {
+      setCurrentFontColor(data.fontColor);
+    }
+  }
 
   useEffect(() => {
     if (window.innerWidth < 768) {
@@ -36,45 +46,19 @@ const Phase: FC<PhaseProps> = ({
     }
   }, [selected, showOnMouseEnter]);
 
-  const handleColorChange = (color: string) => {
-    setTempColor(color); // Atualiza a cor temporariamente
-  };
-
-  const handleFontColorChange = (color: string) => {
-    setTempFontColor(color); // Atualiza a cor da fonte temporariamente
-  };
-
-  const handleSave = () => {
-    setTextValue(tempTextValue);
-    setCurrentColor(tempColor);
-    setCurrentFontColor(tempFontColor);
-    setTextareaValue(tempTextareaValue);
-    data.label = tempTextareaValue;
-    data.color = tempColor;
-  };
-
-  const handleCancel = () => {
-    setTempTextareaValue(data?.label || 'Phase nova');
-    setTempFontColor(''); // Atualiza a cor da fonte temporariamente
-    setTempColor(''); // Atualiza a cor temporariamente
-    setTextareaValue(data?.label || 'Phase nova');
-  };
-
   return (
     <div
       onMouseEnter={() => setShowOnMouseEnter(true)}
       onMouseLeave={() => setShowOnMouseEnter(false)}
-      className={`${currentColor}  rounded w-full h-full min-w-[200px] min-h-[50px] flex flex-col items-center ${
-        textValue ? 'justify-start' : 'justify-center'
-      } shadow-lg shadow-black/30 border border-gray-500`}
+      className={`${currentColor}  rounded w-full h-full min-w-[200px] min-h-[50px] flex flex-col items-center justify-center shadow-lg shadow-black/30 border border-gray-500`}
     >
       {(selected || showOnMouseEnter) && (
         <NodeResizeControl
           minHeight={50}
-          minWidth={100}
+          minWidth={200}
           style={{ background: 'transparent', border: 'none' }}
         >
-          <ResizeIcon />
+          <ResizeIconWhite2 />
         </NodeResizeControl>
       )}
       <Handle
@@ -94,12 +78,6 @@ const Phase: FC<PhaseProps> = ({
         }`}
       />
 
-      <div
-        className={`text-start font-semibold w-full px-2 ${currentFontColor}`}
-      >
-        {textValue}
-      </div>
-
       <textarea
         className={`${currentFontColor} w-full h-full max-h-full py-2 px-3 text-center rounded-md resize-none overflow-hidden focus:outline-none focus:ring-none bg-transparent break-words placeholder-gray-300`}
         rows={1}
@@ -111,34 +89,6 @@ const Phase: FC<PhaseProps> = ({
           target.style.height = `${target.scrollHeight}px`;
         }}
       />
-
-      {selected && (
-        <Modal
-          components={[
-            {
-              Component: FontePicker,
-              props: {
-                onColorChange: handleFontColorChange,
-                setShowColorPicker: () => {}, // Não precisa do setShowColorPicker aqui
-              },
-              id: '',
-            },
-            {
-              Component: BackgroundPicker,
-              props: {
-                onColorChange: handleColorChange,
-                setShowColorPicker: () => {}, // Não precisa do setShowColorPicker aqui
-              },
-              id: '',
-            },
-          ]}
-          noConfig={true}
-          textValue={tempTextValue}
-          onTextChange={setTempTextValue}
-          onSave={handleSave} // Passa a função de salvar para o Modal
-          onCancel={handleCancel} // Passa a função de cancelar para o Modal
-        />
-      )}
     </div>
   );
 };

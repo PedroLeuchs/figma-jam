@@ -86,92 +86,99 @@ export const Modal = ({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/30 data-[state=open]:animate-overlayShow" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow flex flex-col gap-12">
-          {noConfig ? null : (
-            <>
-              {' '}
-              <div className="w-full h-1/2 flex flex-col gap-5">
-                <Dialog.Title className="text-lg font-semibold">
-                  Configurações
-                </Dialog.Title>
-                {!isUnity && textValue && (
-                  <TextInput value={textValue} onChange={onTextChange} />
-                )}
-                <div className="flex flex-col">
-                  {!isSeparator
-                    ? components.map(({ Component, props }, index) =>
-                        index === 0 ? (
-                          <Component key={`config-${index}`} {...props} />
-                        ) : null
-                      )
-                    : null}
+        <Dialog.Content className="fixed left-1/2 top-1/2 lg:max-h-[85vh] lg:w-[30vw] w-11/12 h-[95%] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow flex flex-col justify-between lg:gap-12 md:gap-8 gap-4">
+          <div className="flex flex-col lg:gap-12 md:gap-8 gap-4">
+            {noConfig ? null : (
+              <>
+                {' '}
+                <div
+                  className={`w-full h-auto flex flex-col lg:gap-5 md:gap-3 gap-1`}
+                >
+                  <Dialog.Title className="lg:text-xl md:text-lg text-base font-semibold">
+                    Configurações
+                  </Dialog.Title>
+                  {!isUnity && textValue && (
+                    <TextInput value={textValue} onChange={onTextChange} />
+                  )}
+                  <div className="flex flex-col">
+                    {!isSeparator
+                      ? components.map(({ Component, props }, index) =>
+                          index === 0 ? (
+                            <Component key={`config-${index}`} {...props} />
+                          ) : null
+                        )
+                      : null}
+                  </div>
                 </div>
-              </div>
-              <hr className="h-1" />
-            </>
-          )}
-          <div className="flex flex-col gap-2">
-            <Dialog.Title className="text-lg font-semibold">
-              Estilos
-            </Dialog.Title>
+                <hr className="h-1" />
+              </>
+            )}
             <div className="flex flex-col gap-2">
-              {components.map(({ Component, props }, index) =>
-                noConfig || isSeparator ? (
-                  <div key={`style-${index}`}>
-                    {index === 1 ? 'Cor da fonte' : 'Cor do componente'}
-                    <Component
-                      {...props}
-                      isSeparator={isSeparator ? isSeparator : false}
-                    />
-                  </div>
-                ) : index !== 0 ? (
-                  <div key={`style-${index}`}>
-                    {index === 1 ? 'Cor da fonte' : 'Cor do componente'}
-                    <Component
-                      {...props}
-                      isSeparator={isSeparator ? isSeparator : false}
-                    />
-                  </div>
-                ) : null
-              )}
-              {isSeparator && (
-                <Toolbar.Root className="w-full h-2/3 flex">
-                  <div className="w-4/5 flex flex-col">
-                    <Toolbar.Button
-                      onClick={() =>
-                        setTempLineHeight && setTempLineHeight('border')
-                      }
-                      className="w-full h-1/3 p-2 hover:bg-gray-100"
-                    >
-                      <hr className="border border-black " />
-                    </Toolbar.Button>
-                    <Toolbar.Button
-                      onClick={() =>
-                        setTempLineHeight && setTempLineHeight('border-2')
-                      }
-                      className="w-full h-1/3 p-2 hover:bg-gray-100"
-                    >
-                      <hr className="border-2 border-black " />
-                    </Toolbar.Button>
-                    <Toolbar.Button
-                      onClick={() =>
-                        setTempLineHeight && setTempLineHeight('border-4')
-                      }
-                      className="w-full h-1/3 p-2 hover:bg-gray-100"
-                    >
-                      <hr className="border-4 border-black " />
-                    </Toolbar.Button>
-                    <Toolbar.Button
-                      onClick={() =>
-                        setTempLineHeight && setTempLineHeight('border-8')
-                      }
-                      className="w-full h-1/3 p-2 hover:bg-gray-100"
-                    >
-                      <hr className="border-8 border-black " />
-                    </Toolbar.Button>
-                  </div>
-                </Toolbar.Root>
-              )}
+              <Dialog.Title className="lg:text-xl md:text-lg text-base font-semibold">
+                Estilos
+              </Dialog.Title>
+              <div className="flex flex-col gap-2 lg:text-lg md:text-base text-sm ">
+                {components.map(({ Component, props }, index) =>
+                  noConfig || isSeparator ? (
+                    <div key={`style-${index}`}>
+                      {index === 1 ? 'Cor da fonte' : 'Cor do componente'}
+                      <Component
+                        {...props}
+                        isSeparator={isSeparator ? isSeparator : false}
+                      />
+                    </div>
+                  ) : index !== 0 ? (
+                    <div key={`style-${index}`}>
+                      {index === 1 ? 'Cor da fonte' : 'Cor do componente'}
+                      <Component
+                        {...props}
+                        isSeparator={isSeparator ? isSeparator : false}
+                      />
+                    </div>
+                  ) : null
+                )}
+                {isSeparator && (
+                  <Toolbar.Root className="w-full h-1/3 flex flex-col">
+                    <h1 className="lg:text-lg md:text-base text-sm">
+                      Espessura da borda
+                    </h1>
+                    <div className="w-4/5 flex flex-col">
+                      <Toolbar.Button
+                        onClick={() =>
+                          setTempLineHeight && setTempLineHeight('border')
+                        }
+                        className="w-full h-1/3 p-2 hover:bg-gray-100"
+                      >
+                        <hr className="border border-black " />
+                      </Toolbar.Button>
+                      <Toolbar.Button
+                        onClick={() =>
+                          setTempLineHeight && setTempLineHeight('border-2')
+                        }
+                        className="w-full h-1/3 p-2 hover:bg-gray-100"
+                      >
+                        <hr className="border-2 border-black " />
+                      </Toolbar.Button>
+                      <Toolbar.Button
+                        onClick={() =>
+                          setTempLineHeight && setTempLineHeight('border-4')
+                        }
+                        className="w-full h-1/3 p-2 hover:bg-gray-100"
+                      >
+                        <hr className="border-4 border-black " />
+                      </Toolbar.Button>
+                      <Toolbar.Button
+                        onClick={() =>
+                          setTempLineHeight && setTempLineHeight('border-8')
+                        }
+                        className="w-full h-1/3 p-2 hover:bg-gray-100"
+                      >
+                        <hr className="border-8 border-black " />
+                      </Toolbar.Button>
+                    </div>
+                  </Toolbar.Root>
+                )}
+              </div>
             </div>
           </div>
           {/* <Dialog.Close asChild> */}

@@ -1,6 +1,5 @@
 import * as Toolbar from '@radix-ui/react-toolbar';
-import EditEdge from '../edges/EditEdge';
-import { Edge, Node } from '@xyflow/react';
+import { Node } from '@xyflow/react';
 import { useCallback, useEffect, useState } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import { IoClose } from 'react-icons/io5';
@@ -24,16 +23,6 @@ interface SideBarProps {
     label?: string
   ) => void;
   nodes: Node[];
-  edges: Edge[];
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
-  state: {
-    nodesHistoryState: Node[];
-    edgesHistoryState: Edge[];
-  };
-  set: (newPresent: {
-    nodesHistoryState: Node[];
-    edgesHistoryState: Edge[];
-  }) => void;
   selectedUnityId: string;
   unitphases: UnitPhase[];
   onNodeSelect: (nodeType: string, label?: string) => void;
@@ -44,21 +33,13 @@ interface SideBarProps {
 const SideBar: React.FC<SideBarProps> = ({
   ingredients,
   onDragStart,
-  edges,
-  setEdges,
   selectedUnityId,
   unitphases,
   nodes,
-  state,
-  set,
   onNodeSelect,
   viewportWidth,
-  viewportHeight,
 }) => {
-  const [canEdit, setCanEdit] = useState(false);
   const [isOpenNav, setIsOpenNav] = useState<'flex' | 'hidden'>('flex');
-
-  console.log(viewportWidth, viewportHeight);
 
   const ajustedNavBar = useCallback(() => {
     if (viewportWidth < 900) {
@@ -71,12 +52,6 @@ const SideBar: React.FC<SideBarProps> = ({
   useEffect(() => {
     ajustedNavBar();
   }, [ajustedNavBar]);
-
-  useEffect(() => {
-    // Verifica se algum edge está selecionado
-    const isAnySelected = edges.some((edge) => edge.selected);
-    setCanEdit(isAnySelected);
-  }, [edges]);
 
   const handleNodeSelect = (nodeType: string, label?: string) => {
     if (window.innerWidth < 900) {
@@ -120,9 +95,9 @@ const SideBar: React.FC<SideBarProps> = ({
           isOpenNav == 'flex'
             ? 'lg:top-5 top-20 max-lg:right-10 right-4 max-lg:left-10 h-[78%]'
             : '  top-0 right-0 h-0'
-        } z-40 lg:w-56  absolute bg-white rounded-lg shadow-lg border border-zinc-400 flex-col items-center justify-start gap-2 py-5 dark:bg-zinc-900  dark:border-zinc-700 dark:text-zinc-300 transition-all duration-300`}
+        } z-40 lg:w-52  absolute bg-white rounded-lg shadow-lg shadow-black/30 border border-zinc-400 flex-col items-center justify-start gap-2 py-2 px-1 dark:bg-zinc-900  dark:border-zinc-700 dark:text-zinc-300 transition-all duration-300`}
       >
-        <h2 className="text-center text-xl">
+        <h2 className="text-center text-2xl my-5 italic font-semibold">
           {selectedUnityNode
             ? `Componente ${selectedUnityNode.data.label}` // Mostra o label da unidade selecionada
             : 'Componente Principal'}{' '}
@@ -130,7 +105,7 @@ const SideBar: React.FC<SideBarProps> = ({
         <hr className="border-zinc-300 dark:border-zinc-700 w-11/12" />
 
         {/* Verifica se um node do tipo 'unity' está selecionado */}
-        <div className="w-full flex flex-col gap-2 items-center justify-start overflow-y-auto h-[60%]">
+        <div className="w-full flex flex-col gap-3 items-center justify-start overflow-y-auto h-full">
           {selectedUnityNode
             ? unitphases
                 .filter(
@@ -141,6 +116,9 @@ const SideBar: React.FC<SideBarProps> = ({
                   unitphase.Fases.map((fase, index) => (
                     <Toolbar.Button
                       key={index}
+                      onClick={() =>
+                        handleNodeSelect('phase', unitphase.Fases[index])
+                      }
                       onDragStart={(event) => onDragStart(event, 'phase', fase)}
                       draggable
                       className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-zinc-700 transition-all duration-300 bg-sky-900 dark:bg-sky-950 text-white hover:-translate-x-4 hover:scale-105 "
@@ -160,17 +138,17 @@ const SideBar: React.FC<SideBarProps> = ({
                   className={`w-10/12 h-auto p-2 top-10 right-0 border text-black dark:text-zinc-300 border-gray-300 dark:border-zinc-700 transition-all duration-300 
                   ${
                     ingredient.type === 'circle'
-                      ? 'rounded-full bg-gray-200 dark:bg-gray-700'
+                      ? ' bg-gray-200 dark:bg-gray-700'
                       : ingredient.type === 'square'
-                      ? 'bg-white dark:bg-slate-700 rounded-tl-lg '
+                      ? 'bg-white dark:bg-slate-700  '
                       : ingredient.type === 'unity'
                       ? 'bg-cyan-950/80 text-white  h-20'
                       : ingredient.type === 'logicControl'
-                      ? 'bg-gray-400 dark:bg-gray-800'
+                      ? 'bg-gray-600 dark:bg-gray-800 text-white'
                       : ingredient.type === 'phase'
                       ? 'bg-sky-900 dark:bg-sky-950 text-white'
                       : ''
-                  } hover:-translate-x-4 hover:scale-105`}
+                  } hover:-translate-x-4 hover:scale-105 rounded shadow-black/30 shadow-md`}
                 >
                   {ingredient.label}
                   {ingredient.type === 'triangle' && (
@@ -179,17 +157,6 @@ const SideBar: React.FC<SideBarProps> = ({
                 </Toolbar.Button>
               ))}
         </div>
-        <hr className="border-zinc-300 dark:border-zinc-700 w-11/12" />
-        {canEdit && (
-          <div className="absolute bottom-0 w-full border-t border-zinc-300">
-            <EditEdge
-              setEdges={setEdges}
-              edges={edges}
-              state={state}
-              set={set}
-            />
-          </div>
-        )}
       </Toolbar.Root>
     </>
   );

@@ -89,8 +89,8 @@ const ZoomControl: FC<ZoomControlProps> = ({
   return (
     <>
       <Panel
-        style={{ position: 'absolute', top: 65, left: 0 }}
-        className="lg:hidden flex  items-center justify-center p-1 gap-1 lg:bg-gray-200  rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
+        style={{ position: 'absolute', top: 80, left: -5 }}
+        className="lg:hidden flex items-center justify-center p-1 gap-1 rounded dark:text-zinc-400 "
       >
         <button
           className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
@@ -118,7 +118,7 @@ const ZoomControl: FC<ZoomControlProps> = ({
       <Panel
         position="bottom-left"
         style={{ position: 'absolute', bottom: 5, left: 5 }}
-        className="lg:flex hidden flex-col items-center justify-center p-1 gap-1 lg:bg-gray-200  rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400 "
+        className="lg:flex hidden flex-col items-center justify-center p-1 gap-1 rounded dark:text-zinc-400 "
       >
         <button
           className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"

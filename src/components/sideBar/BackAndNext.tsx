@@ -45,7 +45,7 @@ const BackAndNext: React.FC<BackAndNextProps> = ({
 
   return (
     <>
-      <div className="lg:flex hidden fixed z-50 lg:top-4 lg:left-5 left-2 top-2 p-1 gap-1 lg:bg-gray-200 rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400">
+      <div className="lg:flex hidden fixed z-50 lg:top-4 lg:left-5 left-2 top-2 p-1 gap-1 rounded dark:text-zinc-400">
         <button
           disabled={!canUndo}
           onClick={undo}
@@ -61,20 +61,20 @@ const BackAndNext: React.FC<BackAndNextProps> = ({
           <MdOutlineTurnRight className="text-2xl text-gray-600  dark:text-zinc-400" />
         </button>
       </div>
-      <div className="lg:hidden flex flex-col fixed z-50 lg:top-4 lg:left-5 left-[150px] top-2 p-1 gap-1 lg:bg-gray-200 rounded lg:border border-black dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-400">
+      <div className="lg:hidden flex flex-col fixed z-50 lg:top-4 lg:left-5 left-[95px] top-2 p-1 gap-1 rounded dark:text-zinc-400">
         <button
           disabled={!canUndo}
           onClick={undo}
-          className="rounded-lg border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600  p-1 hover:cursor-pointer disabled:cursor-not-allowed"
+          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600  p-2 hover:cursor-pointer disabled:cursor-not-allowed"
         >
-          <MdOutlineTurnLeft className="text-2xl text-gray-600 dark:text-zinc-400 " />
+          <MdOutlineTurnLeft className="text-xl text-gray-600 dark:text-zinc-400 " />
         </button>
         <button
           disabled={!canRedo}
           onClick={redo}
-          className="rounded-lg border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600 p-1 hover:cursor-pointer disabled:cursor-not-allowed"
+          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600 p-2 hover:cursor-pointer disabled:cursor-not-allowed"
         >
-          <MdOutlineTurnRight className="text-2xl text-gray-600  dark:text-zinc-400" />
+          <MdOutlineTurnRight className="text-xl text-gray-600  dark:text-zinc-400" />
         </button>
       </div>
     </>

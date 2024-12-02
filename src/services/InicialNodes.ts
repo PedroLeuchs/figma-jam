@@ -24,6 +24,7 @@ export const NODE_TYPES = {
   label: Label,
   separator: Separator,
 };
+
 export const GROUPIDS: string[] = [];
 
 let nodeId = 1;
@@ -47,6 +48,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'circle',
+
     measured: { width: 100, height: 100 },
     position: { x: 209, y: 250 },
     data: { label: MACHINES[0].label, machine: MACHINES },
@@ -67,6 +69,7 @@ export const INITIAL_NODES: Node[] = [
     id: getId().toString(),
     type: 'phase',
     measured: { width: 200, height: 50 },
+    style: { width: 200, height: 50 },
     position: { x: 25, y: 200 },
     data: { label: UNITYPHASES[1].Fases[0], unitphases: UNITYPHASES },
     parentId: GROUPIDS[0],
@@ -76,6 +79,7 @@ export const INITIAL_NODES: Node[] = [
     id: getId().toString(),
     type: 'phase',
     measured: { width: 200, height: 50 },
+    style: { width: 200, height: 50 },
     position: { x: 275, y: 200 },
     data: { label: UNITYPHASES[1].Fases[2], unitphases: UNITYPHASES },
     parentId: GROUPIDS[0],
@@ -85,6 +89,7 @@ export const INITIAL_NODES: Node[] = [
     id: getId().toString(),
     type: 'phase',
     measured: { width: 200, height: 50 },
+    style: { width: 200, height: 50 },
     position: { x: 150, y: 500 },
     data: { label: UNITYPHASES[1].Fases[3], unitphases: UNITYPHASES },
     parentId: GROUPIDS[0],

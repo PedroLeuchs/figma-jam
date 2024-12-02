@@ -9,12 +9,14 @@ interface TextInputProps {
 const TextInput: FC<TextInputProps> = ({ value, onChange }) => {
   return (
     <div className="flex flex-col">
-      <label className="font-semibold">Adicionar Titulo:</label>
+      <label className="lg:text-base text-sm font-semibold">
+        Adicionar Titulo:
+      </label>
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="border rounded-md p-2"
+        className="border rounded-md p-2 lg:text-base text-sm"
       />
     </div>
   );
