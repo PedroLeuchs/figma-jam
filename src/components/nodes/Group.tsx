@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import { NodeProps, NodeResizeControl } from '@xyflow/react';
 import { ResizeIcon } from '../resizeCustom/ResizeCustom';
+import { FiMove } from 'react-icons/fi';
 
 interface UnitPhase {
   Unidade: string;
@@ -26,8 +27,6 @@ export const Group: FC<GroupProps> = ({ data, selected = false }) => {
   );
   const [textValue, setTextValue] = useState(data.label || 'Misturador');
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
-
-  
 
   if (data.label !== textValue && data.label != '') {
     setTextValue(data.label);
@@ -69,6 +68,11 @@ export const Group: FC<GroupProps> = ({ data, selected = false }) => {
       >
         {textValue}
       </div>
+      {(selected || showOnMouseEnter) && (
+        <div className="absolute bottom-1 left-1">
+          <FiMove className="drag-handle__custom rotate-45 hover:scale-125 transition-all duration-150" />
+        </div>
+      )}
     </div>
   );
 };

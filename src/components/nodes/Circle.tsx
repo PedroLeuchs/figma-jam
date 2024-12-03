@@ -1,9 +1,9 @@
 import { FC, useEffect, useState } from 'react';
 import { NodeProps, Handle, Position, NodeResizeControl } from '@xyflow/react';
 import { ResizeIcon } from '../resizeCustom/ResizeCustom';
+import { FiMove } from 'react-icons/fi';
 
 interface CircleProps extends NodeProps {
-
   data: {
     label: string;
     machine: { id: string; label: string }[];
@@ -86,6 +86,11 @@ export const Circle: FC<CircleProps> = ({ data, selected = false }) => {
           target.style.height = `${target.scrollHeight}px`;
         }}
       />
+      {(selected || showOnMouseEnter) && (
+        <div className="absolute bottom-1 left-1">
+          <FiMove className="drag-handle__custom rotate-45 hover:scale-125 transition-all duration-150" />
+        </div>
+      )}
     </div>
   );
 };
