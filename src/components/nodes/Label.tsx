@@ -1,6 +1,7 @@
 import { NodeProps, NodeResizeControl } from '@xyflow/react';
 import { FC, useState, useEffect } from 'react';
 import { ResizeIcon } from '../resizeCustom/ResizeCustom';
+import { FiMove } from 'react-icons/fi';
 
 interface dataProps {
   label?: string;
@@ -102,6 +103,11 @@ export const Label: FC<LabelProps> = ({
         rows={1}
         placeholder="Escreva aqui" // Adiciona placeholder para ajudar o usuário
       />
+      {(selected || showOnMouseEnter) && (
+        <div className="absolute bottom-1 left-1">
+          <FiMove className="drag-handle__custom rotate-45 hover:scale-125 transition-all duration-150" />
+        </div>
+      )}
     </div>
   );
 };

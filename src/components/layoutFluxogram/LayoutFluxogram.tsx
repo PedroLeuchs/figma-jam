@@ -588,6 +588,7 @@ export function DnDFlow() {
       if (type === 'unity') {
         newNode = {
           ...newNode,
+          dragHandle: '.drag-handle__custom',
           style: { width: Number(500), height: Number(300) },
         };
       }
@@ -629,6 +630,7 @@ export function DnDFlow() {
           newNode = {
             ...newNode,
             parentId: parentGroup.id,
+            dragHandle: '.drag-handle__custom',
             data: {
               label: newLabel,
               unitphases: UNITYPHASES,
@@ -641,6 +643,7 @@ export function DnDFlow() {
           newNode = {
             ...newNode,
             parentId: parentGroup?.id ? parentGroup.id : '00',
+            dragHandle: '.drag-handle__custom',
             data: {
               label: null,
               unitphases: null,
@@ -659,6 +662,7 @@ export function DnDFlow() {
           }
           newNode = {
             ...newNode,
+            dragHandle: '.drag-handle__custom',
             id: getId().toString(),
             parentId: '',
           };
@@ -671,7 +675,16 @@ export function DnDFlow() {
         nodesHistoryState: [...state.nodesHistoryState, newNode],
       });
     },
-    [screenToFlowPosition, type, setNodes, nodes, newLabel, state, set]
+    [
+      screenToFlowPosition,
+      type,
+      setNodes,
+      nodes,
+      newLabel,
+      state,
+      set,
+      countTriangle,
+    ]
   );
 
   const removeMarcaDagua = () => {
@@ -916,87 +929,6 @@ export function DnDFlow() {
             viewportWidth={viewportWidth}
           />
 
-          {/* dispositivos 2xl  */}
-          {/* <div className="2xl:flex xl:hidden lg:hidden md:hidden sm:hidden xs:hidden hidden">
-            <MiniMap
-              zoomable
-              pannable
-              style={{
-                backgroundColor: zinc[400],
-                borderRadius: 10,
-                width: 220,
-                height: 150,
-              }}
-            />
-          </div> */}
-          {/* dispositivos xl  */}
-          {/* <div className="2xl:hidden xl:flex lg:hidden md:hidden sm:hidden xs:hidden hidden">
-            <MiniMap
-              zoomable
-              pannable
-              style={{
-                backgroundColor: zinc[400],
-                borderRadius: 10,
-                width: 220,
-                height: 140,
-              }}
-            />
-          </div> */}
-          {/* dispositivos lg  */}
-          {/* <div className="2xl:hidden xl:hidden lg:flex md:hidden sm:hidden xs:hidden hidden">
-            <MiniMap
-              zoomable
-              pannable
-              style={{
-                backgroundColor: zinc[400],
-                borderRadius: 10,
-                width: 200,
-                height: 140,
-              }}
-            />
-          </div> */}
-          {/* dispositivos md  */}
-          {/* <div className="xl:hidden lg:hidden md:flex sm:hidden xs:hidden hidden">
-            <MiniMap
-              zoomable
-              pannable
-              style={{
-                backgroundColor: zinc[400],
-                borderRadius: 10,
-                width: 170,
-                height: 110,
-              }}
-            />
-          </div> */}
-          {/* dispositivos sm  */}
-          {/* <div className="xl:hidden lg:hidden md:hidden sm:flex xs:hidden hidden">
-            <MiniMap
-              zoomable
-              pannable
-              style={{
-                backgroundColor: zinc[400],
-                borderRadius: 10,
-                width: 150,
-                height: 80,
-              }}
-            />
-          </div> */}
-          {/* dispositivos xs  */}
-          {/* <div className=" xl:hidden lg:hidden md:hidden sm:hidden xs:flex flex ">
-            <MiniMap
-              zoomable
-              pannable
-              style={{
-                position: 'absolute',
-                top: 1,
-                left: 1,
-                backgroundColor: zinc[400],
-                borderRadius: 5,
-                width: 80,
-                height: 80,
-              }}
-            />
-          </div> */}
           <div className=" lg:flex md:hidden sm:hidden hidden">
             <MiniMap
               zoomable
@@ -1180,8 +1112,8 @@ export function DnDFlow() {
  
  
  *Doing:
+ - [-] Icone que permite arrastar os nodes.
  
- - [x] Conseguir apagar os nodes pelo botão de delete.
  
  
  - [x] Mobile.
@@ -1189,6 +1121,7 @@ export function DnDFlow() {
  
  *Done: 
  
+ - [V] Conseguir apagar os nodes pelo botão de delete.
  - [V] Fazer Modal Square .
  - [V] Fazer Modal Circle.
  - [V] Fazer Modal Unity.

@@ -41,6 +41,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'triangle',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 100, height: 100 },
     position: { x: 210, y: 110 },
     data: { label: 'Start', color: 'bg-gray-500', direction: false },
@@ -48,7 +49,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'circle',
-
+    dragHandle: '.drag-handle__custom',
     measured: { width: 100, height: 100 },
     position: { x: 209, y: 250 },
     data: { label: MACHINES[0].label, machine: MACHINES },
@@ -56,6 +57,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId('unity').toString(),
     type: 'unity',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 500, height: 600 },
     position: { x: 500, y: 200 },
     data: {
@@ -68,6 +70,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'phase',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 200, height: 50 },
     style: { width: 200, height: 50 },
     position: { x: 25, y: 200 },
@@ -78,6 +81,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'phase',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 200, height: 50 },
     style: { width: 200, height: 50 },
     position: { x: 275, y: 200 },
@@ -88,6 +92,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'phase',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 200, height: 50 },
     style: { width: 200, height: 50 },
     position: { x: 150, y: 500 },
@@ -98,6 +103,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'square',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 200, height: 50 },
     position: { x: 650, y: 860 },
     data: { label: EQUIPAMENT[10].label, ingredients: EQUIPAMENT },
@@ -105,6 +111,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'circle',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 100, height: 100 },
     position: { x: 1299, y: 300 },
     data: { label: MACHINES[1].label, machine: MACHINES },
@@ -112,6 +119,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'triangle',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 100, height: 100 },
     position: { x: 1300, y: 450 },
     data: { label: 'End', direction: true },
@@ -119,6 +127,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'logicControl',
+    dragHandle: '.drag-handle__custom',
     parentId: GROUPIDS[0],
     extent: 'parent',
     measured: { width: 100, height: 20 },
@@ -128,6 +137,7 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'logicControl',
+    dragHandle: '.drag-handle__custom',
     parentId: GROUPIDS[0],
     extent: 'parent',
     measured: { width: 100, height: 20 },
@@ -137,18 +147,21 @@ export const INITIAL_NODES: Node[] = [
   {
     id: getId().toString(),
     type: 'label',
+    dragHandle: '.drag-handle__custom',
     position: { x: 300, y: 200 },
     data: { label: 'Passo 1' },
   },
   {
     id: getId().toString(),
     type: 'label',
+    dragHandle: '.drag-handle__custom',
     position: { x: 1100, y: 200 },
     data: { label: 'Passo 2' },
   },
   {
     id: getId().toString(),
     type: 'separator',
+    dragHandle: '.drag-handle__custom',
     measured: { width: 1000, height: 1000 },
     style: { width: 1500, height: 950 },
     position: { x: 50, y: 20 },
