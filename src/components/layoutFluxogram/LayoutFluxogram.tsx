@@ -207,6 +207,7 @@ export function DnDFlow() {
       const unityNode: Node = {
         id: getId('unity').toString(),
         type: 'unity',
+        dragHandle: '.drag-handle__custom',
         position,
         data: { label: UNITYPHASES[0].Unidade, unitphases: UNITYPHASES },
         style: { width: 500, height: 500 },
@@ -229,6 +230,7 @@ export function DnDFlow() {
       const newNode: Node = {
         id: getId().toString(),
         type: selectedNodeType,
+        dragHandle: '.drag-handle__custom',
         position,
         data: { label: selectedNodeLabel },
         style: {},
