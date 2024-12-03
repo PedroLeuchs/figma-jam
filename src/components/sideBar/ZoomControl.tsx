@@ -34,56 +34,51 @@ const ZoomControl: FC<ZoomControlProps> = ({
       return { x: 0, y: 0, zoom: 1 };
     }
 
-    let minX = nodes[0].position.x;
-    let minY = nodes[0].position.y;
-    let maxX = nodes[0].position.x;
-    let maxY = nodes[0].position.y;
+    // Inicializa os limites
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
 
+    // Calcula os limites com base nas posições dos nodes
     nodes.forEach((node) => {
       if (!node.parentId) {
-        if (node.position.x < minX) {
-          minX = node.position.x;
-        }
-        if (node.position.y < minY) {
-          minY = node.position.y;
-        }
-        if (node.position.x > maxX) {
-          maxX = node.position.x;
-        }
-        if (node.position.y > maxY) {
-          maxY = node.position.y;
-        }
+        minX = Math.min(minX, node.position.x);
+        minY = Math.min(minY, node.position.y);
+        maxX = Math.max(maxX, node.position.x);
+        maxY = Math.max(maxY, node.position.y);
       }
     });
 
-    const centerX = (maxX + minX) / 2;
-    const centerY = (maxY + minY) / 2;
+    // Determina o tamanho do conteúdo
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
 
-    const width = maxX - minX;
-    const height = maxY - minY;
+    // Adiciona uma margem de segurança (10% do tamanho do conteúdo)
+    const margin = 0.1;
+    const adjustedWidth = contentWidth * (1 + margin);
+    const adjustedHeight = contentHeight * (1 + margin);
 
-    const zoomX = viewportWidth / width;
-    const zoomY = viewportHeight / height;
+    // Calcula o zoom baseado no tamanho ajustado e no viewport
+    let zoom = Math.min(
+      viewportWidth / adjustedWidth,
+      viewportHeight / adjustedHeight
+    );
 
-    let zoom = Math.min(zoomX, zoomY) * 0.9;
-
-    if (zoom < 0.08) {
-      zoom = 0.08;
-    } else {
-      zoom *= 0.98;
+    // Se a diferença entre os nós mais distantes for maior que 1200, diminui mais o zoom
+    const maxNodeDistance = Math.max(contentWidth, contentHeight);
+    if (maxNodeDistance > 1200) {
+      zoom *= 0.8; // Reduz o zoom em 20%
     }
 
-    const factorX = (viewportHeight + viewportWidth) / (maxX - minX) / 3.5;
-    const factorY = (viewportHeight + viewportWidth) / (maxY - minY) / 3.5;
+    // Centraliza o conteúdo no viewport
+    const centerX = minX + contentWidth / 2;
+    const centerY = minY + contentHeight / 2;
 
-    const xAdjusted = (centerX - viewportWidth / 2 / zoom) * -1 * factorX;
-    const yAdjusted = (centerY - viewportHeight / 2 / zoom) * -1 * factorY;
+    const x = -(centerX * zoom - viewportWidth / 2);
+    const y = -(centerY * zoom - viewportHeight / 2);
 
-    return {
-      x: xAdjusted,
-      y: yAdjusted,
-      zoom,
-    };
+    return { x, y, zoom };
   };
 
   return (
