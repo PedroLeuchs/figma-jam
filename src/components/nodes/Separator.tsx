@@ -1,6 +1,7 @@
 import { NodeProps, NodeResizeControl } from '@xyflow/react';
 import { FC, useEffect, useState } from 'react';
 import { ResizeIcon } from '../resizeCustom/ResizeCustom';
+import { FiMove } from 'react-icons/fi';
 
 interface SeparatorProps extends NodeProps {
   selected?: boolean;
@@ -66,6 +67,11 @@ export const Separator: FC<SeparatorProps> = ({ selected = false, data }) => {
         type="text"
         value={textValue}
       />
+      {(selected || showOnMouseEnter) && (
+        <div className="absolute bottom-1 left-1">
+          <FiMove className="drag-handle__custom rotate-45 hover:scale-125 transition-all duration-150" />
+        </div>
+      )}
     </div>
   );
 };

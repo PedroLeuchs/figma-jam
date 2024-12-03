@@ -9,6 +9,7 @@ import {
 import * as Toolbar from '@radix-ui/react-toolbar';
 import { FaExchangeAlt } from 'react-icons/fa';
 import { ResizeIconWhite } from '../resizeCustom/ResizeCustom';
+import { FiMove } from 'react-icons/fi';
 
 interface LogicControlProps extends NodeProps {
   type: string;
@@ -150,6 +151,11 @@ const LogicControl: FC<LogicControlProps> = ({ selected = false, data }) => {
             </Toolbar.Button>
           </div>
         </Toolbar.Root>
+      )}
+      {(selected || showOnMouseEnter) && (
+        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
+          <FiMove className="drag-handle__custom rotate-45 hover:scale-125 transition-all duration-150" />
+        </div>
       )}
     </div>
   );
