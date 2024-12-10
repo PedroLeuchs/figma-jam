@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+
+//reactFlow
 import {
   ReactFlow,
   Background,
@@ -11,28 +13,18 @@ import {
   MiniMap,
   ColorMode,
   NodeChange,
-  // NodeChange,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
+//tailwind color
 import { zinc } from 'tailwindcss/colors';
 
 //components
 import SideBar from '../sideBar/SideBar';
 import AlertComponent from '../alert/AlertComponent';
-
-//services
-import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
-import { UNITYPHASES } from '../../services/Unitys';
-import { INITIAL_NODES, NODE_TYPES } from '../../services/InicialNodes';
-import { EDGE_TYPES, INITIAL_EDGES } from '../../services/inicialEdges';
-
 import BackAndNext from '../sideBar/BackAndNext';
-import { CiDark, CiLight } from 'react-icons/ci';
-
-import { useHistoryState } from '@uidotdev/usehooks';
-
 import ZoomControl from '../sideBar/ZoomControl';
+//modals
 import ModalEditEdges from '../modal/ModalEditEdges';
 import { ModalCircle } from '../modal/ModalNodes/ModalCircle';
 import { ModalSquare } from '../modal/ModalNodes/ModalSquare';
@@ -42,6 +34,16 @@ import { ModalSeparator } from '../modal/ModalNodes/ModalSeparator';
 import { ModalEditLabel } from '../modal/ModalNodes/ModalEditLabel';
 import { useModal } from './Functions/useModal';
 import { useDrag } from './Functions/useDrag';
+
+//services
+import { VALUESSIDEBAR } from '../../services/ValuesSideBar';
+import { UNITYPHASES } from '../../services/Unitys';
+import { INITIAL_NODES, NODE_TYPES } from '../../services/InicialNodes';
+import { EDGE_TYPES, INITIAL_EDGES } from '../../services/inicialEdges';
+
+import { CiDark, CiLight } from 'react-icons/ci';
+
+import { useHistoryState } from '@uidotdev/usehooks';
 
 import { IoSettingsOutline } from 'react-icons/io5';
 import { useConnect } from './Functions/useConnect';
@@ -63,7 +65,19 @@ export function DnDFlow() {
 
   const { screenToFlowPosition } = useReactFlow();
 
+  //theme
   const [colorMode, setColorMode] = useState<ColorMode>('light');
+
+  //viewPort
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  //nodes
+  const [nodeEditing, setNodeEditing] = useState<Node | null>(null);
+  const [countTriangle, setCountTriangle] = useState(
+    nodes.filter((node) => node.type === 'triangle').length
+  );
+
   //alerts
   const [showAlert, setShowAlert] = useState(false);
   const [showAlertMessage, setShowAlertMessage] = useState('');
@@ -71,15 +85,7 @@ export function DnDFlow() {
     'error' | 'warning' | 'info' | 'success'
   >('error');
 
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  //nodes
-
-  const [nodeEditing, setNodeEditing] = useState<Node | null>(null);
-  const [countTriangle, setCountTriangle] = useState(
-    nodes.filter((node) => node.type === 'triangle').length
-  );
-
+  //alert
   const onShowAlert = (
     message: string,
     severity: 'error' | 'warning' | 'info' | 'success'
@@ -93,7 +99,7 @@ export function DnDFlow() {
     }, 5000);
   };
 
-  //modal
+  //custom hook para modals
   const {
     modalEdgeOpen,
     watingNode,
@@ -114,6 +120,7 @@ export function DnDFlow() {
     openModalEditNode,
   } = useModal({ onShowAlert, setNodeEditing });
 
+  //custom hook funções que renderizam os nodes e edges
   const {
     onDragOver,
     onDragStart,
@@ -139,6 +146,7 @@ export function DnDFlow() {
     watingNode,
   });
 
+  //custom hook connect nodes
   const { onConnect } = useConnect({
     edges,
     nodes,
@@ -147,9 +155,11 @@ export function DnDFlow() {
     setEdges,
     state,
   });
-
+  
+  //custom hook Resize Node
   const { handleResize } = useResize({ set, state });
 
+  //função para remover marca da agua reactflow
   const removeMarcaDagua = () => {
     const reactIconFlow = document.getElementsByClassName(
       'react-flow__panel react-flow__attribution bottom right'
@@ -161,10 +171,10 @@ export function DnDFlow() {
 
   removeMarcaDagua();
 
+  //trocar thema
   const onToggleColorMode = () => {
     setColorMode(colorMode === 'light' ? 'dark' : 'light');
   };
-
   useEffect(() => {
     if (colorMode === 'dark') {
       document.documentElement.classList.add('dark');
@@ -209,9 +219,8 @@ export function DnDFlow() {
 
   return (
     <div className="w-screen h-screen relative right-0 dndflow">
-      {/* <div className="w-screen h-screen dndflow"> */}
-      {/* <DnDProvider> */}
       <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
+        {/* reactFlow */}
         <ReactFlow
           panOnScroll={false}
           panOnDrag={true}
@@ -241,12 +250,14 @@ export function DnDFlow() {
           }}
           colorMode={colorMode}
         >
+          {/* voltar e retroceder mudanças */}
           <BackAndNext
             canUndo={canUndo}
             canRedo={canRedo}
             undo={undo}
             redo={redo}
           />
+          {/* background */}
           <Background
             variant={BackgroundVariant.Cross}
             size={7}
@@ -254,12 +265,14 @@ export function DnDFlow() {
             color={colorMode == 'light' ? zinc[200] : zinc[800]}
           />
 
+          {/* controle de zoom */}
           <ZoomControl
             nodes={nodes}
             viewportHeight={viewportHeight}
             viewportWidth={viewportWidth}
           />
 
+          {/* miniMaps */}
           <div className=" lg:flex md:hidden sm:hidden hidden">
             <MiniMap
               zoomable
@@ -308,6 +321,7 @@ export function DnDFlow() {
         </ReactFlow>
       </div>
 
+      {/* navbar */}
       <SideBar
         nodes={nodes}
         ingredients={VALUESSIDEBAR}
@@ -318,6 +332,7 @@ export function DnDFlow() {
         viewportWidth={viewportWidth}
         viewportHeight={viewportHeight}
       />
+      {/* color change button */}
       <div
         onClick={onToggleColorMode}
         className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 fixed top-2 2xl:right-72 xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
@@ -330,12 +345,14 @@ export function DnDFlow() {
           <CiDark className="text-3xl text-white" />
         )}
       </div>
+      {/* modal edit button */}
       <div
         onClick={handleWaitingClickOnNode}
         className="bg-gray-100 cursor-pointer border-gray-400 border dark:bg-zinc-700 dark:border-zinc-600 fixed top-2 2xl:right-[350px] xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 hover:rotate-180 transition-all duration-300"
       >
         <IoSettingsOutline className="text-3xl text-black" />
       </div>
+      {/* modal Edges */}
       <ModalEditEdges
         edges={edges}
         state={state}
@@ -344,6 +361,7 @@ export function DnDFlow() {
         modalEdgeOpen={modalEdgeOpen}
         setmodalEdgeOpen={setmodalEdgeOpen}
       />
+      {/* modal Circle */}
       <ModalCircle
         set={set}
         state={state}
@@ -354,6 +372,7 @@ export function DnDFlow() {
         nodeEditing={nodeEditing}
         setNodeEditing={setNodeEditing}
       />
+      {/* modal Phase */}
       <ModalPhase
         set={set}
         state={state}
@@ -364,6 +383,7 @@ export function DnDFlow() {
         nodeEditing={nodeEditing}
         setNodeEditing={setNodeEditing}
       />
+      {/* modal Square */}
       <ModalSquare
         set={set}
         state={state}
@@ -374,6 +394,7 @@ export function DnDFlow() {
         nodeEditing={nodeEditing}
         setNodeEditing={setNodeEditing}
       />
+      {/* modal Separator */}
       <ModalSeparator
         set={set}
         state={state}
@@ -384,6 +405,7 @@ export function DnDFlow() {
         nodeEditing={nodeEditing}
         setNodeEditing={setNodeEditing}
       />
+      {/* modal Unity */}
       <ModalUnity
         set={set}
         state={state}
@@ -394,6 +416,7 @@ export function DnDFlow() {
         nodeEditing={nodeEditing}
         setNodeEditing={setNodeEditing}
       />
+      {/* modal Label */}
       <ModalEditLabel
         set={set}
         state={state}
@@ -404,6 +427,7 @@ export function DnDFlow() {
         nodeEditing={nodeEditing}
         setNodeEditing={setNodeEditing}
       />
+      {/* Alert */}
       <AlertComponent
         show={showAlert}
         message={showAlertMessage}
@@ -430,10 +454,9 @@ export function DnDFlow() {
 /**
  * 
  * 
- * Anotarion:
+ * Anotation:
  * 
  *To-Do:
- - [x] Ajustar enquadramento do zoom.
  - [x] Fazer documentação.
  - [x] Integração com o mes3.
  - [x] Fazer manual de uso do fluxograma.
@@ -451,6 +474,7 @@ export function DnDFlow() {
  
  *Done: 
  
+ - [V] Ajustar enquadramento do zoom.
  - [V] Icone que permite arrastar os nodes.
  - [V] Conseguir apagar os nodes pelo botão de delete.
  - [V] Fazer Modal Square .

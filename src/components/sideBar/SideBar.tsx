@@ -121,7 +121,7 @@ const SideBar: React.FC<SideBarProps> = ({
                       }
                       onDragStart={(event) => onDragStart(event, 'phase', fase)}
                       draggable
-                      className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-zinc-700 transition-all duration-300 bg-sky-900 dark:bg-sky-950 text-white hover:-translate-x-4 hover:scale-105 "
+                      className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-zinc-700 transition-all duration-300 bg-sky-900 dark:bg-sky-950 text-white hover:scale-105 "
                     >
                       {fase}
                     </Toolbar.Button>
@@ -148,7 +148,7 @@ const SideBar: React.FC<SideBarProps> = ({
                       : ingredient.type === 'phase'
                       ? 'bg-sky-900 dark:bg-sky-950 text-white'
                       : ''
-                  } hover:-translate-x-4 hover:scale-105 rounded shadow-black/30 shadow-md`}
+                  } hover:scale-105 rounded shadow-black/30 shadow-md`}
                 >
                   {ingredient.label}
                   {ingredient.type === 'triangle' && (
