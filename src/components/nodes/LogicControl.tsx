@@ -154,7 +154,7 @@ const LogicControl: FC<LogicControlProps> = ({ selected = false, data }) => {
       )}
       {(selected || showOnMouseEnter) && (
         <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
-          <FiMove className="drag-handle__custom rotate-45 hover:scale-125 transition-all duration-150" />
+          <FiMove className="drag-handle__custom rotate-45 text-2xl text-gray-600 hover:scale-125 transition-all duration-150" />
         </div>
       )}
     </div>

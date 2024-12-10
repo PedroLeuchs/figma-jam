@@ -88,7 +88,7 @@ export const Circle: FC<CircleProps> = ({ data, selected = false }) => {
       />
       {(selected || showOnMouseEnter) && (
         <div className="absolute bottom-1 left-1">
-          <FiMove className="drag-handle__custom rotate-45 hover:scale-125 transition-all duration-150" />
+          <FiMove className="drag-handle__custom rotate-45 text-2xl text-gray-600 hover:scale-125 transition-all duration-150" />
         </div>
       )}
     </div>

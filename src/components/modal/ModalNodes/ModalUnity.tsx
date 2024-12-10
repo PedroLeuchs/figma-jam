@@ -98,21 +98,31 @@ export const ModalUnity: FC<ModalProps> = ({
   };
 
   const onDelete = () => {
-    // Filtra as edges, removendo a que está selecionada
-    const updatedNodes = nodes.filter((node) => !node.selected);
-
-    // Atualiza o estado com as Nodes restantes
+    // Obtenha os IDs dos nodes selecionados para deletar
+    const deletedNodeIds = nodes
+      .filter((node) => node.selected)
+      .map((node) => node.id);
+  
+    // Filtre os nodes que não devem ser deletados
+    const updatedNodes = nodes.filter(
+      (node) =>
+        !node.selected && // Remove os nodes selecionados
+        !deletedNodeIds.includes(node.parentId ? node.parentId : '') // Remove os nodes filhos dos nodes deletados
+    );
+  
+    // Atualiza o estado com os Nodes restantes
     setNodes(updatedNodes);
-
+  
     // Atualiza o estado histórico
     set({
       ...state,
       nodesHistoryState: updatedNodes,
     });
-
+  
     // Fecha o modal
     setModalUnity(false);
   };
+  
 
   const onCancel = () => {
     setTempTextareaValue(textareaValue);
