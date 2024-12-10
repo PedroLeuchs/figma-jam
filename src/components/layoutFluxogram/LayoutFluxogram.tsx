@@ -48,6 +48,8 @@ import { useHistoryState } from '@uidotdev/usehooks';
 import { IoSettingsOutline } from 'react-icons/io5';
 import { useConnect } from './Functions/useConnect';
 import { useResize } from './Functions/useResize';
+import { ModalTriangle } from '../modal/ModalNodes/ModalTriangle';
+import { ModalLogicControl } from '../modal/ModalNodes/ModalLogicControl';
 
 export function DnDFlow() {
   //nodes and edges
@@ -109,6 +111,8 @@ export function DnDFlow() {
     modalSeparator,
     modalSquare,
     modalUnity,
+    modalTriangle,
+    modalLogicControl,
     setmodalEdgeOpen,
     setModalCircle,
     setModalLabel,
@@ -116,8 +120,10 @@ export function DnDFlow() {
     setModalSeparator,
     setModalSquare,
     setModalUnity,
+    setModalLogicControl,
     handleWaitingClickOnNode,
     openModalEditNode,
+    setModalTriangle,
   } = useModal({ onShowAlert, setNodeEditing });
 
   //custom hook funções que renderizam os nodes e edges
@@ -415,6 +421,28 @@ export function DnDFlow() {
         setNodes={setNodes}
         modalUnity={modalUnity}
         setModalUnity={setModalUnity}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      {/* modal Triangle */}
+      <ModalTriangle
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalTriangle={modalTriangle}
+        setModalTriangle={setModalTriangle}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      {/* modal LogicControl */}
+      <ModalLogicControl 
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalLogicControl={modalLogicControl}
+        setModalLogicControl={setModalLogicControl}
         nodeEditing={nodeEditing}
         setNodeEditing={setNodeEditing}
       />
