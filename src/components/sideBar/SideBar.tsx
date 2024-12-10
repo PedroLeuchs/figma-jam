@@ -93,7 +93,7 @@ const SideBar: React.FC<SideBarProps> = ({
       <Toolbar.Root
         className={` ${isOpenNav} ${
           isOpenNav == 'flex'
-            ? 'lg:top-5 top-20 max-lg:right-10 right-4 max-lg:left-10 h-[78%]'
+            ? 'lg:top-3 top-20 max-lg:right-10 right-3 max-lg:left-10 h-auto'
             : '  top-0 right-0 h-0'
         } z-40 lg:w-52  absolute bg-white rounded-lg shadow-lg shadow-black/30 border border-zinc-400 flex-col items-center justify-start gap-2 py-2 px-1 dark:bg-zinc-900  dark:border-zinc-700 dark:text-zinc-300 transition-all duration-300`}
       >
@@ -105,7 +105,7 @@ const SideBar: React.FC<SideBarProps> = ({
         <hr className="border-zinc-300 dark:border-zinc-700 w-11/12" />
 
         {/* Verifica se um node do tipo 'unity' está selecionado */}
-        <div className="w-full flex flex-col gap-3 items-center justify-start overflow-y-auto h-full">
+        <div className="w-full flex flex-col gap-3 items-center justify-start overflow-y-auto h-full mt-2 py-4 ">
           {selectedUnityNode
             ? unitphases
                 .filter(
@@ -121,7 +121,7 @@ const SideBar: React.FC<SideBarProps> = ({
                       }
                       onDragStart={(event) => onDragStart(event, 'phase', fase)}
                       draggable
-                      className="w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-zinc-700 transition-all duration-300 bg-sky-900 dark:bg-sky-950 text-white hover:scale-105 "
+                      className="shadow shadow-black/50 w-10/12 h-auto p-2 top-10 right-0 border border-gray-300 dark:border-zinc-700 transition-all duration-300 bg-white dark:bg-gray-100 hover:scale-105 text-black rounded"
                     >
                       {fase}
                     </Toolbar.Button>
@@ -136,24 +136,10 @@ const SideBar: React.FC<SideBarProps> = ({
                   }
                   draggable
                   className={`w-10/12 h-auto p-2 top-10 right-0 border text-black dark:text-zinc-300 border-gray-300 dark:border-zinc-700 transition-all duration-300 
-                  ${
-                    ingredient.type === 'circle'
-                      ? ' bg-gray-200 dark:bg-gray-700'
-                      : ingredient.type === 'square'
-                      ? 'bg-white dark:bg-slate-700  '
-                      : ingredient.type === 'unity'
-                      ? 'bg-cyan-950/80 text-white  h-20'
-                      : ingredient.type === 'logicControl'
-                      ? 'bg-gray-600 dark:bg-gray-800 text-white'
-                      : ingredient.type === 'phase'
-                      ? 'bg-sky-900 dark:bg-sky-950 text-white'
-                      : ''
-                  } hover:scale-105 rounded shadow-black/30 shadow-md`}
+                  bg-white dark:bg-slate-700 hover:scale-105 rounded shadow-black/30 shadow-md`}
                 >
                   {ingredient.label}
-                  {ingredient.type === 'triangle' && (
-                    <div className="relative left-1/2 -translate-x-1/2 w-0 h-0 border-l-[25px] border-r-[25px] border-b-[50px] border-l-transparent border-r-transparent border-b-gray-800"></div>
-                  )}
+                 
                 </Toolbar.Button>
               ))}
         </div>

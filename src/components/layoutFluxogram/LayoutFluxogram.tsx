@@ -279,11 +279,11 @@ export function DnDFlow() {
               pannable
               style={{
                 position: 'absolute',
-                bottom: 1,
-                right: 1,
+                top: 0,
+                left: 0,
                 backgroundColor: zinc[400],
                 borderRadius: 5,
-                width: viewportWidth / 9.5,
+                width: viewportWidth / 10.3,
                 height: viewportHeight / 7,
               }}
             />
@@ -332,13 +332,14 @@ export function DnDFlow() {
         viewportWidth={viewportWidth}
         viewportHeight={viewportHeight}
       />
+      <div className='flex fixed flex-row-reverse top-2 gap-2 lg:right-64 right-16'>
       {/* color change button */}
       <div
         onClick={onToggleColorMode}
-        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 fixed top-2 2xl:right-72 xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
+        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
           colorMode == 'light' ? 'hover:rotate-180' : 'hover:-scale-x-100'
         }`}
-      >
+        >
         {colorMode == 'light' ? (
           <CiLight className="text-3xl text-black " />
         ) : (
@@ -348,9 +349,10 @@ export function DnDFlow() {
       {/* modal edit button */}
       <div
         onClick={handleWaitingClickOnNode}
-        className="bg-gray-100 cursor-pointer border-gray-400 border dark:bg-zinc-700 dark:border-zinc-600 fixed top-2 2xl:right-[350px] xl:right-64 lg:right-56 right-16 rounded-full flex items-center justify-center p-2 hover:rotate-180 transition-all duration-300"
-      >
+        className="bg-gray-100 cursor-pointer border-gray-400 border dark:bg-zinc-700 dark:border-zinc-600 rounded-full flex items-center justify-center p-2 hover:rotate-180 transition-all duration-300"
+        >
         <IoSettingsOutline className="text-3xl text-black" />
+      </div>
       </div>
       {/* modal Edges */}
       <ModalEditEdges

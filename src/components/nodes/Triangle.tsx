@@ -1,11 +1,12 @@
 import { FC, useEffect, useState } from 'react';
 import { NodeProps, Handle, Position } from '@xyflow/react';
+import { FiMove } from 'react-icons/fi';
 
 interface TriangleProps extends NodeProps {
   direction?: true | false;
 }
 
-export const Triangle: FC<TriangleProps> = ({ data }) => {
+export const Triangle: FC<TriangleProps> = ({ data, selected = false }) => {
   const [showOnMouseEnter, setShowOnMouseEnter] = useState(false);
   const directionSet = data.direction;
 
@@ -43,6 +44,11 @@ export const Triangle: FC<TriangleProps> = ({ data }) => {
             directionSet === true ? '-bottom-28' : '-bottom-2'
           } ${showOnMouseEnter ? 'opacity-1' : 'opacity-0'}`}
         />
+      )}
+        {(selected || showOnMouseEnter) && (
+        <div className={`absolute ${directionSet === true ? '-bottom-[124px] -translate-x-1/2' : '-top-[124px]  -translate-x-1/2'} `}>
+          <FiMove className="drag-handle__custom rotate-45 text-2xl text-gray-600 hover:scale-125 transition-all duration-150" />
+        </div>
       )}
     </div>
   );
