@@ -104,9 +104,9 @@ const SideBar: React.FC<SideBarProps> = ({
       <Toolbar.Root
         className={` ${isOpenNav} ${
           isOpenNav == 'flex'
-            ? 'lg:top-3 top-20 max-lg:right-10 right-3 max-lg:left-10 h-auto'
+            ? 'lg:top-0 top-20 max-lg:right-10 right-0 max-lg:left-10 lg:h-screen'
             : '  top-0 right-0 h-0'
-        } z-40 lg:w-52  absolute bg-white rounded-lg shadow-lg shadow-black/30 border border-zinc-400 flex-col items-center justify-start gap-2 py-2 px-1 dark:bg-zinc-900  dark:border-zinc-700 dark:text-zinc-300 transition-all duration-300`}
+        } z-40 lg:w-60  absolute bg-white rounded shadow-lg shadow-black/30 border border-zinc-400 flex-col items-center justify-start gap-2 py-2 px-1 dark:bg-zinc-900  dark:border-zinc-700 dark:text-zinc-300 transition-all duration-300`}
       >
         <h2 className="text-center text-2xl my-5 italic font-semibold">
           {selectedUnityNode
