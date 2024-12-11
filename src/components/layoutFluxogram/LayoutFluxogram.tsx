@@ -496,7 +496,7 @@ export function DnDFlow() {
  
  
  *Doing:
- 
+ -  [-] Ajustar Modal { Separator, triangle, logic Control, circle }
  
  
  - [x] Mobile.
