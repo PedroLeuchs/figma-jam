@@ -18,6 +18,8 @@ export const useModal = ({ onShowAlert, setNodeEditing }: ModalProps) => {
   const [modalSeparator, setModalSeparator] = useState(false);
   const [modalUnity, setModalUnity] = useState(false);
   const [modalLabel, setModalLabel] = useState(false);
+  const [modalTriangle, setModalTriangle] = useState(false);
+  const [modalLogicControl, setModalLogicControl] = useState(false);
 
   const handleWaitingClickOnNode = () => {
     onShowAlert('Clique no nó que deseja editar.', 'info');
@@ -48,6 +50,12 @@ export const useModal = ({ onShowAlert, setNodeEditing }: ModalProps) => {
       if (nodeType === 'separator') {
         setModalSeparator(true);
       }
+      if (nodeType === 'triangle') {
+        setModalTriangle(true);
+      }
+      if (nodeType === 'logicControl') {
+        setModalLogicControl(true);
+      }
 
       setWatingNode(false);
     },
@@ -63,6 +71,8 @@ export const useModal = ({ onShowAlert, setNodeEditing }: ModalProps) => {
     modalSeparator,
     modalSquare,
     modalUnity,
+    modalTriangle,
+    modalLogicControl,
     setmodalEdgeOpen,
     setModalCircle,
     setModalLabel,
@@ -70,6 +80,8 @@ export const useModal = ({ onShowAlert, setNodeEditing }: ModalProps) => {
     setModalSeparator,
     setModalSquare,
     setModalUnity,
+    setModalTriangle,
+    setModalLogicControl,
     handleWaitingClickOnNode,
     openModalEditNode,
   };
