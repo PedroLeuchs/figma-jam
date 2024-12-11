@@ -75,7 +75,7 @@ const SelectComponent: FC<SelectProps> = ({
       </Select.Trigger>
 
       <Select.Portal>
-        <Select.Content className="bg-white z-50 rounded shadow-lg border border-gray-300 fixed top-[35%] right-[40%] left-[40%] !max-h-[47vh] h-auto">
+        <Select.Content className="bg-white z-50 rounded shadow-lg border border-gray-300 fixed top-[30%] lg:right-[40%] right-[10%] lg:left-[40%] left-[10%] !max-h-[47vh] h-auto">
           <Select.ScrollUpButton className="text-gray-700" />
 
           <div className="p-2">

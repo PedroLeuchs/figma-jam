@@ -1,8 +1,9 @@
 import * as Toolbar from '@radix-ui/react-toolbar';
 import { Node } from '@xyflow/react';
 import { useCallback, useEffect, useState } from 'react';
-import { FiMenu } from 'react-icons/fi';
 import { IoClose } from 'react-icons/io5';
+import { RiMenu5Line } from "react-icons/ri";
+
 
 interface Ingredient {
   id: string;
@@ -80,15 +81,25 @@ const SideBar: React.FC<SideBarProps> = ({
         <div className="lg:hidden bg-black/20 w-screen h-screen fixed top-0 left-0"></div>
       )}
       <div
-        onClick={handleOpenNav}
-        className={`max-lg:flex hidden z-50 items-center justify-center rounded-full  bg-gray-100 border border-gray-400 absolute top-2 right-2 p-2 transition-all duration-300`}
-      >
-        {isOpenNav === 'hidden' ? (
-          <FiMenu className="text-3xl text-black" />
-        ) : (
-          <IoClose className="text-3xl text-black" />
-        )}
-      </div>
+          onClick={handleOpenNav}
+          className={`max-lg:flex hidden z-50 items-center justify-center rounded-full bg-white hover:bg-zinc-100 border border-gray-400 absolute top-2 right-2 p-2 transition-all duration-300`}
+        >
+          <div className="relative w-[30px] h-[30px] flex items-center justify-center">
+            {/* Ícone Menu */}
+            <RiMenu5Line
+              className={`absolute top-0 left-0 text-3xl text-black transition-transform duration-300 ${
+                isOpenNav === 'hidden' ? 'opacity-100 rotate-0' : 'opacity-0 rotate-90'
+              }`}
+            />
+            {/* Ícone Close */}
+            <IoClose
+              className={`absolute top-0 left-0 text-3xl text-black transition-transform duration-300 ${
+                isOpenNav === 'hidden' ? 'opacity-0 -rotate-90' : 'opacity-100 rotate-0'
+              }`}
+            />
+          </div>
+        </div>
+
 
       <Toolbar.Root
         className={` ${isOpenNav} ${
