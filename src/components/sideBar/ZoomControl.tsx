@@ -88,19 +88,19 @@ const ZoomControl: FC<ZoomControlProps> = ({
         className="lg:hidden flex items-center justify-center p-1 gap-1 rounded dark:text-zinc-400 "
       >
         <button
-          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
+          className="p-2 border border-zinc-400 rounded hover:bg-zinc-100 bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
           onClick={() => zoomIn({ duration: 500 })}
         >
           <MdOutlineZoomIn className="text-xl w-full h-full hover:scale-125  transition-all duration-200 " />
         </button>
         <button
-          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
+          className="p-2 border border-zinc-400 rounded hover:bg-zinc-100 bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 hover:scale-110 transition-all"
           onClick={() => zoomOut({ duration: 500 })}
         >
           <MdOutlineZoomOut className="text-xl w-full h-full hover:scale-125 transition-all duration-200" />
         </button>
         <button
-          className="p-2 border border-zinc-400 rounded bg-zinc-100 hover:bg-white hover:scale-110 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 transition-all"
+          className="p-2 border border-zinc-400 rounded hover:bg-zinc-100 bg-white hover:scale-110 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-600 transition-all"
           onClick={() =>
             setViewport(lookAllElements(nodes, viewportWidth, viewportHeight), {
               duration: 500,

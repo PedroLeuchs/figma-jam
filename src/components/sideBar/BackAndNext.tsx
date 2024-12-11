@@ -49,14 +49,14 @@ const BackAndNext: React.FC<BackAndNextProps> = ({
         <button
           disabled={!canUndo}
           onClick={undo}
-          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600  p-1.5 hover:cursor-pointer disabled:cursor-not-allowed"
+          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600  p-1.5 hover:cursor-pointer disabled:cursor-not-allowed"
         >
           <MdOutlineTurnLeft className="text-xl text-black dark:text-zinc-400 " />
         </button>
         <button
           disabled={!canRedo}
           onClick={redo}
-          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600 p-1.5 hover:cursor-pointer disabled:cursor-not-allowed"
+          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600 p-1.5 hover:cursor-pointer disabled:cursor-not-allowed"
         >
           <MdOutlineTurnRight className="text-xl  text-black  dark:text-zinc-400" />
         </button>
@@ -65,14 +65,14 @@ const BackAndNext: React.FC<BackAndNextProps> = ({
         <button
           disabled={!canUndo}
           onClick={undo}
-          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600  p-2 hover:cursor-pointer disabled:cursor-not-allowed"
+          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600  p-2 hover:cursor-pointer disabled:cursor-not-allowed"
         >
           <MdOutlineTurnLeft className="text-xl text-gray-600 dark:text-zinc-400 " />
         </button>
         <button
           disabled={!canRedo}
           onClick={redo}
-          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600 p-2 hover:cursor-pointer disabled:cursor-not-allowed"
+          className="rounded border-gray-400 border bg-white hover:scale-105 hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-gray-600 p-2 hover:cursor-pointer disabled:cursor-not-allowed"
         >
           <MdOutlineTurnRight className="text-xl text-gray-600  dark:text-zinc-400" />
         </button>

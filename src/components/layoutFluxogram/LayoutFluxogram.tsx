@@ -41,13 +41,15 @@ import { UNITYPHASES } from '../../services/Unitys';
 import { INITIAL_NODES, NODE_TYPES } from '../../services/InicialNodes';
 import { EDGE_TYPES, INITIAL_EDGES } from '../../services/inicialEdges';
 
+import { CiSettings } from "react-icons/ci";
 import { CiDark, CiLight } from 'react-icons/ci';
 
 import { useHistoryState } from '@uidotdev/usehooks';
 
-import { IoSettingsOutline } from 'react-icons/io5';
 import { useConnect } from './Functions/useConnect';
 import { useResize } from './Functions/useResize';
+import { ModalTriangle } from '../modal/ModalNodes/ModalTriangle';
+import { ModalLogicControl } from '../modal/ModalNodes/ModalLogicControl';
 
 export function DnDFlow() {
   //nodes and edges
@@ -109,6 +111,8 @@ export function DnDFlow() {
     modalSeparator,
     modalSquare,
     modalUnity,
+    modalTriangle,
+    modalLogicControl,
     setmodalEdgeOpen,
     setModalCircle,
     setModalLabel,
@@ -116,8 +120,10 @@ export function DnDFlow() {
     setModalSeparator,
     setModalSquare,
     setModalUnity,
+    setModalLogicControl,
     handleWaitingClickOnNode,
     openModalEditNode,
+    setModalTriangle,
   } = useModal({ onShowAlert, setNodeEditing });
 
   //custom hook funções que renderizam os nodes e edges
@@ -273,7 +279,7 @@ export function DnDFlow() {
           />
 
           {/* miniMaps */}
-          <div className=" lg:flex md:hidden sm:hidden hidden">
+          <div className=" lg:flex hidden">
             <MiniMap
               zoomable
               pannable
@@ -288,7 +294,7 @@ export function DnDFlow() {
               }}
             />
           </div>
-          <div className=" lg:hidden md:flex sm:hidden hidden ">
+          <div className=" lg:hidden md:flex hidden ">
             <MiniMap
               zoomable
               pannable
@@ -298,23 +304,23 @@ export function DnDFlow() {
                 left: 1,
                 backgroundColor: zinc[400],
                 borderRadius: 5,
-                width: viewportWidth / 11,
-                height: viewportHeight / 14,
+                width: viewportWidth / 10.5,
+                height: viewportHeight / 11,
               }}
             />
           </div>
-          <div className=" lg:hidden md:hidden sm:flex  ">
+          <div className=" 2xl:hidden lg:hidden md:hidden flex  ">
             <MiniMap
               zoomable
               pannable
               style={{
                 position: 'absolute',
-                top: 1,
-                left: 1,
+                top: 0,
+                left: 0,
                 backgroundColor: zinc[400],
                 borderRadius: 5,
-                width: viewportWidth / 5.5,
-                height: viewportHeight / 10,
+                width: 78,
+                height: 78,
               }}
             />
           </div>
@@ -332,11 +338,11 @@ export function DnDFlow() {
         viewportWidth={viewportWidth}
         viewportHeight={viewportHeight}
       />
-      <div className='flex fixed flex-row-reverse top-2 gap-2 lg:right-64 right-16'>
+      <div className='flex fixed flex-row-reverse top-2 gap-1 lg:right-64 right-[3.75rem]'>
       {/* color change button */}
       <div
         onClick={onToggleColorMode}
-        className={`border cursor-pointer bg-gray-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
+        className={`border cursor-pointer bg-white hover:bg-zinc-100  border-gray-400 dark:bg-zinc-700  dark:border-zinc-600 rounded-full flex items-center justify-center p-2 transition-all duration-500 ease-in-out ${
           colorMode == 'light' ? 'hover:rotate-180' : 'hover:-scale-x-100'
         }`}
         >
@@ -349,9 +355,9 @@ export function DnDFlow() {
       {/* modal edit button */}
       <div
         onClick={handleWaitingClickOnNode}
-        className="bg-gray-100 cursor-pointer border-gray-400 border dark:bg-zinc-700 dark:border-zinc-600 rounded-full flex items-center justify-center p-2 hover:rotate-180 transition-all duration-300"
+        className="bg-white hover:bg-zinc-100 cursor-pointer border-gray-400 border dark:bg-zinc-700 dark:border-zinc-600 rounded-full flex items-center justify-center p-2 hover:rotate-180 transition-all duration-300"
         >
-        <IoSettingsOutline className="text-3xl text-black" />
+        <CiSettings className="text-3xl text-black" />
       </div>
       </div>
       {/* modal Edges */}
@@ -415,6 +421,28 @@ export function DnDFlow() {
         setNodes={setNodes}
         modalUnity={modalUnity}
         setModalUnity={setModalUnity}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      {/* modal Triangle */}
+      <ModalTriangle
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalTriangle={modalTriangle}
+        setModalTriangle={setModalTriangle}
+        nodeEditing={nodeEditing}
+        setNodeEditing={setNodeEditing}
+      />
+      {/* modal LogicControl */}
+      <ModalLogicControl 
+        set={set}
+        state={state}
+        nodes={nodes}
+        setNodes={setNodes}
+        modalLogicControl={modalLogicControl}
+        setModalLogicControl={setModalLogicControl}
         nodeEditing={nodeEditing}
         setNodeEditing={setNodeEditing}
       />
