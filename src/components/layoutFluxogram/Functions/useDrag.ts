@@ -385,7 +385,12 @@ export const useDrag = ({
         type: selectedNodeType,
         dragHandle: '.drag-handle__custom',
         position,
-        data: { label: selectedNodeLabel },
+        data: { label: selectedNodeLabel,
+          ingredients: selectedNodeType === 'square' ? EQUIPAMENT : null,
+          machine: selectedNodeType === 'circle' ? MACHINES : null,
+          unitphases: selectedNodeType === 'unity' ? UNITYPHASES : null,
+          operatorSelected: selectedNodeType === 'logicControl' ? 'AND' : null,
+          },
         style: {},
       };
 
