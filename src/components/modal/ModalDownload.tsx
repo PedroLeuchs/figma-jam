@@ -16,7 +16,7 @@ export const ModalDownload = () => {
   const [imageHeight, setImageHeight] = useState(768);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedRatio, setSelectedRatio] = useState("16:9");
-const [text, setText] = useState('diagram.png')
+const [text, setText] = useState('diagram')
 const [format, setFormat] = useState<'png' | 'svg'>('png');
 
     const handleDownload = () => {
@@ -47,7 +47,7 @@ const [format, setFormat] = useState<'png' | 'svg'>('png');
             toPng(viewportElement, options)
               .then((dataUrl) => {
                 const link = document.createElement('a');
-                link.download = 'diagram.png';
+                link.download = `${text}.png`;
                 link.href = dataUrl;
                 link.click();
               })
@@ -56,7 +56,7 @@ const [format, setFormat] = useState<'png' | 'svg'>('png');
             toSvg(viewportElement, options)
               .then((dataUrl) => {
                 const link = document.createElement('a');
-                link.download = 'diagram.svg';
+                link.download = `${text}.svg`;
                 link.href = dataUrl;
                 link.click();
               })
