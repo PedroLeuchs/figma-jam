@@ -50,6 +50,7 @@ import { useConnect } from './Functions/useConnect';
 import { useResize } from './Functions/useResize';
 import { ModalTriangle } from '../modal/ModalNodes/ModalTriangle';
 import { ModalLogicControl } from '../modal/ModalNodes/ModalLogicControl';
+import { useInteractionLayout } from './Functions/useInteractionLayout';
 
 export function DnDFlow() {
   //nodes and edges
@@ -165,6 +166,20 @@ export function DnDFlow() {
   //custom hook Resize Node
   const { handleResize } = useResize({ set, state });
 
+  //custom hook dragFlow
+  const { dragLayout, selectedLayout, isLocked, setIsLocked, setDragLayout,setSelectedLayout } = useInteractionLayout();
+
+  // Atualize os nós e arestas para respeitar o estado de bloqueio
+  const lockedNodes = nodes.map((node) => ({
+    ...node,
+    draggable: !isLocked,
+  }));
+
+  const lockedEdges = edges.map((edge) => ({
+    ...edge,
+    selectable: !isLocked, // Sempre selecionável para permanecer visível
+  }));
+
   //função para remover marca da agua reactflow
   const removeMarcaDagua = () => {
     const reactIconFlow = document.getElementsByClassName(
@@ -228,15 +243,15 @@ export function DnDFlow() {
       <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
         {/* reactFlow */}
         <ReactFlow
-          panOnScroll={false}
-          panOnDrag={true}
-          zoomOnPinch={true}
+          nodes={lockedNodes}
+          edges={lockedEdges}
+          panOnScroll={!isLocked}
+          panOnDrag={!isLocked && dragLayout}
+          zoomOnPinch={!isLocked}
+          selectionOnDrag={!isLocked && selectedLayout}
           onPaneClick={handleClickOnWorkspace}
           nodeTypes={NODE_TYPES}
           edgeTypes={EDGE_TYPES}
-          nodes={nodes}
-          edges={edges}
-          onEdgeClick={() => setmodalEdgeOpen(!modalEdgeOpen)}
           onNodeClick={onNodeClick}
           onNodeDragStop={onNodeDragOver}
           onNodesChange={handleNodeChanges}
@@ -245,7 +260,7 @@ export function DnDFlow() {
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDelete={handleDeleteNodes}
-          connectionMode={ConnectionMode.Loose}
+          connectionMode={ ConnectionMode.Loose}
           defaultEdgeOptions={{ type: 'default' }}
           minZoom={0.01}
           maxZoom={2.5}
@@ -337,6 +352,10 @@ export function DnDFlow() {
         onNodeSelect={handleNodeSelect}
         viewportWidth={viewportWidth}
         viewportHeight={viewportHeight}
+        setSelectedLayout={setSelectedLayout}
+        setDragLayout={setDragLayout}
+        setIsLocked={setIsLocked}
+
       />
       <div className='flex fixed flex-row-reverse top-2 gap-1 lg:right-64 right-[3.75rem]'>
       {/* color change button */}
@@ -476,9 +495,13 @@ export function DnDFlow() {
  * npm install @radix-ui/react-toolbar
  * npm install @radix-ui/react-select
  * npm install @radix-ui/react-dialog
+ * npm install @radix-ui/react-toggle-group
  * npm i react-icons
  * npm i @uidotdev/usehooks
  * npm install @mui/material @emotion/react @emotion/styled
+ * npm install html-to-image
+
+
  */
 
 /**
@@ -496,7 +519,6 @@ export function DnDFlow() {
  
  
  *Doing:
- -  [-] Ajustar Modal { Separator, triangle, logic Control, circle }
  
  
  - [x] Mobile.
@@ -504,6 +526,7 @@ export function DnDFlow() {
  
  *Done: 
  
+ - [V] Ajustar Modal { Separator, triangle, logic Control, circle }
  - [V] Ajustar enquadramento do zoom.
  - [V] Icone que permite arrastar os nodes.
  - [V] Conseguir apagar os nodes pelo botão de delete.

@@ -4,13 +4,14 @@ import { FC } from 'react';
 interface TextInputProps {
   value: string | undefined;
   onChange: (value: string) => void;
+  titleInput?: string;
 }
 
-const TextInput: FC<TextInputProps> = ({ value, onChange }) => {
+const TextInput: FC<TextInputProps> = ({ value, onChange,titleInput }) => {
   return (
     <div className="flex flex-col">
       <label className="lg:text-base text-sm font-semibold">
-        Adicionar Titulo:
+      {titleInput ? titleInput : ' Adicionar Titulo:'} 
       </label>
       <input
         type="text"
