@@ -390,9 +390,25 @@ export const useDrag = ({
           machine: selectedNodeType === 'circle' ? MACHINES : null,
           unitphases: selectedNodeType === 'unity' ? UNITYPHASES : null,
           operatorSelected: selectedNodeType === 'logicControl' ? 'AND' : null,
+          direction: selectedNodeType === 'triangle' ? false : null,
           },
         style: {},
       };
+      if(selectedNodeType === 'triangle'){
+      
+        let countTriangle = 0;
+        nodes.map((node) => {
+          if (node.type === 'triangle') {
+            countTriangle++;
+          }
+        });
+        if (countTriangle === 0) {
+          newNode.data.direction = false;
+        } else if (countTriangle === 1) {
+          newNode.data.direction = true;
+          
+        }
+      }
 
       set({
         ...state,
@@ -404,6 +420,8 @@ export const useDrag = ({
       setSelectedNodeLabel(null);
     }
   };
+  console.log(nodes);
+  
 
   const onNodeClick = useCallback(
     (_?: React.MouseEvent, node?: Node) => {
