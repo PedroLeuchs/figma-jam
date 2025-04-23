@@ -1,50 +1,45 @@
-# React + TypeScript + Vite
+# 🏭 Figma Jam - Fluxo de Receita Industrial
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este projeto foi desenvolvido durante minha experiência na [empresa anterior] com o objetivo de representar o **fluxo completo de uma receita industrial** — desde a saída dos ingredientes dos silos até a produção final. Utilizei a biblioteca **React Flow**, uma das ferramentas mais desafiadoras com as quais trabalhei em React, para construir uma interface interativa e visualmente clara desse processo.
 
-Currently, two official plugins are available:
+> ❗ *Este projeto não está mais em desenvolvimento, mas grande parte das funcionalidades previstas foi implementada. O desenvolvimento foi interrompido após meu desligamento da empresa.*
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎯 Objetivo
 
-## Expanding the ESLint configuration
+Criar um ambiente visual que simula o fluxo de uma receita industrial, permitindo que operadores e gestores possam compreender rapidamente cada etapa do processo produtivo.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## ⚙️ Tecnologias Utilizadas
 
-- Configure the top-level `parserOptions` property like this:
+- [React](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [React Flow](https://reactflow.dev/)
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 🧠 Destaques Técnicos
+
+- Implementação de **drag and drop** com React Flow para construção dinâmica de fluxos.
+- Criação de **nós personalizados** para representar diferentes fases da produção.
+- Integração com dados e lógica de processos industriais.
+- Interface responsiva e limpa, focada na experiência do usuário.
+
+## 🚀 Como rodar o projeto
+
+```bash
+# Clone o repositório
+git clone https://github.com/PedroLeuchs/figma-jam.git
+
+# Acesse a pasta do projeto
+cd figma-jam
+
+# Instale as dependências
+npm install
+
+# Rode o projeto
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## ✅ Status do Projeto
+- Parcialmente concluído – funcionalidades principais do fluxo e da interface foram implementadas. O projeto não foi finalizado devido à minha saída da empresa, mas permanece como uma importante referência do meu domínio técnico e da minha capacidade de lidar com bibliotecas avançadas em React.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+---
+Sinta-se à vontade para explorar o código ou entrar em contato para saber mais sobre os desafios e soluções aplicadas neste projeto.
